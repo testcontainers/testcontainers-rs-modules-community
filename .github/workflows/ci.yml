@@ -97,7 +97,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@${{ matrix['toolchain'] }}
+        uses: dtolnay/rust-toolchain@${{ matrix.toolchain }}
       - uses: Swatinem/rust-cache@v2.5.0
       - name: Tests
         run: cargo hack test --feature-powerset --depth 2 --keep-going
