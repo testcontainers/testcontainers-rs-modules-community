@@ -22,7 +22,7 @@ jobs:
       - name: Get current MSRV from Cargo.toml
         id: current_msrv
         run: |
-          msrv=$(cat testcontainers-rs-modules-community/Cargo.toml | grep rust-version | sed 's/.* = "//; s/"//')
+          msrv=$(cat Cargo.toml | grep rust-version | sed 's/.* = "//; s/"//')
           echo "msrv=$msrv" >> $GITHUB_OUTPUT
       - name: Setup Rust version
         uses: dtolnay/rust-toolchain@master
@@ -89,6 +89,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         toolchain:
           - stable
@@ -97,7 +98,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@${{ matrix.toolchain }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
       - uses: Swatinem/rust-cache@v2.5.0
       - name: Tests
         run: cargo hack test --feature-powerset --depth 2 --keep-going
