@@ -33,7 +33,7 @@ jobs:
         with:
           tool: cargo-hack
       - name: Build
-        run: cargo hack build --feature-powerset --depth 2 --keep-going
+        run: cargo hack build --each-feature --keep-going
 
   clippy:
     name: Clippy check
@@ -106,4 +106,4 @@ jobs:
         with:
           tool: cargo-hack
       - name: Tests
-        run: cargo hack test --feature-powerset --depth 2 --keep-going
+        run: cargo hack test --each-feature
