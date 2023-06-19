@@ -1,6 +1,6 @@
 # testcontainers-rs-modules-community
 
-![Continuous Integration](https://github.com/testcontainers/testcontainers-rs-modules-community/workflows/Continuous%20Integration/badge.svg?branch=dev)
+![Continuous Integration](https://github.com/testcontainers/testcontainers-rs-modules-community/workflows/Continuous%20Integration/badge.svg?branch=main)
 [![Crates.io](https://img.shields.io/crates/v/testcontainers-modules.svg)](https://crates.io/crates/testcontainers-modules)
 [![Docs.rs](https://docs.rs/testcontainers-modules/badge.svg)](https://docs.rs/testcontainers-modules)
 
