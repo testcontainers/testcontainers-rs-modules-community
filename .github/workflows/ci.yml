@@ -102,5 +102,8 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
       - uses: Swatinem/rust-cache@v2.5.0
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
       - name: Tests
         run: cargo hack test --feature-powerset --depth 2 --keep-going
