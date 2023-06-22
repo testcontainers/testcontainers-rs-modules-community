@@ -1,0 +1,5 @@
+indent_style = "Block"
+reorder_imports = true
+merge_derives = true
+imports_granularity = "Crate"
+group_imports = "StdExternalCrate"
