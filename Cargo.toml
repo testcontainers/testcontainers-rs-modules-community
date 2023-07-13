@@ -47,7 +47,7 @@ mongodb = "2.1.0"
 orientdb-client = "0.6"
 postgres = "0.19"
 pretty_env_logger = "0.5.0"
-rdkafka = "0.32.2"
+rdkafka = "0.33.2"
 redis = "0.23.0"
 reqwest = { version = "0.11", features = ["blocking"] }
 serde = { version = "1", features = [ "derive" ] }
