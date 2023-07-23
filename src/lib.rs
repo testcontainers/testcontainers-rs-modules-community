@@ -1,3 +1,16 @@
+//! Community maintained modules for [`testcontainers`].
+//!
+//! Provides modules to use for testing components in accordance with testcontainers-rs.
+//! Every module is treated as a feature inside this module.
+//!
+//! # Usage
+//! Depend on [`testcontainers-modules`] and choose the modules to work with by declaring the features.
+//! Then start using the modules inside your tests. Please have a look at the documentation of the separate modules
+//! for examples on how to use the module.
+//!
+//! [`testcontainers`]: https://crates.io/crates/testcontainers
+//! [`testcontainers-modules`]: https://crates.io/crates/testcontainers-modules
+
 #[cfg(feature = "coblox_bitcoincore")]
 pub mod coblox_bitcoincore;
 #[cfg(feature = "dynamodb")]
