@@ -3,6 +3,30 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "rabbitmq";
 const TAG: &str = "3.8.22-management";
 
+/// Module to work with [`RabbitMQ`] inside of tests.
+///
+/// Starts an instance of RabbitMQ with the [`management-plugin`] started by default,
+/// so you are able to use the [`RabbitMQ Management HTTP API`] to manage the configuration if the started [`RabbitMQ`] instance at test runtime.
+///
+/// This module is based on the officlal [`RabbitMQ docker image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::clients;
+/// use testcontainers_modules::rabbitmq;
+///
+/// let docker = clients::Cli::default();
+/// let rabbitmq_instance = docker.run(rabbitmq::RabbitMq::default());
+///
+/// let amqp_url = format!("amqp://127.0.0.1:{}", rabbitmq_instance.get_host_port_ipv4(5672));
+///
+/// // do something with the started rabbitmq instance..
+/// ```
+///
+/// [`RabbitMQ`]: https://www.rabbitmq.com/
+/// [`management-plugin`]: https://www.rabbitmq.com/management.html
+/// [`RabbitMQ Management HTTP API`]: https://www.rabbitmq.com/management.html#http-api
+/// [`RabbitMQ docker image`]: https://hub.docker.com/_/rabbitmq
 #[derive(Debug, Default, Clone)]
 pub struct RabbitMq;
 
