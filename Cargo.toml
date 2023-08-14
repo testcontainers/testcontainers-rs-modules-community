@@ -38,7 +38,7 @@ testcontainers = { version = "0.14.0" }
 aws-config = "0.55.3"
 aws-sdk-dynamodb = "0.28.0"
 aws-sdk-s3 = "0.28.0"
-aws-sdk-sqs = "0.28.0"
+aws-sdk-sqs = "0.29.0"
 aws-types = "0.56.0"
 bitcoincore-rpc = "0.17.0"
 futures = "0.3"
