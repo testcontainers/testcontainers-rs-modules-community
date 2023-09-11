@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Get current MSRV from Cargo.toml
         id: current_msrv
         run: |
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: CondeNast/conventional-pull-request-action@v0.2.0
@@ -100,7 +100,7 @@ jobs:
           - nightly
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@master
         with:
