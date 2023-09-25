@@ -37,8 +37,7 @@ mod tests {
         let _ = pretty_env_logger::try_init();
 
         let docker = clients::Cli::default();
-        let image = ZookeeperImage::default();
-        let node = docker.run(image);
+        let node = docker.run(ZookeeperImage);
 
         let host_port = node.get_host_port_ipv4(2181);
         let zk_urls = format!("127.0.0.1:{host_port}");
@@ -52,7 +51,7 @@ mod tests {
         )
         .unwrap();
 
-        assert!(matches!(zk.exists("/test", false).unwrap(), Some(_)));
-        assert!(matches!(zk.exists("/test2", false).unwrap(), None));
+        assert!(zk.exists("/test", false).unwrap().is_some());
+        assert!(zk.exists("/test2", false).unwrap().is_none());
     }
 }
