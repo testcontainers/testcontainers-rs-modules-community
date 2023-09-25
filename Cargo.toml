@@ -9,6 +9,10 @@ repository = "https://github.com/testcontainers/testcontainers-rs"
 keywords = ["docker", "testcontainers"]
 license = "MIT"
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 default = []
 dynamodb = []
@@ -49,3 +53,7 @@ serde_json = "1.0.107"
 spectral = "0.6"
 tokio = { version = "1", features = ["macros"] }
 zookeeper = "0.8"
+
+[[example]]
+name = "postgres"
+required-features = ["postgres"]

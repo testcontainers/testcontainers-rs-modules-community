@@ -1,43 +1,49 @@
-//! Community maintained modules for [`testcontainers`].
-//!
-//! Provides modules to use for testing components in accordance with testcontainers-rs.
-//! Every module is treated as a feature inside this module.
-//!
-//! # Usage
-//! Depend on [`testcontainers-modules`] and choose the modules to work with by declaring the features.
-//! Then start using the modules inside your tests. Please have a look at the documentation of the separate modules
-//! for examples on how to use the module.
-//!
-//! [`testcontainers`]: https://crates.io/crates/testcontainers
-//! [`testcontainers-modules`]: https://crates.io/crates/testcontainers-modules
+#![cfg_attr(docsrs, deny(rustdoc::broken_intra_doc_links))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![doc = include_str!("../README.md")]
+//! Please have a look at the documentation of the separate modules for examples on how to use the module.
 
 #[cfg(feature = "dynamodb")]
+#[cfg_attr(docsrs, doc(cfg(feature = "dynamodb")))]
 pub mod dynamodb_local;
 #[cfg(feature = "elastic_search")]
+#[cfg_attr(docsrs, doc(cfg(feature = "elastic_search")))]
 pub mod elastic_search;
 #[cfg(feature = "elasticmq")]
+#[cfg_attr(docsrs, doc(cfg(feature = "elasticmq")))]
 pub mod elasticmq;
 #[cfg(feature = "google_cloud_sdk_emulators")]
+#[cfg_attr(docsrs, doc(cfg(feature = "google_cloud_sdk_emulators")))]
 pub mod google_cloud_sdk_emulators;
 #[cfg(feature = "kafka")]
+#[cfg_attr(docsrs, doc(cfg(feature = "kafka")))]
 pub mod kafka;
 #[cfg(feature = "minio")]
+#[cfg_attr(docsrs, doc(cfg(feature = "minio")))]
 pub mod minio;
 #[cfg(feature = "mongo")]
+#[cfg_attr(docsrs, doc(cfg(feature = "mongo")))]
 pub mod mongo;
 #[cfg(feature = "orientdb")]
+#[cfg_attr(docsrs, doc(cfg(feature = "orientdb")))]
 pub mod orientdb;
 #[cfg(feature = "parity")]
+#[cfg_attr(docsrs, doc(cfg(feature = "parity")))]
 pub mod parity_parity;
 #[cfg(feature = "postgres")]
+#[cfg_attr(docsrs, doc(cfg(feature = "postgres")))]
 pub mod postgres;
 #[cfg(feature = "rabbitmq")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rabbitmq")))]
 pub mod rabbitmq;
 #[cfg(feature = "redis")]
+#[cfg_attr(docsrs, doc(cfg(feature = "redis")))]
 pub mod redis;
 #[cfg(feature = "trufflesuite_ganachecli")]
+#[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
 pub mod trufflesuite_ganachecli;
 #[cfg(feature = "zookeeper")]
+#[cfg_attr(docsrs, doc(cfg(feature = "zookeeper")))]
 pub mod zookeeper;
 
 /// Re-exported version of `testcontainers` to avoid version conflicts
