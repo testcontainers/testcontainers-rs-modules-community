@@ -11,7 +11,6 @@ license = "MIT"
 
 [features]
 default = []
-coblox_bitcoincore = ["hex", "hmac", "rand", "sha2"]
 dynamodb = []
 elastic_search = []
 elasticmq = []
@@ -28,10 +27,6 @@ trufflesuite_ganachecli = []
 zookeeper = []
 
 [dependencies]
-hex = { version = "0.4", optional = true }
-hmac = { version = "0.12", optional = true }
-rand = { version = "0.8", optional = true }
-sha2 = { version = "0.10", optional = true }
 testcontainers = { version = "0.14.0" }
 
 [dev-dependencies]
@@ -40,7 +35,6 @@ aws-sdk-dynamodb = "0.31.1"
 aws-sdk-s3 = "0.31.2"
 aws-sdk-sqs = "0.31.1"
 aws-types = "0.56.0"
-bitcoincore-rpc = "0.17.0"
 futures = "0.3"
 lapin = "2.2.1"
 mongodb = "2.1.0"
