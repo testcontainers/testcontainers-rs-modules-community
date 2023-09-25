@@ -11,8 +11,6 @@
 //! [`testcontainers`]: https://crates.io/crates/testcontainers
 //! [`testcontainers-modules`]: https://crates.io/crates/testcontainers-modules
 
-#[cfg(feature = "coblox_bitcoincore")]
-pub mod coblox_bitcoincore;
 #[cfg(feature = "dynamodb")]
 pub mod dynamodb_local;
 #[cfg(feature = "elastic_search")]
