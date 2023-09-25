@@ -1,8 +1,8 @@
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "amazon/dynamodb-local";
-const TAG: &str = "latest";
-const DEFAULT_WAIT: u64 = 2000;
+const TAG: &str = "2.0.0";
+const DEFAULT_WAIT: u64 = 3000;
 
 #[derive(Default, Debug)]
 pub struct DynamoDb;
