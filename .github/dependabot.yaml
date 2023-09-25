@@ -12,6 +12,6 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: build
+      prefix: chore
       prefix-development: test
       include: scope
