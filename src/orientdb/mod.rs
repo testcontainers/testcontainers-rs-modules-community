@@ -48,8 +48,7 @@ mod tests {
     #[test]
     fn orientdb_exists_database() {
         let docker = clients::Cli::default();
-        let orientdb_image = OrientDb::default();
-        let node = docker.run(orientdb_image);
+        let node = docker.run(OrientDb::default());
 
         let client =
             orientdb_client::OrientDB::connect(("127.0.0.1", node.get_host_port_ipv4(2424)))

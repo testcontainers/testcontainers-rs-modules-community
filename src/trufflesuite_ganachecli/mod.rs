@@ -67,7 +67,7 @@ mod tests {
     fn trufflesuite_ganachecli_listaccounts() {
         let _ = pretty_env_logger::try_init();
         let docker = clients::Cli::default();
-        let node = docker.run(trufflesuite_ganachecli::GanacheCli::default());
+        let node = docker.run(trufflesuite_ganachecli::GanacheCli);
         let host_port = node.get_host_port_ipv4(8545);
 
         let response = reqwest::blocking::Client::new()

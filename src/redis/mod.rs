@@ -33,7 +33,7 @@ mod tests {
     fn redis_fetch_an_integer() {
         let _ = pretty_env_logger::try_init();
         let docker = clients::Cli::default();
-        let node = docker.run(Redis::default());
+        let node = docker.run(Redis);
         let host_port = node.get_host_port_ipv4(6379);
         let url = format!("redis://127.0.0.1:{host_port}");
 

@@ -16,7 +16,7 @@ const TAG: &str = "3.8.22-management";
 /// use testcontainers_modules::rabbitmq;
 ///
 /// let docker = clients::Cli::default();
-/// let rabbitmq_instance = docker.run(rabbitmq::RabbitMq::default());
+/// let rabbitmq_instance = docker.run(rabbitmq::RabbitMq);
 ///
 /// let amqp_url = format!("amqp://127.0.0.1:{}", rabbitmq_instance.get_host_port_ipv4(5672));
 ///
@@ -69,7 +69,7 @@ mod tests {
     async fn rabbitmq_produce_and_consume_messages() {
         let _ = pretty_env_logger::try_init();
         let docker = clients::Cli::default();
-        let rabbit_node = docker.run(rabbitmq::RabbitMq::default());
+        let rabbit_node = docker.run(rabbitmq::RabbitMq);
 
         let amqp_url = format!("amqp://127.0.0.1:{}", rabbit_node.get_host_port_ipv4(5672));
 

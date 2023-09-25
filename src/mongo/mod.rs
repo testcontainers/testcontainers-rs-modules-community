@@ -33,7 +33,7 @@ mod tests {
     async fn mongo_fetch_document() {
         let _ = pretty_env_logger::try_init();
         let docker = clients::Cli::default();
-        let node = docker.run(mongo::Mongo::default());
+        let node = docker.run(mongo::Mongo);
         let host_port = node.get_host_port_ipv4(27017);
         let url = format!("mongodb://127.0.0.1:{host_port}/");
 

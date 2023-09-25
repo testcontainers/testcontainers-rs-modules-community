@@ -33,7 +33,7 @@ mod tests {
     #[tokio::test]
     async fn sqs_list_queues() {
         let docker = clients::Cli::default();
-        let node = docker.run(ElasticMq::default());
+        let node = docker.run(ElasticMq);
         let host_port = node.get_host_port_ipv4(9324);
         let client = build_sqs_client(host_port).await;
 

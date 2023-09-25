@@ -48,7 +48,7 @@ mod tests {
     async fn dynamodb_local_create_table() {
         let _ = pretty_env_logger::try_init();
         let docker = clients::Cli::default();
-        let node = docker.run(DynamoDb::default());
+        let node = docker.run(DynamoDb);
         let host_port = node.get_host_port_ipv4(8000);
 
         let table_name = "books".to_string();
