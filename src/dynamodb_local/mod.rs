@@ -39,7 +39,6 @@ mod tests {
         },
         Client,
     };
-    use spectral::{assert_that, prelude::*};
     use testcontainers::clients;
 
     use crate::dynamodb_local::DynamoDb;
@@ -77,7 +76,7 @@ mod tests {
             .provisioned_throughput(provisioned_throughput)
             .send()
             .await;
-        assert_that(&create_table_result).is_ok();
+        assert!(create_table_result.is_ok());
 
         let req = dynamodb.list_tables().limit(10);
         let list_tables_result = req.send().await.unwrap();
