@@ -1,0 +1,17 @@
+name: Feature request
+description: Suggest an idea for this project
+labels: bug
+body:
+  - type: textarea
+    attributes:
+      label: Feature request description
+      description: Please describe what you are trying to do.
+      placeholder: >
+        A clear and concise description of what the problem is.
+        Ex. I'd like to have image `x` as part of modules.
+  - type: textarea
+    attributes:
+      label: Image reference
+      placeholder: >
+        The name of the module to which the request relates (i.e: `postgres`). 
+        Links to possible Docker images in case of a request to add a new module.
