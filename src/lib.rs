@@ -1,7 +1,7 @@
 #![cfg_attr(docsrs, deny(rustdoc::broken_intra_doc_links))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/testcontainers/testcontainers-rs-modules-community/main/logo.png"
+    html_logo_url = "https://raw.githubusercontent.com/testcontainers/testcontainers-rs-modules-community/main/logo.svg"
 )]
 #![doc = include_str!("../README.md")]
 //! Please have a look at the documentation of the separate modules for examples on how to use the module.
