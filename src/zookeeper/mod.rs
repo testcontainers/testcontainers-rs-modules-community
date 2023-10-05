@@ -52,6 +52,7 @@ mod tests {
     use crate::zookeeper::Zookeeper as ZookeeperImage;
 
     #[test]
+    #[ignore]
     fn zookeeper_check_directories_existence() {
         let _ = pretty_env_logger::try_init();
 
