@@ -31,7 +31,7 @@ trufflesuite_ganachecli = []
 zookeeper = []
 
 [dependencies]
-testcontainers = { version = "0.14.0" }
+testcontainers = { version = "0.15.0" }
 
 [dev-dependencies]
 aws-config = "0.56.1"
