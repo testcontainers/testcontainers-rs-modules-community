@@ -37,7 +37,7 @@ testcontainers = { version = "0.15.0" }
 aws-config = "0.56.1"
 aws-sdk-dynamodb = "0.31.1"
 aws-sdk-s3 = "0.31.2"
-aws-sdk-sqs = "0.31.1"
+aws-sdk-sqs = "0.33.0"
 aws-types = "0.56.0"
 futures = "0.3"
 lapin = "2.3.1"
