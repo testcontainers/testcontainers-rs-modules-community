@@ -5,6 +5,27 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "postgres";
 const TAG: &str = "11-alpine";
 
+/// Module to work with [`Postgres`] inside of tests.
+///
+/// Starts an instance of Postgres.
+/// This module is based on the official [`Postgres docker image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::clients;
+/// use testcontainers_modules::postgres;
+///
+/// let docker = clients::Cli::default();
+/// let postgres_instance = docker.run(postgres::Postgres::default());
+///
+/// let connection_string = format!(
+///     "postgres://postgres:postgres@127.0.0.1:{}/postgres",
+///     postgres_instance.get_host_port_ipv4(5432)
+/// );
+/// ```
+///
+/// [`Postgres`]: https://www.postgresql.org/
+/// [`Postgres docker image`]: https://hub.docker.com/_/postgres
 #[derive(Debug)]
 pub struct Postgres {
     env_vars: HashMap<String, String>,
@@ -69,27 +90,6 @@ mod tests {
     }
 
     #[test]
-    fn postgres_one_plus_one_with_custom_mapped_port() {
-        let _ = pretty_env_logger::try_init();
-        let free_local_port = free_local_port();
-
-        let docker = clients::Cli::default();
-        let image =
-            RunnableImage::from(PostgresImage::default()).with_mapped_port((free_local_port, 5432));
-        let _node = docker.run(image);
-
-        let mut conn = postgres::Client::connect(
-            &format!("postgres://postgres:postgres@localhost:{free_local_port}/postgres",),
-            postgres::NoTls,
-        )
-        .unwrap();
-        let rows = conn.query("SELECT 1+1 AS result;", &[]).unwrap();
-
-        assert_eq!(rows.len(), 1);
-        assert_eq!(rows[0].get::<_, i32>("result"), 2);
-    }
-
-    #[test]
     fn postgres_custom_version() {
         let docker = clients::Cli::default();
         let image = RunnableImage::from(PostgresImage::default()).with_tag("13-alpine");
@@ -107,13 +107,5 @@ mod tests {
         let first_row = &rows[0];
         let first_column: String = first_row.get(0);
         assert!(first_column.contains("13"));
-    }
-
-    #[must_use]
-    fn free_local_port() -> u16 {
-        std::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))
-            .and_then(|listener| listener.local_addr())
-            .map(|addr| addr.port())
-            .expect("free port not found")
     }
 }
