@@ -8,7 +8,7 @@ const TAG: &str = "3.8.22-management";
 /// Starts an instance of RabbitMQ with the [`management-plugin`] started by default,
 /// so you are able to use the [`RabbitMQ Management HTTP API`] to manage the configuration if the started [`RabbitMQ`] instance at test runtime.
 ///
-/// This module is based on the officlal [`RabbitMQ docker image`].
+/// This module is based on the official [`RabbitMQ docker image`].
 ///
 /// # Example
 /// ```
