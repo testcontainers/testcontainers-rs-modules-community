@@ -16,7 +16,7 @@ const TAG: &str = "11-alpine";
 /// use testcontainers_modules::postgres;
 ///
 /// let docker = clients::Cli::default();
-/// let postgres_instance = docker.run(postgres::Postgres);
+/// let postgres_instance = docker.run(postgres::Postgres::default());
 ///
 /// let connection_string = format!(
 ///     "postgres://postgres:postgres@127.0.0.1:{}/postgres",
