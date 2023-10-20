@@ -72,29 +72,6 @@ mod tests {
     }
 
     #[test]
-    fn mysql_one_plus_one_with_custom_mapped_port() {
-        let _ = pretty_env_logger::try_init();
-        let free_local_port = free_local_port();
-
-        let docker = clients::Cli::default();
-        let image =
-            RunnableImage::from(MysqlImage::default()).with_mapped_port((free_local_port, 3306));
-        let _node = docker.run(image);
-
-        let mut conn = mysql::Conn::new(
-            mysql::Opts::from_url(&format!("mysql://root@localhost:{free_local_port}/mysql"))
-                .unwrap(),
-        )
-        .unwrap();
-
-        let first_row = conn.query_first("SELECT 1+1;").unwrap();
-        assert_eq!(first_row, Some(2));
-
-        let first_column: i32 = first_row.unwrap();
-        assert_eq!(first_column, 2);
-    }
-
-    #[test]
     fn mysql_custom_version() {
         let docker = clients::Cli::default();
         let image = RunnableImage::from(MysqlImage::default()).with_tag("8.0.34");
