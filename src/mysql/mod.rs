@@ -86,12 +86,4 @@ mod tests {
         let first_row = conn.query_first("SELECT version()").unwrap();
         assert_eq!(first_row, Some(String::from("8.0.34")));
     }
-
-    #[must_use]
-    fn free_local_port() -> u16 {
-        std::net::TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))
-            .and_then(|listener| listener.local_addr())
-            .map(|addr| addr.port())
-            .expect("free port not found")
-    }
 }
