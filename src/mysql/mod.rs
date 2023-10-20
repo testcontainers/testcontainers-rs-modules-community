@@ -5,6 +5,25 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "mysql";
 const TAG: &str = "8.1";
 
+/// Module to work with [`MySQL`] inside of tests.
+///
+/// Starts an instance of MySQL with no password set for the root user and a default database named `test` created.
+///
+/// This module is based on the officlal [`MySQL docker image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::clients;
+/// use testcontainers_modules::mysql;
+///
+/// let docker = clients::Cli::default();
+/// let mysql_instance = docker.run(mysql::Mysql);
+///
+/// let mysql_url = format!("mysql://127.0.0.1:{}/test", mysql_instance.get_host_port_ipv4(3306));
+/// ```
+///
+/// [`MySQL`]: https://www.mysql.com/
+/// [`MySQL docker image`]: https://hub.docker.com/_/mysql
 #[derive(Debug)]
 pub struct Mysql {
     env_vars: HashMap<String, String>,
@@ -13,7 +32,7 @@ pub struct Mysql {
 impl Default for Mysql {
     fn default() -> Self {
         let mut env_vars = HashMap::new();
-        env_vars.insert("MYSQL_DATABASE".to_owned(), "mysql".to_owned());
+        env_vars.insert("MYSQL_DATABASE".to_owned(), "test".to_owned());
         env_vars.insert("MYSQL_ALLOW_EMPTY_PASSWORD".into(), "yes".into());
 
         Self { env_vars }
