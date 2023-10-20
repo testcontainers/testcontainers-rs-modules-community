@@ -17,7 +17,7 @@ const TAG: &str = "8.1";
 /// use testcontainers_modules::mysql;
 ///
 /// let docker = clients::Cli::default();
-/// let mysql_instance = docker.run(mysql::Mysql);
+/// let mysql_instance = docker.run(mysql::Mysql::default());
 ///
 /// let mysql_url = format!("mysql://127.0.0.1:{}/test", mysql_instance.get_host_port_ipv4(3306));
 /// ```
