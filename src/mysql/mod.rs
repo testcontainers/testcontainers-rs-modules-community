@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn mysql_custom_version() {
         let docker = clients::Cli::default();
-        let image = RunnableImage::from(MysqlImage::default()).with_tag("8.0");
+        let image = RunnableImage::from(MysqlImage::default()).with_tag("8.0.34");
         let node = docker.run(image);
 
         let connection_string = &format!(
