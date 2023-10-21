@@ -62,6 +62,10 @@ impl Image for Mysql {
     fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
         Box::new(self.env_vars.iter())
     }
+
+    fn health_cmd(&self) -> Option<String> {
+        Some("mysqladmin ping --silent".to_owned())
+    }
 }
 
 #[cfg(test)]
