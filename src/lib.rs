@@ -27,6 +27,9 @@ pub mod minio;
 #[cfg(feature = "mongo")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mongo")))]
 pub mod mongo;
+#[cfg(feature = "mysql")]
+#[cfg_attr(docsrs, doc(cfg(feature = "mysql")))]
+pub mod mysql;
 #[cfg(feature = "orientdb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "orientdb")))]
 pub mod orientdb;
