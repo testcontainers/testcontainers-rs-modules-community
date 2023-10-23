@@ -52,19 +52,13 @@ impl Image for Mysql {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![
+            WaitFor::message_on_stderr("X Plugin ready for connections. Bind-address"),
             WaitFor::message_on_stderr("/usr/sbin/mysqld: ready for connections."),
-            WaitFor::Duration {
-                length: Duration::new(10, 0),
-            },
         ]
     }
 
     fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
         Box::new(self.env_vars.iter())
-    }
-
-    fn health_cmd(&self) -> Option<String> {
-        Some("mysqladmin ping --silent".to_owned())
     }
 }
 
