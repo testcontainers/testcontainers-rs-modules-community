@@ -35,7 +35,7 @@ zookeeper = []
 testcontainers = { version = "0.15.0" }
 
 [dev-dependencies]
-aws-config = "0.56.1"
+aws-config = "0.57.1"
 aws-sdk-dynamodb = "0.34.0"
 aws-sdk-s3 = "0.34.0"
 aws-sdk-sqs = "0.34.0"
