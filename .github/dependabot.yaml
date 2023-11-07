@@ -11,6 +11,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      aws-dependencies:
+        patterns:
+          - "aws-sdk-*"
+          - "aws-config"
     commit-message:
       prefix: chore
       prefix-development: test
