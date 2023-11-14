@@ -30,6 +30,9 @@ pub mod mongo;
 #[cfg(feature = "mysql")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mysql")))]
 pub mod mysql;
+#[cfg(feature = "neo4j")]
+#[cfg_attr(docsrs, doc(cfg(feature = "neo4j")))]
+pub mod neo4j;
 #[cfg(feature = "orientdb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "orientdb")))]
 pub mod orientdb;
