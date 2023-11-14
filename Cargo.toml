@@ -61,3 +61,7 @@ zookeeper = "0.8"
 [[example]]
 name = "postgres"
 required-features = ["postgres"]
+
+[[example]]
+name = "neo4j"
+required-features = ["neo4j"]
