@@ -94,7 +94,7 @@ pub struct Neo4j {
 
 impl Neo4j {
     const DEFAULT_USER: &'static str = "neo4j";
-    const DEFAULT_PASS: &'static str = "neo";
+    const DEFAULT_PASS: &'static str = "password";
     const DEFAULT_VERSION_TAG: &'static str = "5";
 
     /// Create a new instance of a Neo4j image.
@@ -376,8 +376,11 @@ mod tests {
     fn set_user() {
         let neo4j = Neo4j::new().with_user("Benutzer").build();
         assert_eq!(neo4j.user(), Some("Benutzer"));
-        assert_eq!(neo4j.auth(), Some(("Benutzer", "neo")));
-        assert_eq!(neo4j.env_vars.get("NEO4J_AUTH").unwrap(), "Benutzer/neo");
+        assert_eq!(neo4j.auth(), Some(("Benutzer", "password")));
+        assert_eq!(
+            neo4j.env_vars.get("NEO4J_AUTH").unwrap(),
+            "Benutzer/password"
+        );
     }
 
     #[test]
