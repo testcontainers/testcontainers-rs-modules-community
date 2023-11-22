@@ -99,7 +99,7 @@ impl Neo4j {
 
     /// Create a new instance of a Neo4j image.
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             version: Cow::Borrowed(Self::DEFAULT_VERSION_TAG),
             user: Some(Cow::Borrowed(Self::DEFAULT_USER)),
