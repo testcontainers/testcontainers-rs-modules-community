@@ -229,55 +229,6 @@ impl Neo4j {
         self.plugins.extend_from_slice(plugins);
         self
     }
-
-    /// Create a new instance of a Neo4j image of the given version with the default user and password.
-    ///
-    /// # Panics
-    ///
-    /// If the version is not valid according to the format described in [`Self::with_version()`].
-    #[deprecated(since = "0.2.0", note = "Use `from_env().with_version()` instead.")]
-    #[must_use]
-    pub fn from_version(version: &str) -> Self {
-        Self::from_env().with_version(version).unwrap()
-    }
-
-    /// Create a new instance of a Neo4j image with the version and given user and password.
-    ///
-    /// # Panics
-    ///
-    /// If the version is not valid according to the format described in [`Self::with_version()`].
-    #[deprecated(
-        since = "0.2.0",
-        note = "Use `from_env().with_version().with_user().with_password()` instead."
-    )]
-    #[must_use]
-    pub fn from_auth_and_version(version: &str, user: &str, pass: &str) -> Self {
-        Self::from_env()
-            .with_version(version)
-            .unwrap()
-            .with_user(user)
-            .with_password(pass)
-    }
-
-    /// Return the connection URI to connect to the Neo4j server via Bolt over IPv4.
-    #[deprecated(
-        since = "0.2.0",
-        note = "Use `container.image().bolt_uri_ipv4()` instead."
-    )]
-    #[must_use]
-    pub fn uri_ipv4(container: &Container<'_, Neo4jImage>) -> String {
-        container.image().bolt_uri_ipv4()
-    }
-
-    /// Return the connection URI to connect to the Neo4j server via Bolt over IPv6.
-    #[deprecated(
-        since = "0.2.0",
-        note = "Use `container.image().bolt_uri_ipv6()` instead."
-    )]
-    #[must_use]
-    pub fn uri_ipv6(container: &Container<'_, Neo4jImage>) -> String {
-        container.image().bolt_uri_ipv6()
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
