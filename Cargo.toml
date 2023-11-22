@@ -23,7 +23,7 @@ kafka = []
 minio = []
 mongo = []
 mysql = []
-neo4j = ["lenient_semver"]
+neo4j = []
 orientdb = []
 parity = []
 postgres = []
@@ -33,7 +33,6 @@ trufflesuite_ganachecli = []
 zookeeper = []
 
 [dependencies]
-lenient_semver = { version = "0.4.2", default-features = false, optional = true }
 testcontainers = { version = "0.15.0" }
 
 [dev-dependencies]

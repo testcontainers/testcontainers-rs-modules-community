@@ -1,7 +1,7 @@
 use std::{borrow::Cow, cell::RefCell, collections::HashMap, io::BufRead};
 use testcontainers::{
     core::{ContainerState, WaitFor},
-    Container, Image, RunnableImage,
+    Image, RunnableImage,
 };
 
 /// Available Neo4j plugins.
@@ -129,30 +129,9 @@ impl Neo4j {
 
     /// Set the Neo4j version to use.
     /// The value must be an existing Neo4j version tag.
-    ///
-    /// Only a subset of Semantic Versions are supported.
-    /// The version must be of the format
-    ///
-    ///    MAJOR[.MINOR[.PATCH]]
-    ///
-    ///
-    /// # Errors
-    ///
-    /// If the version is not valid according to the format.
-    pub fn with_version(
-        mut self,
-        version: impl Into<String>,
-    ) -> Result<Self, Box<dyn std::error::Error + Sync + Send + 'static>> {
-        let version: String = version.into();
-
-        let version_valid =
-            lenient_semver::parse_into::<'_, ValidateVersion>(&version).unwrap_or(false);
-        if !version_valid {
-            return Err(format!("Invalid version: {}", version).into());
-        }
-
-        self.version = Value::Value(version);
-        Ok(self)
+    pub fn with_version(mut self, version: impl Into<String>) -> Self {
+        self.version = Value::Value(version.into());
+        self
     }
 
     /// Set the username to use.
@@ -240,32 +219,6 @@ enum Value {
     Default(&'static str),
     Value(String),
     Unset,
-}
-
-struct ValidateVersion(bool);
-
-impl<'a> lenient_semver::VersionBuilder<'a> for ValidateVersion {
-    type Out = bool;
-
-    fn new() -> Self {
-        Self(true)
-    }
-
-    fn build(self) -> Self::Out {
-        self.0
-    }
-
-    fn add_additional(&mut self, _num: u64) {
-        self.0 = false;
-    }
-
-    fn add_pre_release(&mut self, _pre_release: &'a str) {
-        self.0 = false;
-    }
-
-    fn add_build(&mut self, _build: &'a str) {
-        self.0 = false;
-    }
 }
 
 impl Default for Neo4j {
@@ -524,35 +477,17 @@ mod tests {
 
     #[test]
     fn set_valid_version() {
-        let neo4j = Neo4j::new().with_version("4.2.0").unwrap().build();
+        let neo4j = Neo4j::new().with_version("4.2.0").build();
         assert_eq!(neo4j.version, "4.2.0");
     }
 
     #[test]
     fn set_partial_version() {
-        let neo4j = Neo4j::new().with_version("4.2").unwrap().build();
+        let neo4j = Neo4j::new().with_version("4.2").build();
         assert_eq!(neo4j.version, "4.2");
 
-        let neo4j = Neo4j::new().with_version("4").unwrap().build();
+        let neo4j = Neo4j::new().with_version("4").build();
         assert_eq!(neo4j.version, "4");
-    }
-
-    #[test]
-    fn set_enterprise_version() {
-        let msg = Neo4j::new()
-            .with_version("4.2.0-enterprise")
-            .unwrap_err()
-            .to_string();
-        assert_eq!(msg, "Invalid version: 4.2.0-enterprise");
-    }
-
-    #[test]
-    fn set_invalid_version() {
-        let msg = Neo4j::new()
-            .with_version("lorem ipsum")
-            .unwrap_err()
-            .to_string();
-        assert_eq!(msg, "Invalid version: lorem ipsum");
     }
 
     #[test]
