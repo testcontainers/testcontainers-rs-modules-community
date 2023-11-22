@@ -87,8 +87,8 @@ impl std::fmt::Display for Neo4jLabsPlugin {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Neo4j {
     version: Value,
-    user: Value,
-    pass: Value,
+    user: Option<Value>,
+    pass: Option<Value>,
     plugins: BTreeSet<Neo4jLabsPlugin>,
 }
 
@@ -101,51 +101,31 @@ impl Neo4j {
     #[must_use]
     pub const fn new() -> Self {
         Self {
-            version: Value::Default(Self::DEFAULT_VERSION_TAG),
-            user: Value::Default(Self::DEFAULT_USER),
-            pass: Value::Default(Self::DEFAULT_PASS),
-            plugins: BTreeSet::new(),
-        }
-    }
-
-    /// Create a new instance of a Neo4j 5 image with the default user and password.
-    #[must_use]
-    pub const fn from_env() -> Self {
-        Self {
-            version: Value::Env {
-                var: "NEO4J_VERSION_TAG",
-                fallback: Self::DEFAULT_VERSION_TAG,
-            },
-            user: Value::Env {
-                var: "NEO4J_TEST_USER",
-                fallback: Self::DEFAULT_USER,
-            },
-            pass: Value::Env {
-                var: "NEO4J_TEST_PASS",
-                fallback: Self::DEFAULT_PASS,
-            },
+            version: Cow::Borrowed(Self::DEFAULT_VERSION_TAG),
+            user: Some(Cow::Borrowed(Self::DEFAULT_USER)),
+            pass: Some(Cow::Borrowed(Self::DEFAULT_PASS)),
             plugins: BTreeSet::new(),
         }
     }
 
     /// Set the Neo4j version to use.
     /// The value must be an existing Neo4j version tag.
-    pub fn with_version(mut self, version: impl Into<String>) -> Self {
-        self.version = Value::Value(version.into());
+    pub fn with_version(mut self, version: impl Into<Value>) -> Self {
+        self.version = version.into();
         self
     }
 
     /// Set the username to use.
     #[must_use]
-    pub fn with_user(mut self, user: impl Into<String>) -> Self {
-        self.user = Value::Value(user.into());
+    pub fn with_user(mut self, user: impl Into<Value>) -> Self {
+        self.user = Some(user.into());
         self
     }
 
     /// Set the password to use.
     #[must_use]
-    pub fn with_password(mut self, pass: impl Into<String>) -> Self {
-        self.pass = Value::Value(pass.into());
+    pub fn with_password(mut self, pass: impl Into<Value>) -> Self {
+        self.pass = Some(pass.into());
         self
     }
 
@@ -154,8 +134,8 @@ impl Neo4j {
     /// Setting this will override any prior usages of [`Self::with_user`] and
     /// [`Self::with_password`].
     pub fn without_authentication(mut self) -> Self {
-        self.user = Value::Unset;
-        self.pass = Value::Unset;
+        self.user = None;
+        self.pass = None;
         self
     }
 
@@ -167,20 +147,11 @@ impl Neo4j {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-enum Value {
-    Env {
-        var: &'static str,
-        fallback: &'static str,
-    },
-    Default(&'static str),
-    Value(String),
-    Unset,
-}
+type Value = Cow<'static, str>;
 
 impl Default for Neo4j {
     fn default() -> Self {
-        Self::from_env()
+        Self::new()
     }
 }
 
@@ -289,13 +260,11 @@ impl Image for Neo4jImage {
 
 impl Neo4j {
     fn auth_env(&self) -> impl IntoIterator<Item = (String, String)> {
-        fn auth(image: &Neo4j) -> Option<String> {
-            let user = Neo4j::value(&image.user)?;
-            let pass = Neo4j::value(&image.pass)?;
-            Some(format!("{}/{}", user, pass))
-        }
-
-        let auth = auth(self).unwrap_or_else(|| "none".to_owned());
+        let auth = self
+            .user
+            .as_ref()
+            .and_then(|user| self.pass.as_ref().map(|pass| format!("{}/{}", user, pass)))
+            .unwrap_or_else(|| "none".to_owned());
         Some(("NEO4J_AUTH".to_owned(), auth))
     }
 
@@ -317,7 +286,7 @@ impl Neo4j {
     }
 
     fn conf_env(&self) -> impl IntoIterator<Item = (String, String)> {
-        let pass = Self::value(&self.pass)?;
+        let pass = self.pass.as_ref()?;
 
         if pass.len() < 8 {
             Some((
@@ -344,13 +313,11 @@ impl Neo4j {
             env_vars.insert(key, value);
         }
 
-        let auth = Self::value(&self.user).and_then(|user| {
-            Self::value(&self.pass).map(|pass| (user.into_owned(), pass.into_owned()))
-        });
+        let auth = self
+            .user
+            .and_then(|user| self.pass.map(|pass| (user.into_owned(), pass.into_owned())));
 
-        let version = Self::value(&self.version)
-            .expect("Version must be set")
-            .into_owned();
+        let version = self.version.into_owned();
 
         Neo4jImage {
             version,
@@ -358,17 +325,6 @@ impl Neo4j {
             env_vars,
             state: RefCell::new(None),
         }
-    }
-
-    fn value(value: &Value) -> Option<Cow<'_, str>> {
-        Some(match value {
-            &Value::Env { var, fallback } => {
-                std::env::var(var).map_or_else(|_| fallback.into(), Into::into)
-            }
-            &Value::Default(value) => value.into(),
-            Value::Value(value) => value.as_str().into(),
-            Value::Unset => return None,
-        })
     }
 }
 
