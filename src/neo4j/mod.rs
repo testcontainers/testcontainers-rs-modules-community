@@ -1,4 +1,8 @@
-use std::{borrow::Cow, cell::RefCell, collections::HashMap};
+use std::{
+    borrow::Cow,
+    cell::RefCell,
+    collections::{BTreeSet, HashMap},
+};
 use testcontainers::{
     core::{ContainerState, WaitFor},
     Image, RunnableImage,
@@ -85,7 +89,7 @@ pub struct Neo4j {
     version: Value,
     user: Value,
     pass: Value,
-    plugins: Vec<Neo4jLabsPlugin>,
+    plugins: BTreeSet<Neo4jLabsPlugin>,
 }
 
 impl Neo4j {
@@ -100,7 +104,7 @@ impl Neo4j {
             version: Value::Default(Self::DEFAULT_VERSION_TAG),
             user: Value::Default(Self::DEFAULT_USER),
             pass: Value::Default(Self::DEFAULT_PASS),
-            plugins: Vec::new(),
+            plugins: BTreeSet::new(),
         }
     }
 
@@ -120,7 +124,7 @@ impl Neo4j {
                 var: "NEO4J_TEST_PASS",
                 fallback: Self::DEFAULT_PASS,
             },
-            plugins: Vec::new(),
+            plugins: BTreeSet::new(),
         }
     }
 
@@ -158,7 +162,7 @@ impl Neo4j {
     /// Add Neo4j lab plugins to get started with the database.
     #[must_use]
     pub fn with_neo4j_labs_plugin(mut self, plugins: &[Neo4jLabsPlugin]) -> Self {
-        self.plugins.extend_from_slice(plugins);
+        self.plugins.extend(plugins.iter().cloned());
         self
     }
 }
@@ -325,10 +329,7 @@ impl Neo4j {
         }
     }
 
-    fn build(mut self) -> Neo4jImage {
-        self.plugins.sort();
-        self.plugins.dedup();
-
+    fn build(self) -> Neo4jImage {
         let mut env_vars = HashMap::new();
 
         for (key, value) in self.auth_env() {
