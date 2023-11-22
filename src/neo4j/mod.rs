@@ -46,7 +46,7 @@ impl std::fmt::Display for Neo4jLabsPlugin {
 ///
 /// let cli = Cli::default();
 /// let container = cli.run(Neo4j::default());
-/// let uri = container.image().bolt_uri_ipv4();
+/// let uri = format!("bolt://localhost:{}", container.image().bolt_port_ipv4());
 /// let auth_user = container.image().user();
 /// let auth_pass = container.image().password();
 /// // connect to Neo4j with the uri, user and pass
@@ -265,52 +265,40 @@ impl Neo4jImage {
         self.auth().map(|(_, pass)| pass)
     }
 
-    /// Return the connection URI to connect to the Neo4j server via Bolt over IPv4.
-    #[must_use]
-    pub fn bolt_uri_ipv4(&self) -> String {
-        let bolt_port = self
-            .state
+    /// Return the port to connect to the Neo4j server via Bolt over IPv4.
+    pub fn bolt_port_ipv4(&self) -> u16 {
+        self.state
             .borrow()
             .as_ref()
-            .expect("Container must be started before URI can be retrieved")
-            .host_port_ipv4(7687);
-        format!("bolt://127.0.0.1:{}", bolt_port)
+            .expect("Container must be started before port can be retrieved")
+            .host_port_ipv4(7687)
     }
 
-    /// Return the connection URI to connect to the Neo4j server via Bolt over IPv6.
-    #[must_use]
-    pub fn bolt_uri_ipv6(&self) -> String {
-        let bolt_port = self
-            .state
+    /// Return the port to connect to the Neo4j server via Bolt over IPv6.
+    pub fn bolt_uri_ipv6(&self) -> u16 {
+        self.state
             .borrow()
             .as_ref()
-            .expect("Container must be started before URI can be retrieved")
-            .host_port_ipv6(7687);
-        format!("bolt://[::1]:{}", bolt_port)
+            .expect("Container must be started before port can be retrieved")
+            .host_port_ipv6(7687)
     }
 
-    /// Return the connection URI to connect to the Neo4j server via HTTP over IPv4.
-    #[must_use]
-    pub fn http_uri_ipv4(&self) -> String {
-        let http_port = self
-            .state
+    /// Return the port to connect to the Neo4j server via HTTP over IPv4.
+    pub fn http_port_ipv4(&self) -> u16 {
+        self.state
             .borrow()
             .as_ref()
-            .expect("Container must be started before URI can be retrieved")
-            .host_port_ipv4(7474);
-        format!("http://127.0.0.1:{}", http_port)
+            .expect("Container must be started before port can be retrieved")
+            .host_port_ipv4(7474)
     }
 
-    /// Return the connection URI to connect to the Neo4j server via HTTP over IPv6.
-    #[must_use]
-    pub fn http_uri_ipv6(&self) -> String {
-        let http_port = self
-            .state
+    /// Return the port to connect to the Neo4j server via HTTP over IPv6.
+    pub fn http_uri_ipv6(&self) -> u16 {
+        self.state
             .borrow()
             .as_ref()
-            .expect("Container must be started before URI can be retrieved")
-            .host_port_ipv6(7474);
-        format!("http://[::1]:{}", http_port)
+            .expect("Container must be started before port can be retrieved")
+            .host_port_ipv6(7474)
     }
 }
 
@@ -569,13 +557,8 @@ mod tests {
         let cli = Cli::default();
         let container = cli.run(Neo4j::default());
 
-        let uri = container.image().bolt_uri_ipv4();
-        assert!(uri.starts_with("bolt://"));
+        let uri = format!("bolt://localhost:{}", container.image().bolt_port_ipv4());
 
-        let uri = container.image().http_uri_ipv4();
-        assert!(uri.starts_with("http://"));
-
-        let uri = container.image().bolt_uri_ipv4();
         let auth_user = container.image().user().expect("default user");
         let auth_pass = container.image().password().expect("default password");
 

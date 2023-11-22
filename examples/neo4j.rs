@@ -7,7 +7,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
 
     // prepare neo4rs client
     let config = neo4rs::ConfigBuilder::new()
-        .uri(container.image().bolt_uri_ipv4())
+        .uri(format!(
+            "bolt://localhost:{}",
+            container.image().bolt_port_ipv4()
+        ))
         .user(container.image().user().expect("default user is set"))
         .password(
             container
