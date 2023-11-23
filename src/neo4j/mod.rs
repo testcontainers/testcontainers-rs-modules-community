@@ -203,7 +203,7 @@ impl Neo4jImage {
     }
 
     /// Return the port to connect to the Neo4j server via Bolt over IPv6.
-    pub fn bolt_uri_ipv6(&self) -> u16 {
+    pub fn bolt_port_ipv6(&self) -> u16 {
         self.state
             .borrow()
             .as_ref()
@@ -221,7 +221,7 @@ impl Neo4jImage {
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv6.
-    pub fn http_uri_ipv6(&self) -> u16 {
+    pub fn http_port_ipv6(&self) -> u16 {
         self.state
             .borrow()
             .as_ref()
