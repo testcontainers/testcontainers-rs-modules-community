@@ -23,6 +23,7 @@ kafka = []
 minio = []
 mongo = []
 mysql = []
+neo4j = []
 orientdb = []
 parity = []
 postgres = []
@@ -44,6 +45,7 @@ futures = "0.3"
 lapin = "2.3.1"
 mongodb = "2.6.1"
 mysql = "24.0.0"
+neo4rs = "0.6.2"
 orientdb-client = "0.6"
 postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
@@ -58,3 +60,7 @@ zookeeper = "0.8"
 [[example]]
 name = "postgres"
 required-features = ["postgres"]
+
+[[example]]
+name = "neo4j"
+required-features = ["neo4j"]
