@@ -27,6 +27,9 @@ pub mod minio;
 #[cfg(feature = "mongo")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mongo")))]
 pub mod mongo;
+#[cfg(feature = "mssql_server")]
+#[cfg_attr(docsrs, doc(cfg(feature = "mssql_server")))]
+pub mod mssql_server;
 #[cfg(feature = "mysql")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mysql")))]
 pub mod mysql;
