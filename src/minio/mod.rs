@@ -81,7 +81,7 @@ impl Image for MinIO {
 
 #[cfg(test)]
 mod tests {
-    use aws_config::meta::region::RegionProviderChain;
+    use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_s3::{config::Credentials, Client};
     use testcontainers::clients;
 
@@ -123,7 +123,7 @@ mod tests {
         let creds = Credentials::new("minioadmin", "minioadmin", None, None, "test");
 
         // Default MinIO credentials (Can be overridden by ENV container variables)
-        let shared_config = aws_config::from_env()
+        let shared_config = aws_config::defaults(BehaviorVersion::latest())
             .region(region_provider)
             .endpoint_url(endpoint_uri)
             .credentials_provider(creds)

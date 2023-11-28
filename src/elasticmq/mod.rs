@@ -24,7 +24,7 @@ impl Image for ElasticMq {
 
 #[cfg(test)]
 mod tests {
-    use aws_config::meta::region::RegionProviderChain;
+    use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_sqs::{config::Credentials, Client};
     use testcontainers::clients;
 
@@ -46,7 +46,7 @@ mod tests {
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("fakeKey", "fakeSecret", None, None, "test");
 
-        let shared_config = aws_config::from_env()
+        let shared_config = aws_config::defaults(BehaviorVersion::latest())
             .region(region_provider)
             .endpoint_url(endpoint_uri)
             .credentials_provider(creds)
