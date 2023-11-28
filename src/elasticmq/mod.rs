@@ -1,7 +1,7 @@
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "softwaremill/elasticmq";
-const TAG: &str = "0.14.6";
+const TAG: &str = "1.5.2";
 
 #[derive(Debug, Default)]
 pub struct ElasticMq;
@@ -38,7 +38,8 @@ mod tests {
         let client = build_sqs_client(host_port).await;
 
         let result = client.list_queues().send().await.unwrap();
-        assert!(result.queue_urls.is_none());
+        // list should be empty
+        assert!(result.queue_urls.filter(|urls| !urls.is_empty()).is_none())
     }
 
     async fn build_sqs_client(host_port: u16) -> Client {
