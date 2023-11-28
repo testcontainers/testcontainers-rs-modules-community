@@ -30,7 +30,7 @@ impl Image for DynamoDb {
 
 #[cfg(test)]
 mod tests {
-    use aws_config::meta::region::RegionProviderChain;
+    use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_dynamodb::{
         config::Credentials,
         types::{
@@ -55,17 +55,20 @@ mod tests {
         let key_schema = KeySchemaElement::builder()
             .attribute_name("title".to_string())
             .key_type(KeyType::Hash)
-            .build();
+            .build()
+            .unwrap();
 
         let attribute_def = AttributeDefinition::builder()
             .attribute_name("title".to_string())
             .attribute_type(ScalarAttributeType::S)
-            .build();
+            .build()
+            .unwrap();
 
         let provisioned_throughput = ProvisionedThroughput::builder()
             .read_capacity_units(10)
             .write_capacity_units(5)
-            .build();
+            .build()
+            .unwrap();
 
         let dynamodb = build_dynamodb_client(host_port).await;
         let create_table_result = dynamodb
@@ -81,7 +84,7 @@ mod tests {
         let req = dynamodb.list_tables().limit(10);
         let list_tables_result = req.send().await.unwrap();
 
-        assert_eq!(list_tables_result.table_names().unwrap().len(), 1);
+        assert_eq!(list_tables_result.table_names().len(), 1);
     }
 
     async fn build_dynamodb_client(host_port: u16) -> Client {
@@ -89,7 +92,7 @@ mod tests {
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("fakeKey", "fakeSecret", None, None, "test");
 
-        let shared_config = aws_config::from_env()
+        let shared_config = aws_config::defaults(BehaviorVersion::latest())
             .region(region_provider)
             .endpoint_url(endpoint_uri)
             .credentials_provider(creds)
