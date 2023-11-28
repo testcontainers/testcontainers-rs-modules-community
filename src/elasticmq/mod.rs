@@ -47,13 +47,12 @@ mod tests {
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("fakeKey", "fakeSecret", None, None, "test");
 
-        let shared_config =
-            aws_config::from_env()
-                .region(region_provider)
-                .endpoint_url(endpoint_uri)
-                .credentials_provider(creds)
-                .load()
-                .await;
+        let shared_config = aws_config::from_env()
+            .region(region_provider)
+            .endpoint_url(endpoint_uri)
+            .credentials_provider(creds)
+            .load()
+            .await;
 
         Client::new(&shared_config)
     }
