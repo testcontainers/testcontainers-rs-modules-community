@@ -1,7 +1,7 @@
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "softwaremill/elasticmq";
-const TAG: &str = "0.14.6";
+const TAG: &str = "1.5.2";
 
 #[derive(Debug, Default)]
 pub struct ElasticMq;
@@ -24,7 +24,7 @@ impl Image for ElasticMq {
 
 #[cfg(test)]
 mod tests {
-    use aws_config::meta::region::RegionProviderChain;
+    use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_sqs::{config::Credentials, Client};
     use testcontainers::clients;
 
@@ -38,7 +38,8 @@ mod tests {
         let client = build_sqs_client(host_port).await;
 
         let result = client.list_queues().send().await.unwrap();
-        assert!(result.queue_urls.is_none());
+        // list should be empty
+        assert!(result.queue_urls.filter(|urls| !urls.is_empty()).is_none())
     }
 
     async fn build_sqs_client(host_port: u16) -> Client {
@@ -46,7 +47,7 @@ mod tests {
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("fakeKey", "fakeSecret", None, None, "test");
 
-        let shared_config = aws_config::from_env()
+        let shared_config = aws_config::defaults(BehaviorVersion::latest())
             .region(region_provider)
             .endpoint_url(endpoint_uri)
             .credentials_provider(creds)
