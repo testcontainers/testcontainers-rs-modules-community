@@ -96,8 +96,9 @@ impl Image for MssqlServer {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
+        // Wait until the server is ready for connections and all system databases are recovered
         vec![WaitFor::StdOutMessage {
-            message: "SQL Server is now ready for client connections".to_owned(),
+            message: "Recovery is complete".to_owned(),
         }]
     }
 
