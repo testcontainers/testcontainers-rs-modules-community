@@ -22,6 +22,7 @@ google_cloud_sdk_emulators = []
 kafka = []
 minio = []
 mongo = []
+mssql_server = []
 mysql = []
 neo4j = []
 orientdb = []
@@ -55,7 +56,12 @@ reqwest = { version = "0.11.20", features = ["blocking"] }
 serde = { version = "1.0.188", features = [ "derive" ] }
 serde_json = "1.0.107"
 tokio = { version = "1", features = ["macros"] }
+tokio-util = { version = "0.7.10", features = ["compat"] }
 zookeeper = "0.8"
+
+# To use Tiberius on macOS, rustls is needed instead of native-tls
+# https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
+tiberius = { version = "0.12.2", default-features = false, features = ["tds73", "rustls"] }
 
 [[example]]
 name = "postgres"
@@ -64,3 +70,7 @@ required-features = ["postgres"]
 [[example]]
 name = "neo4j"
 required-features = ["neo4j"]
+
+[[example]]
+name = "mssql_server"
+required-features = ["mssql_server"]
