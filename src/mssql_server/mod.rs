@@ -96,10 +96,11 @@ impl Image for MssqlServer {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        // Wait until the server is ready for connections and all system databases are recovered
-        vec![WaitFor::StdOutMessage {
-            message: "Recovery is complete".to_owned(),
-        }]
+        // Wait until all system databases are recovered
+        vec![
+            WaitFor::message_on_stdout("SQL Server is now ready for client connections"),
+            WaitFor::message_on_stdout("Recovery is complete"),
+        ]
     }
 
     fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
