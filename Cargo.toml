@@ -70,3 +70,7 @@ required-features = ["postgres"]
 [[example]]
 name = "neo4j"
 required-features = ["neo4j"]
+
+[[example]]
+name = "mssql_server"
+required-features = ["mssql_server"]
