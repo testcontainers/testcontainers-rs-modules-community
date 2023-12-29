@@ -56,7 +56,7 @@ mod tests {
     use testcontainers::clients;
 
     #[test]
-    fn fetch_metric() {
+    fn query_buildinfo() {
         let docker = clients::Cli::default();
         let node = docker.run(VictoriaMetricsImage);
         let host_port = node.get_host_port_ipv4(8428);
