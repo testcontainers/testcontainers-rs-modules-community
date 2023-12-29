@@ -12,13 +12,13 @@ const TAG: &str = "v1.96.0";
 /// # Example
 /// ```
 /// use testcontainers::clients;
-/// use testcontainers_modules::victoriametrics;
+/// use testcontainers_modules::victoria_metrics;
 ///
 /// let docker = clients::Cli::default();
-/// let victoriametrics_instance = docker.run(victoriametrics::VictoriaMetrics);
+/// let victoria_metrics_instance = docker.run(victoria_metrics::VictoriaMetrics);
 ///
-/// let import_url = format!("http://127.0.0.1:{}/api/v1/import", victoriametrics_instance.get_host_port_ipv4(8428));
-/// let export_url = format!("http://127.0.0.1:{}/api/v1/export", victoriametrics_instance.get_host_port_ipv4(8428));
+/// let import_url = format!("http://127.0.0.1:{}/api/v1/import", victoria_metrics_instance.get_host_port_ipv4(8428));
+/// let export_url = format!("http://127.0.0.1:{}/api/v1/export", victoria_metrics_instance.get_host_port_ipv4(8428));
 ///
 /// // operate on the import and export URLs..
 /// ```
@@ -52,7 +52,7 @@ impl Image for VictoriaMetrics {
 
 #[cfg(test)]
 mod tests {
-    use crate::victoriametrics::VictoriaMetrics as VictoriaMetricsImage;
+    use crate::victoria_metrics::VictoriaMetrics as VictoriaMetricsImage;
     use testcontainers::clients;
 
     #[test]

@@ -54,9 +54,9 @@ pub mod redis;
 #[cfg(feature = "trufflesuite_ganachecli")]
 #[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
 pub mod trufflesuite_ganachecli;
-#[cfg(feature = "victoria-metrics")]
-#[cfg_attr(docsrs, doc(cfg(feature = "victoria-metrics")))]
-pub mod victoriametrics;
+#[cfg(feature = "victoria_metrics")]
+#[cfg_attr(docsrs, doc(cfg(feature = "victoria_metrics")))]
+pub mod victoria_metrics;
 #[cfg(feature = "zookeeper")]
 #[cfg_attr(docsrs, doc(cfg(feature = "zookeeper")))]
 pub mod zookeeper;
