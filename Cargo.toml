@@ -31,7 +31,7 @@ postgres = []
 rabbitmq = []
 redis = []
 trufflesuite_ganachecli = []
-victoriametrics = []
+victoria-metrics = []
 zookeeper = []
 
 [dependencies]
