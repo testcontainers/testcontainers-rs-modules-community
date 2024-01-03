@@ -10,6 +10,8 @@ const TAG: &str = "11-alpine";
 /// Starts an instance of Postgres.
 /// This module is based on the official [`Postgres docker image`].
 ///
+/// Default db name, user and password is `postgres`.
+///
 /// # Example
 /// ```
 /// use testcontainers::clients;
@@ -31,11 +33,43 @@ pub struct Postgres {
     env_vars: HashMap<String, String>,
 }
 
+impl Postgres {
+    /// Enables the Postgres instance to be used without authentication on host.
+    /// For more information see the description of `POSTGRES_HOST_AUTH_METHOD` in official [docker image](https://hub.docker.com/_/postgres)
+    pub fn with_host_auth(mut self) -> Self {
+        self.env_vars
+            .insert("POSTGRES_HOST_AUTH_METHOD".to_owned(), "trust".to_owned());
+        self
+    }
+
+    /// Sets the db name for the Postgres instance.
+    pub fn with_db_name(mut self, db_name: &str) -> Self {
+        self.env_vars
+            .insert("POSTGRES_DB".to_owned(), db_name.to_owned());
+        self
+    }
+
+    /// Sets the user for the Postgres instance.
+    pub fn with_user(mut self, user: &str) -> Self {
+        self.env_vars
+            .insert("POSTGRES_USER".to_owned(), user.to_owned());
+        self
+    }
+
+    /// Sets the password for the Postgres instance.
+    pub fn with_password(mut self, password: &str) -> Self {
+        self.env_vars
+            .insert("POSTGRES_PASSWORD".to_owned(), password.to_owned());
+        self
+    }
+}
+
 impl Default for Postgres {
     fn default() -> Self {
         let mut env_vars = HashMap::new();
         env_vars.insert("POSTGRES_DB".to_owned(), "postgres".to_owned());
-        env_vars.insert("POSTGRES_HOST_AUTH_METHOD".into(), "trust".into());
+        env_vars.insert("POSTGRES_USER".to_owned(), "postgres".to_owned());
+        env_vars.insert("POSTGRES_PASSWORD".to_owned(), "postgres".to_owned());
 
         Self { env_vars }
     }
@@ -67,16 +101,16 @@ impl Image for Postgres {
 mod tests {
     use testcontainers::{clients, RunnableImage};
 
-    use crate::postgres::Postgres as PostgresImage;
+    use super::*;
 
     #[test]
     fn postgres_one_plus_one() {
         let docker = clients::Cli::default();
-        let postgres_image = PostgresImage::default();
+        let postgres_image = Postgres::default().with_host_auth();
         let node = docker.run(postgres_image);
 
         let connection_string = &format!(
-            "postgres://postgres:postgres@127.0.0.1:{}/postgres",
+            "postgres://postgres@127.0.0.1:{}/postgres",
             node.get_host_port_ipv4(5432)
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
@@ -92,7 +126,7 @@ mod tests {
     #[test]
     fn postgres_custom_version() {
         let docker = clients::Cli::default();
-        let image = RunnableImage::from(PostgresImage::default()).with_tag("13-alpine");
+        let image = RunnableImage::from(Postgres::default()).with_tag("13-alpine");
         let node = docker.run(image);
 
         let connection_string = &format!(
