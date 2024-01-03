@@ -41,28 +41,28 @@ impl Image for OrientDb {
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::clients;
-
     use crate::orientdb::OrientDb;
+    use reqwest::StatusCode;
+    use retry::{delay::Fixed, retry};
+    use testcontainers::clients;
 
     #[test]
     fn orientdb_exists_database() {
+        let _ = pretty_env_logger::try_init();
         let docker = clients::Cli::default();
         let node = docker.run(OrientDb::default());
+        let client = reqwest::blocking::Client::new();
 
-        let client =
-            orientdb_client::OrientDB::connect(("127.0.0.1", node.get_host_port_ipv4(2424)))
-                .unwrap();
+        let response = retry(Fixed::from_millis(500).take(5), || {
+            client
+                .get(format!(
+                    "http://localhost:{}/listDatabases",
+                    node.get_host_port_ipv4(2480)
+                ))
+                .header("Accept-Encoding", "gzip,deflate")
+                .send()
+        });
 
-        let exists = client
-            .exist_database(
-                "orientdb_exists_database",
-                "root",
-                "root",
-                orientdb_client::DatabaseType::Memory,
-            )
-            .unwrap();
-
-        assert!(!exists);
+        assert_eq!(response.unwrap().status(), StatusCode::OK);
     }
 }

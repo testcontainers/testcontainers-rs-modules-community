@@ -48,21 +48,20 @@ lapin = "2.3.1"
 mongodb = "2.6.1"
 mysql = "24.0.0"
 neo4rs = "0.7.0"
-orientdb-client = "0.6"
 postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
 rdkafka = "0.36.0"
 redis = "0.24.0"
-reqwest = { version = "0.11.20", features = ["blocking", "json"] }
+reqwest = { version = "0.11.23", features = ["blocking", "json"] }
 serde = { version = "1.0.188", features = [ "derive" ] }
 serde_json = "1.0.107"
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 zookeeper = "0.8"
-
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = ["tds73", "rustls"] }
+retry = "2.0.0"
 
 [[example]]
 name = "postgres"
