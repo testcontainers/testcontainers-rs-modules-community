@@ -69,6 +69,10 @@ name = "postgres"
 required-features = ["postgres"]
 
 [[example]]
+name = "localstack"
+required-features = ["localstack"]
+
+[[example]]
 name = "neo4j"
 required-features = ["neo4j"]
 
