@@ -1,9 +1,12 @@
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "localstack/localstack";
-const TAG: &str = "3.0.2";
+const TAG: &str = "3.0";
 const DEFAULT_WAIT: u64 = 3000;
 
+/// This module provides [localstack](https://www.localstack.cloud/) (Community Edition).
+/// 
+/// Currently pinned to [version `3.0`](https://hub.docker.com/layers/localstack/localstack/3.0/images/sha256-73698e485240939490134aadd7e429ac87ff068cd5ad09f5de8ccb76727c13e1?context=explore)
 #[derive(Default, Debug)]
 pub struct LocalStack;
 
