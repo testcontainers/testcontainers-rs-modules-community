@@ -5,26 +5,26 @@ const TAG: &str = "3.0";
 const DEFAULT_WAIT: u64 = 3000;
 
 /// This module provides [LocalStack](https://www.localstack.cloud/) (Community Edition).
-/// 
+///
 /// Currently pinned to [version `3.0`](https://hub.docker.com/layers/localstack/localstack/3.0/images/sha256-73698e485240939490134aadd7e429ac87ff068cd5ad09f5de8ccb76727c13e1?context=explore)
-/// 
+///
 /// # Configuration
-/// 
+///
 /// For configuration, LocalStack uses environment variables. You can go [here](https://docs.localstack.cloud/references/configuration/)
 /// for the full list.
-/// 
-/// Testcontainers support setting environment variables with the method 
+///
+/// Testcontainers support setting environment variables with the method
 /// `RunnableImage::with_env_var((impl Into<String>, impl Into<String>))`. You will have to convert
 /// the Image into a RunnableImage first.
-/// 
+///
 /// ```
 /// use testcontainers_modules::localstack::LocalStack;
 /// use testcontainers::RunnableImage;
-/// 
+///
 /// let image: RunnableImage<LocalStack> = LocalStack::default().into();
 /// let image = image.with_env_var(("SERVICES", "s3"));
 /// ```
-/// 
+///
 /// No environment variables are required.
 #[derive(Default, Debug)]
 pub struct LocalStack;
@@ -43,17 +43,17 @@ impl Image for LocalStack {
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![
             WaitFor::message_on_stdout("Ready."),
-            WaitFor::millis(DEFAULT_WAIT)
+            WaitFor::millis(DEFAULT_WAIT),
         ]
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use aws_config::BehaviorVersion;
-    use testcontainers::clients;
-    use aws_sdk_sqs as sqs;
     use super::LocalStack;
+    use aws_config::BehaviorVersion;
+    use aws_sdk_sqs as sqs;
+    use testcontainers::clients;
 
     #[tokio::test]
     async fn create_and_list_queue() -> Result<(), sqs::Error> {
@@ -67,9 +67,11 @@ mod tests {
             .await;
         let client = sqs::Client::new(&config);
 
-        client.create_queue()
+        client
+            .create_queue()
             .queue_name("example-queue")
-            .send().await?;
+            .send()
+            .await?;
 
         let list_result = client.list_queues().send().await?;
         assert_eq!(list_result.queue_urls().len(), 1);

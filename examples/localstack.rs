@@ -1,7 +1,7 @@
-use testcontainers::RunnableImage;
-use testcontainers_modules::{localstack::LocalStack, testcontainers::clients::Cli};
 use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
 use aws_sdk_s3 as s3;
+use testcontainers::RunnableImage;
+use testcontainers_modules::{localstack::LocalStack, testcontainers::clients::Cli};
 
 #[tokio::main]
 async fn main() -> Result<(), s3::Error> {
@@ -23,7 +23,11 @@ async fn main() -> Result<(), s3::Error> {
 
     let client = s3::Client::new(&config);
 
-    client.create_bucket().bucket("example-bucket").send().await?;
+    client
+        .create_bucket()
+        .bucket("example-bucket")
+        .send()
+        .await?;
 
     let list_buckets_output = client.list_buckets().send().await?;
     assert!(list_buckets_output.buckets.is_some());
