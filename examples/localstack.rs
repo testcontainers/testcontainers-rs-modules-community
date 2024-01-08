@@ -14,9 +14,10 @@ async fn main() -> Result<(), s3::Error> {
     // Set up AWS client
     let endpoint_url = format!("http://127.0.0.1:{host_port}");
     let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
-    // let creds = s3::config::Credentials::new("minioadmin", "minioadmin", None, None, "test");
+    let creds = s3::config::Credentials::new("fake", "fake", None, None, "test");
     let config = aws_config::defaults(BehaviorVersion::v2023_11_09())
         .region(region_provider)
+        .credentials_provider(creds)
         .endpoint_url(endpoint_url)
         .load()
         .await;

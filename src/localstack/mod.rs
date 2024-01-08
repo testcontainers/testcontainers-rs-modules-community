@@ -51,6 +51,7 @@ impl Image for LocalStack {
 #[cfg(test)]
 mod tests {
     use super::LocalStack;
+    use aws_config::meta::region::RegionProviderChain;
     use aws_config::BehaviorVersion;
     use aws_sdk_sqs as sqs;
     use testcontainers::clients;
@@ -61,7 +62,11 @@ mod tests {
         let node = docker.run(LocalStack::default());
         let host_port = node.get_host_port_ipv4(4566);
 
+        let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
+        let creds = sqs::config::Credentials::new("fake", "fake", None, None, "test");
         let config = aws_config::defaults(BehaviorVersion::v2023_11_09())
+            .region(region_provider)
+            .credentials_provider(creds)
             .endpoint_url(format!("http://localhost:{}", host_port))
             .load()
             .await;
