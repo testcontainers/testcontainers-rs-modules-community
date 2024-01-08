@@ -1,3 +1,4 @@
+use testcontainers::RunnableImage;
 use testcontainers_modules::{localstack::LocalStack, testcontainers::clients::Cli};
 use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
 use aws_sdk_s3 as s3;
@@ -5,8 +6,8 @@ use aws_sdk_s3 as s3;
 #[tokio::main]
 async fn main() -> Result<(), s3::Error> {
     let docker = Cli::default();
-    let image = LocalStack::default()
-        .with_environment_variable("SERVICES", "s3");
+    let image: RunnableImage<LocalStack> = LocalStack::default().into();
+    let image = image.with_env_var(("SERVICES", "s3"));
     let container = docker.run(image);
     let host_port = container.get_host_port_ipv4(4566);
 

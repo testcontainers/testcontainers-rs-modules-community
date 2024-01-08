@@ -1,5 +1,4 @@
 use testcontainers::{core::WaitFor, Image};
-use std::collections::HashMap;
 
 const NAME: &str = "localstack/localstack";
 const TAG: &str = "3.0";
@@ -9,36 +8,26 @@ const DEFAULT_WAIT: u64 = 3000;
 /// 
 /// Currently pinned to [version `3.0`](https://hub.docker.com/layers/localstack/localstack/3.0/images/sha256-73698e485240939490134aadd7e429ac87ff068cd5ad09f5de8ccb76727c13e1?context=explore)
 /// 
-/// # Environment variables
+/// # Configuration
 /// 
 /// For configuration, LocalStack uses environment variables. You can go [here](https://docs.localstack.cloud/references/configuration/)
 /// for the full list.
 /// 
-/// You can set a variable using the `with_environment_variable()` method.
+/// Testcontainers support setting environment variables with the method 
+/// `RunnableImage::with_env_var((impl Into<String>, impl Into<String>))`. You will have to convert
+/// the Image into a RunnableImage first.
 /// 
 /// ```
-/// # use testcontiners_modules::localstack::LocalStack;
-/// let image = LocalStack::default().with_environment_variable("DEBUG", "1");
+/// use testcontainers_modules::localstack::LocalStack;
+/// use testcontainers::RunnableImage;
+/// 
+/// let image: RunnableImage<LocalStack> = LocalStack::default().into();
+/// let image = image.with_env_var(("SERVICES", "s3"));
 /// ```
 /// 
 /// No environment variables are required.
 #[derive(Default, Debug)]
-pub struct LocalStack {
-    env_vars: HashMap<String, String>
-}
-
-impl LocalStack {
-    /// Set an environment variable on the LocalStack image.
-    pub fn with_environment_variable(
-        self,
-        var_name: impl Into<String>,
-        value: impl Into<String>
-    ) -> Self {
-        let mut env_vars = self.env_vars;
-        env_vars.insert(var_name.into(), value.into());
-        Self { env_vars }
-    }
-}
+pub struct LocalStack;
 
 impl Image for LocalStack {
     type Args = ();
@@ -57,16 +46,12 @@ impl Image for LocalStack {
             WaitFor::millis(DEFAULT_WAIT)
         ]
     }
-
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use aws_config::BehaviorVersion;
-    use testcontainers::{clients, Image};
+    use testcontainers::clients;
     use aws_sdk_sqs as sqs;
     use super::LocalStack;
 
@@ -90,20 +75,5 @@ mod tests {
         assert_eq!(list_result.queue_urls().len(), 1);
 
         Ok(())
-    }
-
-    #[tokio::test]
-    async fn set_env_variables() {
-        let localstack = LocalStack::default()
-            .with_environment_variable("DEBUG", "1")
-            .with_environment_variable("USE_SSL", "1");
-        let env_vars: Vec<_> = localstack.env_vars().as_mut()
-            .map(|(k, v)| {
-                (k.to_owned(), v.to_owned())
-            })
-            .collect();
-        assert_eq!(env_vars.len(), 2);
-        assert!(env_vars.contains(&("DEBUG".to_owned(), "1".to_owned())));
-        assert!(env_vars.contains(&("USE_SSL".to_owned(), "1".to_owned())));
     }
 }
