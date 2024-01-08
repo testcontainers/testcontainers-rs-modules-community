@@ -21,6 +21,9 @@ pub mod google_cloud_sdk_emulators;
 #[cfg(feature = "kafka")]
 #[cfg_attr(docsrs, doc(cfg(feature = "kafka")))]
 pub mod kafka;
+#[cfg(feature = "localstack")]
+#[cfg_attr(docsrs, doc(cfg(feature = "localstack")))]
+pub mod localstack;
 #[cfg(feature = "minio")]
 #[cfg_attr(docsrs, doc(cfg(feature = "minio")))]
 pub mod minio;

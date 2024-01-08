@@ -20,6 +20,7 @@ elastic_search = []
 elasticmq = []
 google_cloud_sdk_emulators = []
 kafka = []
+localstack = []
 minio = []
 mongo = []
 mssql_server = []
@@ -66,6 +67,10 @@ retry = "2.0.0"
 [[example]]
 name = "postgres"
 required-features = ["postgres"]
+
+[[example]]
+name = "localstack"
+required-features = ["localstack"]
 
 [[example]]
 name = "neo4j"
