@@ -3,13 +3,12 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "redis";
 const TAG: &str = "5.0";
 
-
 /// Module to work with [`Redis`] inside of tests.
 ///
 /// Starts an instance of Redis.
-/// 
+///
 /// This module is based on the official [`Redis docker image`].
-/// 
+///
 /// # Example
 /// ```
 /// use testcontainers::clients;
@@ -22,7 +21,7 @@ const TAG: &str = "5.0";
 ///
 /// // do something with the started redis instance..
 ///```
-/// 
+///
 /// [`Redis`]: https://redis.io/
 /// [`Redis docker image`]: https://hub.docker.com/_/redis
 #[derive(Debug, Default)]

@@ -50,11 +50,11 @@ impl Image for LocalStack {
 
 #[cfg(test)]
 mod tests {
-    use super::LocalStack;
-    use aws_config::meta::region::RegionProviderChain;
-    use aws_config::BehaviorVersion;
+    use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_sqs as sqs;
     use testcontainers::clients;
+
+    use super::LocalStack;
 
     #[tokio::test]
     async fn create_and_list_queue() -> Result<(), sqs::Error> {

@@ -41,10 +41,11 @@ impl Image for OrientDb {
 
 #[cfg(test)]
 mod tests {
-    use crate::orientdb::OrientDb;
     use reqwest::StatusCode;
     use retry::{delay::Fixed, retry};
     use testcontainers::clients;
+
+    use crate::orientdb::OrientDb;
 
     #[test]
     fn orientdb_exists_database() {

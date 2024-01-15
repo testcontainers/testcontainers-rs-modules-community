@@ -52,8 +52,9 @@ impl Image for VictoriaMetrics {
 
 #[cfg(test)]
 mod tests {
-    use crate::victoria_metrics::VictoriaMetrics as VictoriaMetricsImage;
     use testcontainers::clients;
+
+    use crate::victoria_metrics::VictoriaMetrics as VictoriaMetricsImage;
 
     #[test]
     fn query_buildinfo() {
