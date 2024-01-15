@@ -4,6 +4,25 @@ const NAME: &str = "amazon/dynamodb-local";
 const TAG: &str = "2.0.0";
 const DEFAULT_WAIT: u64 = 3000;
 
+/// Module to work with [`DynamoDb`] inside of tests.
+///
+/// This module is based on the official [`DynamoDb local docker image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::clients;
+/// use testcontainers_modules::dynamodb_local;
+///
+/// let docker = clients::Cli::default();
+/// let dynamodb_instance = docker.run(dynamodb_local::DynamoDb);
+/// let endpoint_uri = format!("http://127.0.0.1:{}", dynamodb_instance.get_host_port_ipv4(8000));
+///
+/// // do something with the started dynamodb instance..
+/// ```
+///
+/// [`DynamoDb`]: https://aws.amazon.com/dynamodb/
+/// [`DynamoDb APIs`]: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.API.html
+/// [`DynamoDb docker image`]: https://hub.docker.com/r/amazon/dynamodb-local
 #[derive(Default, Debug)]
 pub struct DynamoDb;
 
