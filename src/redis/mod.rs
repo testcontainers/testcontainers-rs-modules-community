@@ -3,6 +3,28 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "redis";
 const TAG: &str = "5.0";
 
+
+/// Module to work with [`Redis`] inside of tests.
+///
+/// Starts an instance of Redis.
+/// 
+/// This module is based on the official [`Redis docker image`].
+/// 
+/// # Example
+/// ```
+/// use testcontainers::clients;
+/// use testcontainers_modules::redis;
+///
+/// let docker = clients::Cli::default();
+/// let redis_instance = docker.run(redis::Redis);
+///
+/// let redis_url = format!("redis://127.0.0.1:{}", redis_instance.get_host_port_ipv4(6379));
+///
+/// // do something with the started redis instance..
+///```
+/// 
+/// [`Redis`]: https://redis.io/
+/// [`Redis docker image`]: https://hub.docker.com/_/redis
 #[derive(Debug, Default)]
 pub struct Redis;
 
