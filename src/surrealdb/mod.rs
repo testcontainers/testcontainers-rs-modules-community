@@ -195,4 +195,42 @@ mod tests {
         assert_eq!(result.name.last, "Morgan Hitchcock");
         assert_eq!(result.marketing, true)
     }
+
+    #[tokio::test]
+    async fn surrealdb_no_auth() {
+        let _ = pretty_env_logger::try_init();
+        let docker = clients::Cli::default();
+        let node = docker.run(SurrealDb::default().with_authentication(false));
+        let host_port = node.get_host_port_ipv4(SURREALDB_PORT);
+        let url = format!("127.0.0.1:{host_port}");
+
+        let db: Surreal<Client> = Surreal::init();
+        db.connect::<Ws>(url).await.unwrap();
+        db.use_ns("test").use_db("test").await.unwrap();
+
+        db.create::<Option<Person>>(("person", "tobie"))
+            .content(Person {
+                title: "Founder & CEO".to_string(),
+                name: Name {
+                    first: "Tobie".to_string(),
+                    last: "Morgan Hitchcock".to_string(),
+                },
+                marketing: true,
+            })
+            .await
+            .unwrap();
+
+        let result = db
+            .select::<Option<Person>>(("person", "tobie"))
+            .await
+            .unwrap();
+
+        assert!(result.is_some());
+        let result = result.unwrap();
+
+        assert_eq!(result.title, "Founder & CEO");
+        assert_eq!(result.name.first, "Tobie");
+        assert_eq!(result.name.last, "Morgan Hitchcock");
+        assert_eq!(result.marketing, true)
+    }
 }

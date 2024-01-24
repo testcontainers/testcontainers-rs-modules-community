@@ -86,3 +86,7 @@ required-features = ["neo4j"]
 [[example]]
 name = "mssql_server"
 required-features = ["mssql_server"]
+
+[[example]]
+name = "surrealdb"
+required-features = ["surrealdb"]
