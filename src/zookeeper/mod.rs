@@ -5,6 +5,24 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "bitnami/zookeeper";
 const TAG: &str = "3.9.0";
 
+/// Module to work with [`Zookeeper`] inside of tests.
+///
+/// This module is based on the official [`Apache Zookeeper Bitnami image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::clients;
+/// use testcontainers_modules::zookeeper;
+///
+/// let docker = clients::Cli::default();
+/// let zookeeper_instance = docker.run(zookeeper::Zookeeper);
+///
+/// // operate on the zookeeper_instance..
+/// ```
+///
+/// [`Zookeeper`]: https://zookeeper.apache.org/doc/r3.9.1/index.html
+/// [`Zookeeper Docker image`]: https://hub.docker.com/r/bitnami/zookeeper
+/// [`Zookeeper Configuration`]: https://github.com/bitnami/containers/tree/main/bitnami/zookeeper#configuration
 #[derive(Debug)]
 pub struct Zookeeper {
     env_vars: HashMap<String, String>,
