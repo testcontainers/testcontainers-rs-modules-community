@@ -54,6 +54,9 @@ pub mod rabbitmq;
 #[cfg(feature = "redis")]
 #[cfg_attr(docsrs, doc(cfg(feature = "redis")))]
 pub mod redis;
+#[cfg(feature = "solr")]
+#[cfg_attr(docsrs, doc(cfg(feature = "solr")))]
+pub mod solr;
 #[cfg(feature = "surrealdb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "surrealdb")))]
 pub mod surrealdb;
