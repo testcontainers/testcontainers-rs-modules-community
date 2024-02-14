@@ -57,8 +57,8 @@ impl Image for Solr {
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::clients;
     use reqwest::{self, StatusCode};
+    use testcontainers::clients;
 
     use super::*;
 
@@ -69,14 +69,15 @@ mod tests {
         let container = docker.run(solr_image);
         let host_port = container.get_host_port_ipv4(SOLR_PORT);
 
-        let url = format!("http://localhost:{}/solr/admin/cores?action=STATUS", host_port);
-        let res = reqwest::blocking::get(url)
-            .expect("valid HTTP response");
+        let url = format!(
+            "http://localhost:{}/solr/admin/cores?action=STATUS",
+            host_port
+        );
+        let res = reqwest::blocking::get(url).expect("valid HTTP response");
 
         assert_eq!(res.status(), StatusCode::OK);
 
-        let json: serde_json::Value = res.json()
-            .expect("valid JSON body");
+        let json: serde_json::Value = res.json().expect("valid JSON body");
 
         assert_eq!(json["responseHeader"]["status"], 0);
     }
