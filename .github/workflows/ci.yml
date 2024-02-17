@@ -114,4 +114,4 @@ jobs:
         with:
           tool: cargo-hack
       - name: Tests
-        run: cargo hack test --each-feature
+        run: cargo hack test --each-feature --clean-per-run
