@@ -55,9 +55,7 @@ pretty_env_logger = "0.5.0"
 rdkafka = "0.36.0"
 redis = "0.24.0"
 reqwest = { version = "0.11.23", features = ["blocking", "json"] }
-# Temporary until the next release beacause incompatible rustls version (v0.21.7) is used by v1.1.1 and it's not compatible with aws-config (^v0.21.8)
-# This commit bumps rustls to v0.21.10
-surrealdb = { git = "https://github.com/surrealdb/surrealdb.git", rev = "7ba93848d47e598fe6fbdc9d5b8047e11f2d2fd2" } # (v1.1.1)
+surrealdb = { version = "1.2.0" }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 tokio = { version = "1", features = ["macros"] }
