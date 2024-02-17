@@ -44,34 +44,38 @@ impl Image for Zookeeper {
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
-
     use testcontainers::clients;
-    use zookeeper::{Acl, CreateMode, ZooKeeper};
+    use zookeeper_client::{Acls, Client, CreateMode, EventType};
 
     use crate::zookeeper::Zookeeper as ZookeeperImage;
 
-    #[test]
-    #[ignore]
-    fn zookeeper_check_directories_existence() {
+    #[tokio::test]
+    async fn zookeeper_check_directories_existence() {
         let _ = pretty_env_logger::try_init();
 
         let docker = clients::Cli::default();
         let node = docker.run(ZookeeperImage::default());
 
         let host_port = node.get_host_port_ipv4(2181);
-        let zk_urls = format!("127.0.0.1:{host_port}");
-        let zk = ZooKeeper::connect(&zk_urls, Duration::from_secs(15), |_| ()).unwrap();
+        let zk_url = format!("127.0.0.1:{host_port}");
+        let client = Client::connect(&zk_url)
+            .await
+            .expect("connect to Zookeeper");
 
-        zk.create(
-            "/test",
-            vec![1, 2],
-            Acl::open_unsafe().clone(),
-            CreateMode::Ephemeral,
-        )
-        .unwrap();
+        let path = "/test";
+        let (_, stat_watcher) = client
+            .check_and_watch_stat(path)
+            .await
+            .expect("stat watcher created");
 
-        assert!(zk.exists("/test", false).unwrap().is_some());
-        assert!(zk.exists("/test2", false).unwrap().is_none());
+        let create_options = CreateMode::Ephemeral.with_acls(Acls::anyone_all());
+        let (_, _) = client
+            .create(path, &[1, 2], &create_options)
+            .await
+            .expect("create a node");
+
+        let event = stat_watcher.changed().await;
+        assert_eq!(event.event_type, EventType::NodeCreated);
+        assert_eq!(event.path, path);
     }
 }
