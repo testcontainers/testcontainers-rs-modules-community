@@ -24,11 +24,12 @@ You can also see [examples](https://github.com/testcontainers/testcontainers-rs-
 
 ### How to override module defaults (version, tag, ENV-variables)
 Just use [RunnableImage](https://docs.rs/testcontainers/latest/testcontainers/core/struct.RunnableImage.html):
-```rust
+```rust,ignore
 use testcontainers_modules::{
     redis::Redis,
     testcontainers::RunnableImage
 };
+
 
 /// Create a Redis module with `6.2-alpine` tag and custom password
 fn create_redis() -> RunnableImage<Redis> {
