@@ -3,7 +3,36 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "redis/redis-stack-server";
 const TAG: &str = "7.2.0-v8";
 
-#[derive(Debug)]
+/// Module to work with [`Redis Stack`] inside of tests.
+///
+/// Starts an instance of Redis Stack based on the official [`Redis Stack docker image`].
+///
+/// By default Redis is exposed on Port 6379 ([`REDIS_PORT`]) and has no access control. Please refer to the [`Redis reference guide`] for more informations on how to interact with the API.
+///
+/// # Example
+/// ```
+/// use redis::JsonCommands;
+/// use serde_json::json;
+/// use testcontainers::clients;
+/// use testcontainers_modules::redis::{RedisStack, REDIS_PORT};
+///
+/// let docker = clients::Cli::default();
+/// let redis_instance = docker.run(RedisStack);
+/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT);
+///
+/// let url = format!("redis://127.0.0.1:{host_port}");
+/// let client = redis::Client::open(url.as_ref()).unwrap();
+/// let mut con = client.get_connection().unwrap();
+///
+/// con.json_set::<_,_,_,()>("my_key", "$", &json!({ "number": 42 })).unwrap();
+/// let result: String = con.json_get("my_key", "$..number").unwrap();
+/// ```
+///
+/// [`Redis Stack`]: https://redis.io/docs/about/about-stack/
+/// [`Redis Stack docker image`]: https://hub.docker.com/r/redis/redis-stack-server
+/// [`Redis reference guide`]: https://redis.io/docs/interact/
+/// [`REDIS_PORT`]: super::REDIS_PORT
+#[derive(Debug, Default)]
 pub struct RedisStack;
 
 impl Image for RedisStack {
@@ -28,14 +57,14 @@ mod tests {
     use serde_json::json;
     use testcontainers::clients;
 
-    use crate::redis::RedisStack;
+    use crate::redis::{RedisStack, REDIS_PORT};
 
     #[test]
     fn redis_fetch_an_integer_in_json() {
         let _ = pretty_env_logger::try_init();
         let docker = clients::Cli::default();
         let node = docker.run(RedisStack);
-        let host_port = node.get_host_port_ipv4(6379);
+        let host_port = node.get_host_port_ipv4(REDIS_PORT);
         let url = format!("redis://127.0.0.1:{host_port}");
 
         let client = redis::Client::open(url.as_ref()).unwrap();
