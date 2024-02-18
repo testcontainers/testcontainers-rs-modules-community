@@ -54,7 +54,7 @@ neo4rs = "0.7.0"
 postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
 rdkafka = "0.36.0"
-redis = "0.24.0"
+redis = { version = "0.24.0", features = ["json"] }
 reqwest = { version = "0.11.23", features = ["blocking", "json"] }
 surrealdb = { version = "1.2.0" }
 serde = { version = "1.0.188", features = ["derive"] }
