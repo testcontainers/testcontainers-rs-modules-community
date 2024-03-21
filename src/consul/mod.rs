@@ -7,6 +7,25 @@ const DEFAULT_IMAGE_NAME: &str = "hashicorp/consul";
 const DEFAULT_IMAGE_TAG: &str = "1.16.1";
 const CONSUL_LOCAL_CONFIG: &str = "CONSUL_LOCAL_CONFIG";
 
+/// Module to work with [`Consul`] inside of tests.
+///
+/// This module is based on the official [`Consul docker image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::clients;
+/// use testcontainers_modules::consul;
+///
+/// let docker = clients::Cli::default();
+/// let consul = docker.run(consul::Consul::default());
+///
+/// let http_port = consul.get_host_port_ipv4(8500);
+///
+/// // do something with the started consul instance..
+/// ```
+///
+/// [`Consul`]: https://www.consul.io/
+/// [`Consul docker image`]: https://hub.docker.com/r/hashicorp/consul
 #[derive(Debug)]
 pub struct Consul {
     name: String,
