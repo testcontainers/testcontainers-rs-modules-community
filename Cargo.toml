@@ -15,6 +15,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = []
+consul = []
 dynamodb = []
 elastic_search = []
 elasticmq = []
