@@ -75,6 +75,9 @@ pub mod victoria_metrics;
 #[cfg(feature = "zookeeper")]
 #[cfg_attr(docsrs, doc(cfg(feature = "zookeeper")))]
 pub mod zookeeper;
+#[cfg(feature = "cockroach_db")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cockroach_db")))]
+pub mod cockroach_db;
 
 /// Re-exported version of `testcontainers` to avoid version conflicts
 pub use testcontainers;
