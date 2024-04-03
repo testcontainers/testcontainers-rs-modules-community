@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use testcontainers::{ core::WaitFor, Image, ImageArgs };
+use testcontainers::{core::WaitFor, Image, ImageArgs};
 
 const DEFAULT_IMAGE_NAME: &str = "cockroachdb/cockroach";
 const DEFAULT_IMAGE_TAG: &str = "latest-v23.2";
@@ -34,7 +34,10 @@ pub struct CockroachDb {
 
 impl Default for CockroachDb {
     fn default() -> Self {
-        CockroachDb::new(DEFAULT_IMAGE_NAME.to_string(), DEFAULT_IMAGE_TAG.to_string())
+        CockroachDb::new(
+            DEFAULT_IMAGE_NAME.to_string(),
+            DEFAULT_IMAGE_TAG.to_string(),
+        )
     }
 }
 
