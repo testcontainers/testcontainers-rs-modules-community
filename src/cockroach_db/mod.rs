@@ -24,6 +24,7 @@ const DEFAULT_IMAGE_TAG: &str = "latest-v23.2";
 ///
 /// [`Cockroach`]: https://www.cockroachlabs.com/
 /// [`Cockroach docker image`]: https://hub.docker.com/r/cockroachdb/cockroach
+/// [`Cockroach commands`]: https://www.cockroachlabs.com/docs/stable/cockroach-commands
 #[derive(Debug)]
 pub struct CockroachDb {
     name: String,
@@ -47,12 +48,26 @@ impl CockroachDb {
     }
 }
 
-#[derive(Debug, Default, Clone)]
-pub struct CockroachDbArgs;
+#[derive(Debug, Clone)]
+pub struct CockroachDbArgs {
+    pub command: String,
+    pub args: Vec<String>,
+}
+
+impl Default for CockroachDbArgs {
+    fn default() -> Self {
+        Self {
+            command: "start-single-node".to_string(),
+            args: vec!["--insecure".to_string()],
+        }
+    }
+}
 
 impl ImageArgs for CockroachDbArgs {
     fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        Box::new(vec!["start-single-node".to_owned(), "--insecure".to_owned()].into_iter())
+        let mut command_and_args = self.args.clone();
+        command_and_args.insert(0, self.command.clone());
+        Box::new(command_and_args.into_iter())
     }
 }
 
@@ -78,8 +93,8 @@ impl Image for CockroachDb {
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::clients;
     use super::*;
+    use testcontainers::clients;
 
     #[test]
     fn cockroach_db_one_plus_one() {
