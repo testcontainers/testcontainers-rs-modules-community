@@ -53,8 +53,14 @@ impl CockroachDb {
 
 #[derive(Debug, Clone)]
 pub struct CockroachDbArgs {
-    pub command: String,
-    pub args: Vec<String>,
+    command: String,
+    args: Vec<String>,
+}
+
+impl CockroachDbArgs {
+    pub fn new(command: String, args: Vec<String>) -> Self {
+        Self { command, args }
+    }
 }
 
 impl Default for CockroachDbArgs {
