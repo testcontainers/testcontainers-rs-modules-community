@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use testcontainers::{core::WaitFor, Image, ImageArgs};
 
 const DEFAULT_IMAGE_NAME: &str = "cockroachdb/cockroach";
-const DEFAULT_IMAGE_TAG: &str = "latest-v23.2";
+const DEFAULT_IMAGE_TAG: &str = "v23.2.3";
 
 /// Module to work with [`Cockroach DB`] inside of tests.
 ///
