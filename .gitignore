@@ -109,3 +109,6 @@ Temporary Items
 *.iml
 *.iws
 *.ipr
+
+# VSCode
+.vscode

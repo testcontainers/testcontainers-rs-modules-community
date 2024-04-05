@@ -38,6 +38,7 @@ surrealdb = []
 trufflesuite_ganachecli = []
 victoria_metrics = []
 zookeeper = []
+cockroach_db = []
 
 [dependencies]
 testcontainers = { version = "0.15.0" }
