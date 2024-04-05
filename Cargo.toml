@@ -15,6 +15,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = []
+cncf_distribution = []
 consul = []
 dynamodb = []
 elastic_search = []
@@ -49,6 +50,7 @@ aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
+bollard = "*"
 futures = "0.3"
 lapin = "2.3.1"
 mongodb = "2.6.1"
@@ -62,9 +64,10 @@ reqwest = { version = "0.12.1", features = ["blocking", "json"] }
 surrealdb = { version = "1.2.0" }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
+tar = "0.4.40"
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
-zookeeper-client = {  version = "0.7.1" }
+zookeeper-client = { version = "0.7.1" }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = [

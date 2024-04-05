@@ -6,6 +6,9 @@
 #![doc = include_str!("../README.md")]
 //! Please have a look at the documentation of the separate modules for examples on how to use the module.
 
+#[cfg(feature = "cncf_distribution")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cncf_distribution")))]
+pub mod cncf_distribution;
 #[cfg(feature = "cockroach_db")]
 #[cfg_attr(docsrs, doc(cfg(feature = "cockroach_db")))]
 pub mod cockroach_db;
