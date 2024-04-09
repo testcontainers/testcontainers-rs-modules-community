@@ -8,6 +8,8 @@ pub const BIGTABLE_PORT: u16 = 8086;
 pub const DATASTORE_PORT: u16 = 8081;
 pub const FIRESTORE_PORT: u16 = 8080;
 pub const PUBSUB_PORT: u16 = 8085;
+#[deprecated(since = "0.3.8", note = "please use `SPANNER_GRPC_PORT` instead")]
+pub const SPANNER_PORT: u16 = SPANNER_GRPC_PORT;
 pub const SPANNER_GRPC_PORT: u16 = 9010;
 pub const SPANNER_REST_PORT: u16 = 9020;
 
