@@ -1,7 +1,7 @@
 use testcontainers::{core::WaitFor, Image, ImageArgs};
 
-const NAME: &str = "google/cloud-sdk";
-const TAG: &str = "362.0.0-emulators";
+const NAME: &str = "gcr.io/google.com/cloudsdktool/google-cloud-cli";
+const TAG: &str = "471.0.0-emulators";
 
 const HOST: &str = "0.0.0.0";
 pub const BIGTABLE_PORT: u16 = 8086;
