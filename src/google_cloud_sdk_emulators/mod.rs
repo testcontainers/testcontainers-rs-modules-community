@@ -1,3 +1,25 @@
+/// Module to work with [`Google Cloud Emulators`] inside of tests.
+///
+/// The same image can be used to run multiple emulators, using the `emulator` argument allows
+/// selecting the one to run.
+///
+/// This module is based on the official [`GCloud SDK image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::clients;
+/// use testcontainers_modules::google_cloud_sdk_emulators;
+///
+/// let docker = clients::Cli::default();
+/// let container = docker.run(google_cloud_sdk_emulators::CloudSdk::spanner());
+///
+/// let spanner_host = format!("localhost:{}", container.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT));
+///
+/// // do something with the started spanner instance.
+/// ```
+///
+/// [`Google Cloud Emulators`]: https://cloud.google.com/sdk/gcloud/reference/beta/emulators
+/// [`GCloud SDK image`]: https://cloud.google.com/sdk/docs/downloads-docker
 use testcontainers::{core::WaitFor, Image, ImageArgs};
 
 const NAME: &str = "google/cloud-sdk";
