@@ -44,7 +44,7 @@ are exposed through `mod.rs` files and conditionally compiled as Cargo features.
 - Ensure you have declared pinned versions of Docker image tags for your module
 - Consider providing a `Default` trait implementation for your `TestContainer` struct when applicable
 - Consider also using the `Builder` pattern when your `TestContainer` accepts several different env vars!
-- Ensure you have added proper `rustdocs` reflecting examples on how to use your APIs
+- Ensure you have added proper `rustdocs` reflecting the image reference (e.g. to [docker-hub](hub.docker.com)) and examples of how to use your APIs.
 - Ensure you have added tests exercising your module
 - Consider also providing an example on how to use your module from an app
 
