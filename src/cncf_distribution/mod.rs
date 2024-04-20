@@ -5,7 +5,7 @@ const TAG: &str = "2";
 
 /// Module to work with a custom Docker registry inside of tests.
 ///
-/// Starts an instance of [`CNCF Distribution`], an easy to use registry for container images.
+/// Starts an instance of [`CNCF Distribution`], an easy-to-use registry for container images.
 ///
 /// # Example
 /// ```
@@ -16,7 +16,7 @@ const TAG: &str = "2";
 /// let image_name = "test";
 /// let image_tag = format!("{}:{}/{image_name}", registry.get_host_ip_address(), registry.get_host_port_ipv4(5000));
 ///
-/// // now you can push an image tagged with `image_tag` and pull it afterwards
+/// // now you can push an image tagged with `image_tag` and pull it afterward
 /// ```
 ///
 /// [`CNCF Distribution`]: https://distribution.github.io/distribution/
@@ -57,8 +57,7 @@ mod tests {
         let distribution_node = cncf_distribution::CncfDistribution.start().await;
         let docker = bollard::Docker::connect_with_local_defaults().unwrap();
         let image_tag = format!(
-            "{}:{}/test:latest",
-            distribution_node.get_host_ip_address().await,
+            "localhost:{}/test:latest",
             distribution_node.get_host_port_ipv4(5000).await
         );
 

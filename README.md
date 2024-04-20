@@ -17,7 +17,7 @@ Every module is treated as a feature inside this crate.
 
 Simple example of using `postgres` module with `SyncRunner` (`blocking` and `posrges` features enabled):
 
-```rust,no_run
+```rust,ignore
 use testcontainers_modules::{postgres, testcontainers::runners::SyncRunner};
 
 #[test]
@@ -28,16 +28,21 @@ fn test_with_postgres() {
 }
 ```
 
-**Note**: you don't need to explicitly depend on `testcontainers` as it's re-exported dependency of `testcontainers-modules` with aligned version between these crates.
-For example: 
+**Note**: you don't need to explicitly depend on `testcontainers` as it's re-exported dependency
+of `testcontainers-modules` with aligned version between these crates.
+For example:
+
 ```rust
 use testcontainers_modules::testcontainers::RunnableImage;
 ```
 
-You can also see [examples](https://github.com/testcontainers/testcontainers-rs-modules-community/tree/main/examples) for more details. 
+You can also see [examples](https://github.com/testcontainers/testcontainers-rs-modules-community/tree/main/examples)
+for more details.
 
 ### How to override module defaults (version, tag, ENV-variables)
+
 Just use [RunnableImage](https://docs.rs/testcontainers/latest/testcontainers/core/struct.RunnableImage.html):
+
 ```rust,ignore
 use testcontainers_modules::{
     redis::Redis,
@@ -53,12 +58,14 @@ fn create_redis() -> RunnableImage<Redis> {
 }
 ```
 
-
 ## License
 
 - MIT license ([LICENSE] or <http://opensource.org/licenses/MIT>)
 
 [testcontainers-rs]: https://github.com/testcontainers/testcontainers-rs
+
 [testcontainers]: https://crates.io/crates/testcontainers
+
 [testcontainers-modules]: https://crates.io/crates/testcontainers-modules
+
 [LICENSE]: https://github.com/testcontainers/testcontainers-rs-modules-community/blob/main/LICENSE

@@ -1,4 +1,5 @@
-use testcontainers_modules::{postgres::Postgres, testcontainers::runners::SyncRunner};
+use testcontainers::runners::SyncRunner;
+use testcontainers_modules::postgres::Postgres;
 
 fn main() {
     // startup the module
