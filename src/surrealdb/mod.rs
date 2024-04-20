@@ -26,11 +26,9 @@ impl ImageArgs for SurrealDbArgs {
 /// #    engine::remote::ws::{Client, Ws},
 /// #    Surreal,
 /// # };
-/// use testcontainers::clients;
-/// use testcontainers_modules::surrealdb;
+/// use testcontainers_modules::{surrealdb, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let surrealdb_instance = docker.run(surrealdb::SurrealDb::default());
+/// let surrealdb_instance = surrealdb::SurrealDb::default().start();
 ///
 /// let connection_string = format!(
 ///    "127.0.0.1:{}",
@@ -134,7 +132,7 @@ mod tests {
         opt::auth::Root,
         Surreal,
     };
-    use testcontainers::clients;
+    use testcontainers::runners::AsyncRunner;
 
     use super::*;
 
@@ -154,9 +152,8 @@ mod tests {
     #[tokio::test]
     async fn surrealdb_select() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(SurrealDb::default());
-        let host_port = node.get_host_port_ipv4(SURREALDB_PORT);
+        let node = SurrealDb::default().start().await;
+        let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await;
         let url = format!("127.0.0.1:{host_port}");
 
         let db: Surreal<Client> = Surreal::init();
@@ -193,15 +190,17 @@ mod tests {
         assert_eq!(result.title, "Founder & CEO");
         assert_eq!(result.name.first, "Tobie");
         assert_eq!(result.name.last, "Morgan Hitchcock");
-        assert_eq!(result.marketing, true)
+        assert!(result.marketing)
     }
 
     #[tokio::test]
     async fn surrealdb_no_auth() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(SurrealDb::default().with_authentication(false));
-        let host_port = node.get_host_port_ipv4(SURREALDB_PORT);
+        let node = SurrealDb::default()
+            .with_authentication(false)
+            .start()
+            .await;
+        let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await;
         let url = format!("127.0.0.1:{host_port}");
 
         let db: Surreal<Client> = Surreal::init();
@@ -231,6 +230,6 @@ mod tests {
         assert_eq!(result.title, "Founder & CEO");
         assert_eq!(result.name.first, "Tobie");
         assert_eq!(result.name.last, "Morgan Hitchcock");
-        assert_eq!(result.marketing, true)
+        assert!(result.marketing)
     }
 }

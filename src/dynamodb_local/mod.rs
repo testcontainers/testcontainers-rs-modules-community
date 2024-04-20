@@ -30,6 +30,8 @@ impl Image for DynamoDb {
 
 #[cfg(test)]
 mod tests {
+    use std::net::IpAddr;
+
     use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_dynamodb::{
         config::Credentials,
@@ -39,16 +41,15 @@ mod tests {
         },
         Client,
     };
-    use testcontainers::clients;
 
-    use crate::dynamodb_local::DynamoDb;
+    use crate::{dynamodb_local::DynamoDb, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
     async fn dynamodb_local_create_table() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(DynamoDb);
-        let host_port = node.get_host_port_ipv4(8000);
+        let node = DynamoDb.start().await;
+        let host_ip = node.get_host_ip_address().await;
+        let host_port = node.get_host_port_ipv4(8000).await;
 
         let table_name = "books".to_string();
 
@@ -70,7 +71,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let dynamodb = build_dynamodb_client(host_port).await;
+        let dynamodb = build_dynamodb_client(host_ip, host_port).await;
         let create_table_result = dynamodb
             .create_table()
             .table_name(table_name)
@@ -87,8 +88,8 @@ mod tests {
         assert_eq!(list_tables_result.table_names().len(), 1);
     }
 
-    async fn build_dynamodb_client(host_port: u16) -> Client {
-        let endpoint_uri = format!("http://127.0.0.1:{host_port}");
+    async fn build_dynamodb_client(host_ip: IpAddr, host_port: u16) -> Client {
+        let endpoint_uri = format!("http://{host_ip}:{host_port}");
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("fakeKey", "fakeSecret", None, None, "test");
 

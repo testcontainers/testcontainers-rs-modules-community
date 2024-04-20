@@ -1,9 +1,8 @@
-use testcontainers_modules::{postgres::Postgres, testcontainers::clients::Cli};
+use testcontainers_modules::{postgres::Postgres, testcontainers::runners::SyncRunner};
 
 fn main() {
     // startup the module
-    let docker = Cli::default();
-    let node = docker.run(Postgres::default());
+    let node = Postgres::default().start();
 
     // prepare connection string
     let connection_string = &format!(

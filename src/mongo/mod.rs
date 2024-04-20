@@ -25,17 +25,17 @@ impl Image for Mongo {
 #[cfg(test)]
 mod tests {
     use mongodb::*;
-    use testcontainers::clients;
+    use testcontainers::runners::AsyncRunner;
 
     use crate::mongo;
 
     #[tokio::test]
     async fn mongo_fetch_document() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(mongo::Mongo);
-        let host_port = node.get_host_port_ipv4(27017);
-        let url = format!("mongodb://127.0.0.1:{host_port}/");
+        let node = mongo::Mongo.start().await;
+        let host_ip = node.get_host_ip_address().await;
+        let host_port = node.get_host_port_ipv4(27017).await;
+        let url = format!("mongodb://{host_ip}:{host_port}/");
 
         let client: Client = Client::with_uri_str(&url).await.unwrap();
         let db = client.database("some_db");

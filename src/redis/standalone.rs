@@ -12,14 +12,13 @@ const TAG: &str = "5.0";
 /// # Example
 /// ```
 /// use redis::Commands;
-/// use testcontainers::clients;
-/// use testcontainers_modules::redis::{Redis, REDIS_PORT};
+/// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{Redis, REDIS_PORT}};
 ///
-/// let docker = clients::Cli::default();
-/// let redis_instance = docker.run(Redis::default());
+/// let redis_instance = Redis::default().start();
+/// let host_ip = redis_instance.get_host_ip_address();
 /// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT);
 ///
-/// let url = format!("redis://127.0.0.1:{host_port}");
+/// let url = format!("redis://{host_ip}:{host_port}");
 /// let client = redis::Client::open(url.as_ref()).unwrap();
 /// let mut con = client.get_connection().unwrap();
 ///
@@ -53,17 +52,16 @@ impl Image for Redis {
 #[cfg(test)]
 mod tests {
     use redis::Commands;
-    use testcontainers::clients;
 
-    use crate::redis::{Redis, REDIS_PORT};
+    use crate::{redis::Redis, testcontainers::runners::SyncRunner};
 
     #[test]
     fn redis_fetch_an_integer() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(Redis);
-        let host_port = node.get_host_port_ipv4(REDIS_PORT);
-        let url = format!("redis://127.0.0.1:{host_port}");
+        let node = Redis.start();
+        let host_ip = node.get_host_ip_address();
+        let host_port = node.get_host_port_ipv4(6379);
+        let url = format!("redis://{host_ip}:{host_port}");
 
         let client = redis::Client::open(url.as_ref()).unwrap();
         let mut con = client.get_connection().unwrap();

@@ -15,6 +15,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = []
+blocking = ["testcontainers/blocking"]
 cncf_distribution = []
 consul = []
 dynamodb = []
@@ -42,7 +43,7 @@ zookeeper = []
 cockroach_db = []
 
 [dependencies]
-testcontainers = { version = "0.15.0" }
+testcontainers = { git = "https://github.com/testcontainers/testcontainers-rs.git", branch = "rework-api" }
 
 [dev-dependencies]
 aws-config = "1.0.1"
@@ -50,7 +51,7 @@ aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
-bollard = "0"
+bollard = "0.16"
 futures = "0.3"
 lapin = "2.3.1"
 mongodb = "2.6.1"
@@ -61,20 +62,20 @@ pretty_env_logger = "0.5.0"
 rdkafka = "0.36.0"
 redis = { version = "0.25.0", features = ["json"] }
 reqwest = { version = "0.12.1", features = ["blocking", "json"] }
-surrealdb = { version = "1.2.0" }
+retry = "2.0.0"
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
+surrealdb = { version = "1.2.0" }
 tar = "0.4.40"
-tokio = { version = "1", features = ["macros"] }
-tokio-util = { version = "0.7.10", features = ["compat"] }
-zookeeper-client = { version = "0.7.1" }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = [
-  "tds73",
-  "rustls",
+    "tds73",
+    "rustls",
 ] }
-retry = "2.0.0"
+tokio = { version = "1", features = ["macros"] }
+tokio-util = { version = "0.7.10", features = ["compat"] }
+zookeeper-client = { version = "0.7.1" }
 
 [[example]]
 name = "postgres"

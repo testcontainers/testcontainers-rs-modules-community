@@ -12,7 +12,21 @@ Every module is treated as a feature inside this crate.
 ## Usage
 
 1. Depend on [testcontainers-modules] with necessary features (e.g `postgres`, `minio` and etc)
-2. Then start using the modules inside your tests.
+    - Enable `blocking` feature if you want to use modules within synchronous tests (feature-gate for `SyncRunner`)
+2. Then start using the modules inside your tests with either `AsyncRunner` or `SyncRunner`
+
+Simple example of using `postgres` module with `SyncRunner` (`blocking` and `posrges` features enabled):
+
+```rust,no_run
+use testcontainers_modules::{postgres, testcontainers::runners::SyncRunner};
+
+#[test]
+fn test_with_postgres() {
+    let container = postgres::Postgres::default().start();
+    let host_ip = container.get_host_ip_address();
+    let host_port = container.get_host_port_ipv4(5432);
+}
+```
 
 **Note**: you don't need to explicitly depend on `testcontainers` as it's re-exported dependency of `testcontainers-modules` with aligned version between these crates.
 For example: 

@@ -7,13 +7,11 @@ use testcontainers::{core::WaitFor, Image, ImageArgs};
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::mosquitto;
+/// use testcontainers_modules::{mosquitto, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let mosquitto_instance = docker.run(mosquitto::Mosquitto);
+/// let mosquitto_instance = mosquitto::Mosquitto.start();
 ///
-/// let broker_url = format!("127.0.0.1:{}", mosquitto_instance.get_host_port_ipv4(1883));
+/// let broker_url = format!("{}:{}", mosquitto_instance.get_host_ip_address(), mosquitto_instance.get_host_port_ipv4(1883));
 /// ```
 ///
 /// [`Mosquitto`]: https://mosquitto.org/

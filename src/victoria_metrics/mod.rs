@@ -11,11 +11,9 @@ const TAG: &str = "v1.96.0";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::victoria_metrics;
+/// use testcontainers_modules::{victoria_metrics, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let victoria_metrics_instance = docker.run(victoria_metrics::VictoriaMetrics);
+/// let victoria_metrics_instance = victoria_metrics::VictoriaMetrics.start();
 ///
 /// let import_url = format!("http://127.0.0.1:{}/api/v1/import", victoria_metrics_instance.get_host_port_ipv4(8428));
 /// let export_url = format!("http://127.0.0.1:{}/api/v1/export", victoria_metrics_instance.get_host_port_ipv4(8428));
@@ -52,15 +50,17 @@ impl Image for VictoriaMetrics {
 
 #[cfg(test)]
 mod tests {
-    use crate::victoria_metrics::VictoriaMetrics as VictoriaMetricsImage;
-    use testcontainers::clients;
+    use crate::{
+        testcontainers::runners::SyncRunner,
+        victoria_metrics::VictoriaMetrics as VictoriaMetricsImage,
+    };
 
     #[test]
     fn query_buildinfo() {
-        let docker = clients::Cli::default();
-        let node = docker.run(VictoriaMetricsImage);
+        let node = VictoriaMetricsImage.start();
+        let host_ip = node.get_host_ip_address();
         let host_port = node.get_host_port_ipv4(8428);
-        let url = format!("http://127.0.0.1:{}/api/v1/status/buildinfo", host_port);
+        let url = format!("http://{host_ip}:{host_port}/api/v1/status/buildinfo");
 
         let response = reqwest::blocking::get(url)
             .unwrap()

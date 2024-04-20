@@ -107,10 +107,8 @@ impl Image for Kafka {
         let ready_conditions = vec![WaitFor::message_on_stdout(
             "Checking need to trigger auto leader balancing",
         )];
-        commands.push(ExecCommand {
-            cmd,
-            ready_conditions,
-        });
+        commands
+            .push(ExecCommand::new(vec![cmd]).with_container_ready_conditions(ready_conditions));
         commands
     }
 }
@@ -125,19 +123,19 @@ mod tests {
         producer::{FutureProducer, FutureRecord},
         ClientConfig, Message,
     };
-    use testcontainers::clients;
+    use testcontainers::runners::AsyncRunner;
 
     use crate::kafka;
 
     #[tokio::test]
     async fn produce_and_consume_messages() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let kafka_node = docker.run(kafka::Kafka::default());
+        let kafka_node = kafka::Kafka::default().start().await;
 
         let bootstrap_servers = format!(
-            "127.0.0.1:{}",
-            kafka_node.get_host_port_ipv4(kafka::KAFKA_PORT)
+            "{}:{}",
+            kafka_node.get_host_ip_address().await,
+            kafka_node.get_host_port_ipv4(kafka::KAFKA_PORT).await
         );
 
         let producer = ClientConfig::new()

@@ -9,14 +9,12 @@ const TAG: &str = "2";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::cncf_distribution;
+/// use testcontainers_modules::{cncf_distribution, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let registry = docker.run(cncf_distribution::CncfDistribution);
+/// let registry = cncf_distribution::CncfDistribution.start();
 ///
 /// let image_name = "test";
-/// let image_tag = format!("localhost:{}/{image_name}", registry.get_host_port_ipv4(5000));
+/// let image_tag = format!("{}:{}/{image_name}", registry.get_host_ip_address(), registry.get_host_port_ipv4(5000));
 ///
 /// // now you can push an image tagged with `image_tag` and pull it afterwards
 /// ```
@@ -45,9 +43,8 @@ impl Image for CncfDistribution {
 mod tests {
     use bollard::image::{BuildImageOptions, CreateImageOptions};
     use futures::StreamExt;
-    use testcontainers::clients;
 
-    use crate::cncf_distribution;
+    use crate::{cncf_distribution, testcontainers::runners::AsyncRunner};
 
     const DOCKERFILE: &[u8] = b"
         FROM scratch
@@ -57,12 +54,12 @@ mod tests {
     #[tokio::test]
     async fn distribution_push_pull_image() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let distribution_node = docker.run(cncf_distribution::CncfDistribution);
+        let distribution_node = cncf_distribution::CncfDistribution.start().await;
         let docker = bollard::Docker::connect_with_local_defaults().unwrap();
         let image_tag = format!(
-            "localhost:{}/test:latest",
-            distribution_node.get_host_port_ipv4(5000)
+            "{}:{}/test:latest",
+            distribution_node.get_host_ip_address().await,
+            distribution_node.get_host_port_ipv4(5000).await
         );
 
         let mut archive = tar::Builder::new(Vec::new());

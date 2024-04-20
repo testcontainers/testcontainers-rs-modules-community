@@ -59,19 +59,19 @@ impl Image for GanacheCli {
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::clients;
+    use testcontainers::runners::SyncRunner;
 
     use crate::trufflesuite_ganachecli;
 
     #[test]
     fn trufflesuite_ganachecli_listaccounts() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(trufflesuite_ganachecli::GanacheCli);
+        let node = trufflesuite_ganachecli::GanacheCli.start();
+        let host_ip = node.get_host_ip_address();
         let host_port = node.get_host_port_ipv4(8545);
 
         let response = reqwest::blocking::Client::new()
-            .post(format!("http://127.0.0.1:{host_port}"))
+            .post(format!("http://{host_ip}:{host_port}"))
             .body(
                 serde_json::json!({
                     "jsonrpc": "2.0",
