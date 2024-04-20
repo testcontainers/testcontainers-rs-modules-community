@@ -100,15 +100,25 @@ impl Image for Kafka {
 
     fn exec_after_start(&self, cs: ContainerState) -> Vec<ExecCommand> {
         let mut commands = vec![];
-        let cmd = format!(
-            "kafka-configs --alter --bootstrap-server 0.0.0.0:9092 --entity-type brokers --entity-name 1 --add-config advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
-            cs.host_port_ipv4(KAFKA_PORT)
-        );
+        let cmd = vec![
+            "kafka-configs".to_string(),
+            "--alter".to_string(),
+            "--bootstrap-server".to_string(),
+            "0.0.0.0:9092".to_string(),
+            "--entity-type".to_string(),
+            "brokers".to_string(),
+            "--entity-name".to_string(),
+            "1".to_string(),
+            "--add-config".to_string(),
+            format!(
+                "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
+                cs.host_port_ipv4(KAFKA_PORT)
+            ),
+        ];
         let ready_conditions = vec![WaitFor::message_on_stdout(
             "Checking need to trigger auto leader balancing",
         )];
-        commands
-            .push(ExecCommand::new(vec![cmd]).with_container_ready_conditions(ready_conditions));
+        commands.push(ExecCommand::new(cmd).with_container_ready_conditions(ready_conditions));
         commands
     }
 }
@@ -133,8 +143,7 @@ mod tests {
         let kafka_node = kafka::Kafka::default().start().await;
 
         let bootstrap_servers = format!(
-            "{}:{}",
-            kafka_node.get_host_ip_address().await,
+            "127.0.0.1:{}",
             kafka_node.get_host_port_ipv4(kafka::KAFKA_PORT).await
         );
 
