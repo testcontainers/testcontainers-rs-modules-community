@@ -30,6 +30,9 @@ pub mod google_cloud_sdk_emulators;
 #[cfg(feature = "kafka")]
 #[cfg_attr(docsrs, doc(cfg(feature = "kafka")))]
 pub mod kafka;
+#[cfg(feature = "kwok_cluster")]
+#[cfg_attr(docsrs, doc(cfg(feature = "kwok_cluster")))]
+pub mod kwok_cluster;
 #[cfg(feature = "localstack")]
 #[cfg_attr(docsrs, doc(cfg(feature = "localstack")))]
 pub mod localstack;

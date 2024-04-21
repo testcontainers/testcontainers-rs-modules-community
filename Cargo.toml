@@ -43,6 +43,7 @@ trufflesuite_ganachecli = []
 victoria_metrics = []
 zookeeper = []
 cockroach_db = []
+kwok_cluster = []
 
 [dependencies]
 testcontainers = { version = "0.16.3" }
@@ -80,6 +81,8 @@ tiberius = { version = "0.12.2", default-features = false, features = [
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 zookeeper-client = { version = "0.7.1" }
+kube = { version = "0.90.0", default-features = false, features = ["client"] }
+k8s-openapi = { version = "0.21.1", features = ["v1_29"] }
 
 [[example]]
 name = "postgres"
