@@ -43,7 +43,7 @@ trufflesuite_ganachecli = []
 victoria_metrics = []
 zookeeper = []
 cockroach_db = []
-kwok_cluster = []
+kwok = []
 
 [dependencies]
 testcontainers = { version = "0.16.3" }
