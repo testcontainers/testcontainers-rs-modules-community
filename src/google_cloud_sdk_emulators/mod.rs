@@ -142,54 +142,47 @@ impl CloudSdk {
 mod tests {
     use std::ops::Range;
 
-    use testcontainers::clients;
+    use crate::{google_cloud_sdk_emulators, testcontainers::runners::SyncRunner};
 
-    use crate::google_cloud_sdk_emulators;
-
-    const RANDOM_PORTS: Range<u16> = 32768..61000;
+    const RANDOM_PORTS: Range<u16> = 32768..65535;
 
     #[test]
     fn bigtable_emulator_expose_port() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(google_cloud_sdk_emulators::CloudSdk::bigtable());
-        assert!(RANDOM_PORTS
-            .contains(&node.get_host_port_ipv4(google_cloud_sdk_emulators::BIGTABLE_PORT)));
+        let node = (google_cloud_sdk_emulators::CloudSdk::bigtable()).start();
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::BIGTABLE_PORT);
+        assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
     }
 
     #[test]
     fn datastore_emulator_expose_port() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(google_cloud_sdk_emulators::CloudSdk::datastore("test"));
-        assert!(RANDOM_PORTS
-            .contains(&node.get_host_port_ipv4(google_cloud_sdk_emulators::DATASTORE_PORT)));
+        let node = google_cloud_sdk_emulators::CloudSdk::datastore("test").start();
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::DATASTORE_PORT);
+        assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
     }
 
     #[test]
     fn firestore_emulator_expose_port() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(google_cloud_sdk_emulators::CloudSdk::firestore());
-        assert!(RANDOM_PORTS
-            .contains(&node.get_host_port_ipv4(google_cloud_sdk_emulators::FIRESTORE_PORT)));
+        let node = google_cloud_sdk_emulators::CloudSdk::firestore().start();
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::FIRESTORE_PORT);
+        assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
     }
 
     #[test]
     fn pubsub_emulator_expose_port() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(google_cloud_sdk_emulators::CloudSdk::pubsub());
-        assert!(RANDOM_PORTS
-            .contains(&node.get_host_port_ipv4(google_cloud_sdk_emulators::PUBSUB_PORT)));
+        let node = google_cloud_sdk_emulators::CloudSdk::pubsub().start();
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::PUBSUB_PORT);
+        assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
     }
 
     #[test]
     fn spanner_emulator_expose_port() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(google_cloud_sdk_emulators::CloudSdk::spanner());
-        assert!(RANDOM_PORTS
-            .contains(&node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_PORT)));
+        let node = google_cloud_sdk_emulators::CloudSdk::spanner().start();
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_PORT);
+        assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
     }
 }

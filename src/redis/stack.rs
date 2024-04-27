@@ -13,14 +13,13 @@ const TAG: &str = "7.2.0-v8";
 /// ```
 /// use redis::JsonCommands;
 /// use serde_json::json;
-/// use testcontainers::clients;
-/// use testcontainers_modules::redis::{RedisStack, REDIS_PORT};
+/// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{RedisStack, REDIS_PORT}};
 ///
-/// let docker = clients::Cli::default();
-/// let redis_instance = docker.run(RedisStack);
+/// let redis_instance = RedisStack.start();
+/// let host_ip = redis_instance.get_host_ip_address();
 /// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT);
 ///
-/// let url = format!("redis://127.0.0.1:{host_port}");
+/// let url = format!("redis://{host_ip}:{host_port}");
 /// let client = redis::Client::open(url.as_ref()).unwrap();
 /// let mut con = client.get_connection().unwrap();
 ///
@@ -55,17 +54,19 @@ impl Image for RedisStack {
 mod tests {
     use redis::JsonCommands;
     use serde_json::json;
-    use testcontainers::clients;
 
-    use crate::redis::{RedisStack, REDIS_PORT};
+    use crate::{
+        redis::{RedisStack, REDIS_PORT},
+        testcontainers::runners::SyncRunner,
+    };
 
     #[test]
     fn redis_fetch_an_integer_in_json() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(RedisStack);
+        let node = RedisStack.start();
+        let host_ip = node.get_host_ip_address();
         let host_port = node.get_host_port_ipv4(REDIS_PORT);
-        let url = format!("redis://127.0.0.1:{host_port}");
+        let url = format!("redis://{host_ip}:{host_port}");
 
         let client = redis::Client::open(url.as_ref()).unwrap();
         let mut con = client.get_connection().unwrap();

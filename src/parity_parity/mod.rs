@@ -41,19 +41,19 @@ impl Image for ParityEthereum {
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::clients;
+    use testcontainers::runners::SyncRunner;
 
     use crate::parity_parity;
 
     #[test]
     fn parity_parity_net_version() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(parity_parity::ParityEthereum);
+        let node = parity_parity::ParityEthereum.start();
+        let host_ip = node.get_host_ip_address();
         let host_port = node.get_host_port_ipv4(8545);
 
         let response = reqwest::blocking::Client::new()
-            .post(format!("http://127.0.0.1:{host_port}"))
+            .post(format!("http://{host_ip}:{host_port}"))
             .body(
                 serde_json::json!({
                     "jsonrpc": "2.0",

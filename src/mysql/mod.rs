@@ -13,13 +13,10 @@ const TAG: &str = "8.1";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::mysql;
+/// use testcontainers_modules::{testcontainers::runners::SyncRunner, mysql};
 ///
-/// let docker = clients::Cli::default();
-/// let mysql_instance = docker.run(mysql::Mysql::default());
-///
-/// let mysql_url = format!("mysql://127.0.0.1:{}/test", mysql_instance.get_host_port_ipv4(3306));
+/// let mysql_instance = mysql::Mysql::default().start();
+/// let mysql_url = format!("mysql://{}:{}/test",mysql_instance.get_host_ip_address(), mysql_instance.get_host_port_ipv4(3306));
 /// ```
 ///
 /// [`MySQL`]: https://www.mysql.com/
@@ -65,18 +62,20 @@ impl Image for Mysql {
 #[cfg(test)]
 mod tests {
     use mysql::prelude::Queryable;
-    use testcontainers::{clients, RunnableImage};
 
-    use crate::mysql::Mysql as MysqlImage;
+    use crate::{
+        mysql::Mysql as MysqlImage,
+        testcontainers::{runners::SyncRunner, RunnableImage},
+    };
 
     #[test]
     fn mysql_one_plus_one() {
-        let docker = clients::Cli::default();
         let mysql_image = MysqlImage::default();
-        let node = docker.run(mysql_image);
+        let node = mysql_image.start();
 
         let connection_string = &format!(
-            "mysql://root@127.0.0.1:{}/mysql",
+            "mysql://root@{}:{}/mysql",
+            node.get_host_ip_address(),
             node.get_host_port_ipv4(3306)
         );
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
@@ -90,12 +89,12 @@ mod tests {
 
     #[test]
     fn mysql_custom_version() {
-        let docker = clients::Cli::default();
         let image = RunnableImage::from(MysqlImage::default()).with_tag("8.0.34");
-        let node = docker.run(image);
+        let node = image.start();
 
         let connection_string = &format!(
-            "mysql://root@localhost:{}/mysql",
+            "mysql://root@{}:{}/mysql",
+            node.get_host_ip_address(),
             node.get_host_port_ipv4(3306)
         );
 
