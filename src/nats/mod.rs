@@ -29,13 +29,6 @@ impl Nats {
         }
     }
 
-    /// Set the Nats version to use.
-    /// The value must be an existing Nats version tag.
-    pub fn with_version(mut self, version: impl Into<Value>) -> Self {
-        self.version = version.into();
-        self
-    }
-
     /// Set the username to use.
     #[must_use]
     pub fn with_user(mut self, user: impl Into<Value>) -> Self {
@@ -127,18 +120,13 @@ impl Image for NatsImage {
 
 impl Nats {
     pub fn build(self) -> NatsImage {
-
         let auth = self
             .user
             .and_then(|user| self.pass.map(|pass| (user.into_owned(), pass.into_owned())));
 
         let version = self.version.into_owned();
 
-
-        NatsImage {
-            version,
-            auth,
-        }
+        NatsImage { version, auth }
     }
 }
 
@@ -233,11 +221,18 @@ mod tests {
         .await
         .expect("failed to connect to nats server");
 
-        let mut subscriber = nats_client.subscribe("messages").await.expect("failed to subscribe to nats subject");
-        nats_client.publish("messages", "data".into()).await.expect("failed to publish to nats subject");
-        let message = subscriber.next().await.expect("failed to fetch nats message");
+        let mut subscriber = nats_client
+            .subscribe("messages")
+            .await
+            .expect("failed to subscribe to nats subject");
+        nats_client
+            .publish("messages", "data".into())
+            .await
+            .expect("failed to publish to nats subject");
+        let message = subscriber
+            .next()
+            .await
+            .expect("failed to fetch nats message");
         assert_eq!(message.payload, "data");
-
-
     }
 }
