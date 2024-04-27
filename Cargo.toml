@@ -28,6 +28,7 @@ mongo = []
 mosquitto = []
 mssql_server = []
 mysql = []
+nats = []
 neo4j = []
 orientdb = []
 parity = []
@@ -45,6 +46,7 @@ cockroach_db = []
 testcontainers = { version = "0.15.0" }
 
 [dev-dependencies]
+async-nats = "0.34.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"

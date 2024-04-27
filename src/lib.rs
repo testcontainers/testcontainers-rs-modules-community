@@ -48,6 +48,9 @@ pub mod mssql_server;
 #[cfg(feature = "mysql")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mysql")))]
 pub mod mysql;
+#[cfg(feature = "nats")]
+#[cfg_attr(docsrs, doc(cfg(feature = "nats")))]
+pub mod nats;
 #[cfg(feature = "neo4j")]
 #[cfg_attr(docsrs, doc(cfg(feature = "neo4j")))]
 pub mod neo4j;
