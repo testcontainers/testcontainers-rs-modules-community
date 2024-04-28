@@ -14,14 +14,13 @@ const TAG: &str = "11-alpine";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::postgres;
+/// use testcontainers_modules::{postgres, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let postgres_instance = docker.run(postgres::Postgres::default());
+/// let postgres_instance = postgres::Postgres::default().start();
 ///
 /// let connection_string = format!(
-///     "postgres://postgres:postgres@127.0.0.1:{}/postgres",
+///     "postgres://postgres:postgres@{}:{}/postgres",
+///     postgres_instance.get_host_ip_address(),
 ///     postgres_instance.get_host_port_ipv4(5432)
 /// );
 /// ```
@@ -99,18 +98,18 @@ impl Image for Postgres {
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::{clients, RunnableImage};
+    use testcontainers::{runners::SyncRunner, RunnableImage};
 
     use super::*;
 
     #[test]
     fn postgres_one_plus_one() {
-        let docker = clients::Cli::default();
         let postgres_image = Postgres::default().with_host_auth();
-        let node = docker.run(postgres_image);
+        let node = postgres_image.start();
 
         let connection_string = &format!(
-            "postgres://postgres@127.0.0.1:{}/postgres",
+            "postgres://postgres@{}:{}/postgres",
+            node.get_host_ip_address(),
             node.get_host_port_ipv4(5432)
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
@@ -125,12 +124,13 @@ mod tests {
 
     #[test]
     fn postgres_custom_version() {
-        let docker = clients::Cli::default();
-        let image = RunnableImage::from(Postgres::default()).with_tag("13-alpine");
-        let node = docker.run(image);
+        let node = RunnableImage::from(Postgres::default())
+            .with_tag("13-alpine")
+            .start();
 
         let connection_string = &format!(
-            "postgres://postgres:postgres@127.0.0.1:{}/postgres",
+            "postgres://postgres:postgres@{}:{}/postgres",
+            node.get_host_ip_address(),
             node.get_host_port_ipv4(5432)
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();

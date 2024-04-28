@@ -15,13 +15,12 @@ use testcontainers::{core::WaitFor, Image};
 /// # Example
 ///
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::mssql_server;
+/// use testcontainers_modules::{testcontainers::runners::SyncRunner, mssql_server};
 ///
-/// let docker = clients::Cli::default();
-/// let mssql_server = docker.run(mssql_server::MssqlServer::default());
+/// let mssql_server = mssql_server::MssqlServer::default().start();
 /// let ado_connection_string = format!(
-///    "Server=tcp:127.0.0.1,{};Database=test;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;",
+///    "Server=tcp:{},{};Database=test;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;",
+///    mssql_server.get_host_ip_address(),
 ///    mssql_server.get_host_port_ipv4(1433)
 /// );
 /// ```
@@ -110,9 +109,9 @@ impl Image for MssqlServer {
 
 #[cfg(test)]
 mod tests {
-    use std::error;
+    use std::{error, net::IpAddr};
 
-    use testcontainers::{clients, RunnableImage};
+    use testcontainers::{runners::AsyncRunner, RunnableImage};
     use tiberius::{AuthMethod, Client, Config};
     use tokio::net::TcpStream;
     use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
@@ -121,9 +120,12 @@ mod tests {
 
     #[tokio::test]
     async fn one_plus_one() -> Result<(), Box<dyn error::Error>> {
-        let docker = clients::Cli::default();
-        let container = docker.run(MssqlServer::default());
-        let config = new_config(container.get_host_port_ipv4(1433), "yourStrong(!)Password");
+        let container = MssqlServer::default().start().await;
+        let config = new_config(
+            container.get_host_ip_address().await,
+            container.get_host_port_ipv4(1433).await,
+            "yourStrong(!)Password",
+        );
         let mut client = get_mssql_client(config).await?;
 
         let stream = client.query("SELECT 1 + 1", &[]).await?;
@@ -136,10 +138,13 @@ mod tests {
 
     #[tokio::test]
     async fn custom_sa_password() -> Result<(), Box<dyn error::Error>> {
-        let docker = clients::Cli::default();
         let image = MssqlServer::default().with_sa_password("yourStrongPassword123!");
-        let container = docker.run(image);
-        let config = new_config(container.get_host_port_ipv4(1433), "yourStrongPassword123!");
+        let container = image.start().await;
+        let config = new_config(
+            container.get_host_ip_address().await,
+            container.get_host_port_ipv4(1433).await,
+            "yourStrongPassword123!",
+        );
         let mut client = get_mssql_client(config).await?;
 
         let stream = client.query("SELECT 1 + 1", &[]).await?;
@@ -152,10 +157,13 @@ mod tests {
 
     #[tokio::test]
     async fn custom_version() -> Result<(), Box<dyn error::Error>> {
-        let docker = clients::Cli::default();
         let image = RunnableImage::from(MssqlServer::default()).with_tag("2019-CU23-ubuntu-20.04");
-        let container = docker.run(image);
-        let config = new_config(container.get_host_port_ipv4(1433), "yourStrong(!)Password");
+        let container = image.start().await;
+        let config = new_config(
+            container.get_host_ip_address().await,
+            container.get_host_port_ipv4(1433).await,
+            "yourStrong(!)Password",
+        );
         let mut client = get_mssql_client(config).await?;
 
         let stream = client.query("SELECT @@VERSION", &[]).await?;
@@ -177,8 +185,9 @@ mod tests {
         Ok(client)
     }
 
-    fn new_config(port: u16, password: &str) -> Config {
+    fn new_config(host: IpAddr, port: u16, password: &str) -> Config {
         let mut config = Config::new();
+        config.host(host);
         config.port(port);
         config.authentication(AuthMethod::sql_server("sa", password));
         config.trust_cert();

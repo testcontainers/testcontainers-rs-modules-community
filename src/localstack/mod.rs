@@ -50,24 +50,25 @@ impl Image for LocalStack {
 
 #[cfg(test)]
 mod tests {
-    use super::LocalStack;
-    use aws_config::meta::region::RegionProviderChain;
-    use aws_config::BehaviorVersion;
+    use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_sqs as sqs;
-    use testcontainers::clients;
+    use testcontainers::runners::AsyncRunner;
+
+    use super::LocalStack;
 
     #[tokio::test]
+    #[allow(clippy::result_large_err)]
     async fn create_and_list_queue() -> Result<(), sqs::Error> {
-        let docker = clients::Cli::default();
-        let node = docker.run(LocalStack::default());
-        let host_port = node.get_host_port_ipv4(4566);
+        let node = LocalStack.start().await;
+        let host_ip = node.get_host_ip_address().await;
+        let host_port = node.get_host_port_ipv4(4566).await;
 
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = sqs::config::Credentials::new("fake", "fake", None, None, "test");
         let config = aws_config::defaults(BehaviorVersion::v2023_11_09())
             .region(region_provider)
             .credentials_provider(creds)
-            .endpoint_url(format!("http://localhost:{}", host_port))
+            .endpoint_url(format!("http://{host_ip}:{host_port}"))
             .load()
             .await;
         let client = sqs::Client::new(&config);

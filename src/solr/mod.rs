@@ -15,11 +15,9 @@ const TAG: &str = "9.5.0-slim";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::solr;
+/// use testcontainers_modules::{solr, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let solr_instance = docker.run(solr::Solr::default());
+/// let solr_instance = solr::Solr::default().start();
 /// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT);
 
 /// let solr_url = format!("http://127.0.0.1:{}", host_port);
@@ -58,19 +56,19 @@ impl Image for Solr {
 #[cfg(test)]
 mod tests {
     use reqwest::{self, StatusCode};
-    use testcontainers::clients;
+    use testcontainers::runners::SyncRunner;
 
     use super::*;
 
     #[test]
     fn solr_ping() {
-        let docker = clients::Cli::default();
         let solr_image = Solr::default();
-        let container = docker.run(solr_image);
+        let container = solr_image.start();
+        let host_ip = container.get_host_ip_address();
         let host_port = container.get_host_port_ipv4(SOLR_PORT);
 
         let url = format!(
-            "http://localhost:{}/solr/admin/cores?action=STATUS",
+            "http://{host_ip}:{}/solr/admin/cores?action=STATUS",
             host_port
         );
         let res = reqwest::blocking::get(url).expect("valid HTTP response");

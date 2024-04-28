@@ -44,20 +44,19 @@ impl Image for Zookeeper {
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::clients;
     use zookeeper_client::{Acls, Client, CreateMode, EventType};
 
-    use crate::zookeeper::Zookeeper as ZookeeperImage;
+    use crate::{testcontainers::runners::AsyncRunner, zookeeper::Zookeeper as ZookeeperImage};
 
     #[tokio::test]
     async fn zookeeper_check_directories_existence() {
         let _ = pretty_env_logger::try_init();
 
-        let docker = clients::Cli::default();
-        let node = docker.run(ZookeeperImage::default());
+        let node = ZookeeperImage::default().start().await;
 
-        let host_port = node.get_host_port_ipv4(2181);
-        let zk_url = format!("127.0.0.1:{host_port}");
+        let host_ip = node.get_host_ip_address().await;
+        let host_port = node.get_host_port_ipv4(2181).await;
+        let zk_url = format!("{host_ip}:{host_port}");
         let client = Client::connect(&zk_url)
             .await
             .expect("connect to Zookeeper");

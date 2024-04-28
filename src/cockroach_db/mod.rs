@@ -11,12 +11,9 @@ const DEFAULT_IMAGE_TAG: &str = "v23.2.3";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::cockroach_db;
+/// use testcontainers_modules::{cockroach_db, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let cockroach = docker.run(cockroach_db::CockroachDb::default());
-///
+/// let cockroach = cockroach_db::CockroachDb::default().start();
 /// let http_port = cockroach.get_host_port_ipv4(26257);
 ///
 /// // do something with the started cockroach instance..
@@ -103,13 +100,12 @@ impl Image for CockroachDb {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use testcontainers::clients;
+    use crate::testcontainers::runners::SyncRunner;
 
     #[test]
     fn cockroach_db_one_plus_one() {
-        let docker = clients::Cli::default();
         let cockroach = CockroachDb::default();
-        let node = docker.run(cockroach);
+        let node = cockroach.start();
 
         let connection_string = &format!(
             "postgresql://root@127.0.0.1:{}/defaultdb?sslmode=disable",

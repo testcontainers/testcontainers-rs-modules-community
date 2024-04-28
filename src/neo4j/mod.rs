@@ -1,8 +1,9 @@
 use std::{
     borrow::Cow,
-    cell::RefCell,
     collections::{BTreeSet, HashMap},
+    sync::RwLock,
 };
+
 use testcontainers::{
     core::{ContainerState, WaitFor},
     Image, RunnableImage,
@@ -45,12 +46,10 @@ impl std::fmt::Display for Neo4jLabsPlugin {
 /// # Example
 ///
 /// ```rust,no_run
-/// use testcontainers::clients::Cli;
-/// use testcontainers_modules::neo4j::Neo4j;
+/// use testcontainers_modules::{testcontainers::runners::SyncRunner, neo4j::Neo4j};
 ///
-/// let cli = Cli::default();
-/// let container = cli.run(Neo4j::default());
-/// let uri = format!("bolt://localhost:{}", container.image().bolt_port_ipv4());
+/// let container = Neo4j::default().start();
+/// let uri = format!("bolt://{}:{}", container.get_host_ip_address(), container.image().bolt_port_ipv4());
 /// let auth_user = container.image().user();
 /// let auth_pass = container.image().password();
 /// // connect to Neo4j with the uri, user and pass
@@ -160,7 +159,7 @@ pub struct Neo4jImage {
     version: String,
     auth: Option<(String, String)>,
     env_vars: HashMap<String, String>,
-    state: RefCell<Option<ContainerState>>,
+    state: RwLock<Option<ContainerState>>,
 }
 
 impl Neo4jImage {
@@ -196,7 +195,8 @@ impl Neo4jImage {
     /// Return the port to connect to the Neo4j server via Bolt over IPv4.
     pub fn bolt_port_ipv4(&self) -> u16 {
         self.state
-            .borrow()
+            .read()
+            .unwrap()
             .as_ref()
             .expect("Container must be started before port can be retrieved")
             .host_port_ipv4(7687)
@@ -205,7 +205,8 @@ impl Neo4jImage {
     /// Return the port to connect to the Neo4j server via Bolt over IPv6.
     pub fn bolt_port_ipv6(&self) -> u16 {
         self.state
-            .borrow()
+            .read()
+            .unwrap()
             .as_ref()
             .expect("Container must be started before port can be retrieved")
             .host_port_ipv6(7687)
@@ -214,7 +215,8 @@ impl Neo4jImage {
     /// Return the port to connect to the Neo4j server via HTTP over IPv4.
     pub fn http_port_ipv4(&self) -> u16 {
         self.state
-            .borrow()
+            .read()
+            .unwrap()
             .as_ref()
             .expect("Container must be started before port can be retrieved")
             .host_port_ipv4(7474)
@@ -223,7 +225,8 @@ impl Neo4jImage {
     /// Return the port to connect to the Neo4j server via HTTP over IPv6.
     pub fn http_port_ipv6(&self) -> u16 {
         self.state
-            .borrow()
+            .read()
+            .unwrap()
             .as_ref()
             .expect("Container must be started before port can be retrieved")
             .host_port_ipv6(7474)
@@ -253,7 +256,10 @@ impl Image for Neo4jImage {
     }
 
     fn exec_after_start(&self, cs: ContainerState) -> Vec<testcontainers::core::ExecCommand> {
-        *self.state.borrow_mut() = Some(cs);
+        self.state
+            .write()
+            .expect("failed to lock the sate of Neo4J")
+            .replace(cs);
         Vec::new()
     }
 }
@@ -323,7 +329,7 @@ impl Neo4j {
             version,
             auth,
             env_vars,
-            state: RefCell::new(None),
+            state: RwLock::new(None),
         }
     }
 }
@@ -353,9 +359,9 @@ impl std::fmt::Debug for Neo4jImage {
 #[cfg(test)]
 mod tests {
     use neo4rs::Graph;
-    use testcontainers::clients::Cli;
 
     use super::*;
+    use crate::testcontainers::runners::AsyncRunner;
 
     #[test]
     fn set_valid_version() {
@@ -451,10 +457,13 @@ mod tests {
 
     #[tokio::test]
     async fn it_works() {
-        let cli = Cli::default();
-        let container = cli.run(Neo4j::default());
+        let container = Neo4j::default().start().await;
 
-        let uri = format!("bolt://localhost:{}", container.image().bolt_port_ipv4());
+        let uri = format!(
+            "bolt://{}:{}",
+            container.get_host_ip_address().await,
+            container.image().bolt_port_ipv4()
+        );
 
         let auth_user = container.image().user().expect("default user");
         let auth_pass = container.image().password().expect("default password");

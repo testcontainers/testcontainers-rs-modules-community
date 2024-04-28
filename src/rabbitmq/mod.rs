@@ -12,13 +12,11 @@ const TAG: &str = "3.8.22-management";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::rabbitmq;
+/// use testcontainers_modules::{rabbitmq, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let rabbitmq_instance = docker.run(rabbitmq::RabbitMq);
+/// let rabbitmq_instance = rabbitmq::RabbitMq.start();
 ///
-/// let amqp_url = format!("amqp://127.0.0.1:{}", rabbitmq_instance.get_host_port_ipv4(5672));
+/// let amqp_url = format!("amqp://{}:{}", rabbitmq_instance.get_host_ip_address(), rabbitmq_instance.get_host_port_ipv4(5672));
 ///
 /// // do something with the started rabbitmq instance..
 /// ```
@@ -61,17 +59,19 @@ mod tests {
         types::FieldTable,
         BasicProperties, Connection, ConnectionProperties, ExchangeKind,
     };
-    use testcontainers::clients;
 
-    use crate::rabbitmq;
+    use crate::{rabbitmq, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
     async fn rabbitmq_produce_and_consume_messages() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let rabbit_node = docker.run(rabbitmq::RabbitMq);
+        let rabbit_node = rabbitmq::RabbitMq.start().await;
 
-        let amqp_url = format!("amqp://127.0.0.1:{}", rabbit_node.get_host_port_ipv4(5672));
+        let amqp_url = format!(
+            "amqp://{}:{}",
+            rabbit_node.get_host_ip_address().await,
+            rabbit_node.get_host_port_ipv4(5672).await
+        );
 
         let options = ConnectionProperties::default();
         let connection = Connection::connect(amqp_url.as_str(), options)

@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 
-use testcontainers::core::WaitFor;
-use testcontainers::Image;
+use testcontainers::{core::WaitFor, Image};
 
 const DEFAULT_IMAGE_NAME: &str = "hashicorp/consul";
 const DEFAULT_IMAGE_TAG: &str = "1.16.1";
@@ -13,12 +12,9 @@ const CONSUL_LOCAL_CONFIG: &str = "CONSUL_LOCAL_CONFIG";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::consul;
+/// use testcontainers_modules::{consul, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let consul = docker.run(consul::Consul::default());
-///
+/// let consul = consul::Consul::default().start();
 /// let http_port = consul.get_host_port_ipv4(8500);
 ///
 /// // do something with the started consul instance..
@@ -81,17 +77,14 @@ impl Image for Consul {
 #[cfg(test)]
 mod tests {
     use serde_json::Value;
-    use testcontainers::clients;
 
-    use crate::consul::Consul;
+    use crate::{consul::Consul, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
     async fn consul_container() {
-        let docker = clients::Cli::default();
-
         let consul = Consul::default().with_local_config("{\"datacenter\":\"dc-rust\"}".to_owned());
-        let node = docker.run(consul);
-        let port = node.get_host_port_ipv4(8500);
+        let node = consul.start().await;
+        let port = node.get_host_port_ipv4(8500).await;
 
         let response = reqwest::Client::new()
             .get(format!("http://localhost:{}/v1/agent/self", port))
