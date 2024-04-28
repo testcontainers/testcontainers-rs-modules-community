@@ -18,7 +18,7 @@ const DEFAULT_WAIT: u64 = 3000;
 /// the Image into a RunnableImage first.
 ///
 /// ```
-/// use testcontainers_modules::kwok_cluster::KwokCluster;
+/// use testcontainers_modules::kwok::KwokCluster;
 /// use testcontainers::RunnableImage;
 ///
 /// let image: RunnableImage<KwokCluster> = KwokCluster::default().into();
@@ -63,7 +63,7 @@ mod test {
     };
     use testcontainers::clients;
 
-    use crate::kwok_cluster::KwokCluster;
+    use crate::kwok::KwokCluster;
 
     const CLUSTER_NAME: &str = "kwok-kwok";
     const CONTEXT_NAME: &str = "kwok-kwok";
