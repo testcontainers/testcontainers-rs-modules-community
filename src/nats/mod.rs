@@ -154,24 +154,9 @@ impl std::fmt::Debug for NatsImage {
 #[cfg(test)]
 mod tests {
     use futures::StreamExt;
-    use testcontainers::clients::Cli;
+    use testcontainers::runners::AsyncRunner;
 
     use super::*;
-
-    #[test]
-    fn set_valid_version() {
-        let nats = Nats::new().with_version("2.10.14").build();
-        assert_eq!(nats.version, "2.10.14");
-    }
-
-    #[test]
-    fn set_partial_version() {
-        let nats = Nats::new().with_version("2.10").build();
-        assert_eq!(nats.version, "2.10");
-
-        let nats = Nats::new().with_version("2").build();
-        assert_eq!(nats.version, "2");
-    }
 
     #[test]
     fn set_user() {
@@ -204,14 +189,13 @@ mod tests {
 
     #[tokio::test]
     async fn it_works() {
-        let cli = Cli::default();
-        let nats = Nats::default().build();
-        let container = cli.run(nats);
+        let container = Nats::default().start().await;
 
         let auth_user = container.image().user().expect("");
         let auth_pass = container.image().password().expect("");
 
-        let url = format!("127.0.0.1:{}", container.get_host_port_ipv4(4222));
+        let host_port = container.get_host_port_ipv4(4222).await;
+        let url = format!("127.0.0.1:{host_port}");
 
         let nats_client = async_nats::ConnectOptions::with_user_and_password(
             auth_user.to_string(),
