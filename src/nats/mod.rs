@@ -7,7 +7,9 @@ const TAG: &str = "2.10.14";
 ///
 /// This image is based on the official [Nats](https://hub.docker.com/_/nats) image.
 #[derive(Debug, Default)]
-pub struct Nats;
+pub struct Nats {
+    _private: (),
+}
 
 impl Image for Nats {
     type Args = ();
@@ -36,7 +38,7 @@ mod tests {
 
     #[tokio::test]
     async fn it_works() {
-        let container = Nats.start().await;
+        let container = Nats::default().start().await;
 
         let host_port = container.get_host_port_ipv4(4222).await;
         let url = format!("127.0.0.1:{host_port}");
