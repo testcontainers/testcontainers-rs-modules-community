@@ -81,7 +81,7 @@ impl Image for MinIO {
 
 #[cfg(test)]
 mod tests {
-    use std::net::IpAddr;
+    use std::fmt::Display;
 
     use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_s3::{config::Credentials, Client};
@@ -119,7 +119,7 @@ mod tests {
         assert_eq!(bucket_name, buckets[0].name.as_ref().unwrap());
     }
 
-    async fn build_s3_client(hos_ip: IpAddr, host_port: u16) -> Client {
+    async fn build_s3_client(hos_ip: impl Display, host_port: u16) -> Client {
         let endpoint_uri = format!("http://{hos_ip}:{host_port}");
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("minioadmin", "minioadmin", None, None, "test");

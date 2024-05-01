@@ -109,7 +109,7 @@ impl Image for MssqlServer {
 
 #[cfg(test)]
 mod tests {
-    use std::{error, net::IpAddr};
+    use std::error;
 
     use testcontainers::{runners::AsyncRunner, RunnableImage};
     use tiberius::{AuthMethod, Client, Config};
@@ -185,7 +185,7 @@ mod tests {
         Ok(client)
     }
 
-    fn new_config(host: IpAddr, port: u16, password: &str) -> Config {
+    fn new_config(host: impl ToString, port: u16, password: &str) -> Config {
         let mut config = Config::new();
         config.host(host);
         config.port(port);

@@ -30,7 +30,7 @@ impl Image for DynamoDb {
 
 #[cfg(test)]
 mod tests {
-    use std::net::IpAddr;
+    use std::fmt::Display;
 
     use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_dynamodb::{
@@ -88,7 +88,7 @@ mod tests {
         assert_eq!(list_tables_result.table_names().len(), 1);
     }
 
-    async fn build_dynamodb_client(host_ip: IpAddr, host_port: u16) -> Client {
+    async fn build_dynamodb_client(host_ip: impl Display, host_port: u16) -> Client {
         let endpoint_uri = format!("http://{host_ip}:{host_port}");
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("fakeKey", "fakeSecret", None, None, "test");
