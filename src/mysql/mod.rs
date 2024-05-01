@@ -16,7 +16,7 @@ const TAG: &str = "8.1";
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, mysql};
 ///
 /// let mysql_instance = mysql::Mysql::default().start();
-/// let mysql_url = format!("mysql://{}:{}/test",mysql_instance.get_host_ip_address(), mysql_instance.get_host_port_ipv4(3306));
+/// let mysql_url = format!("mysql://{}:{}/test",mysql_instance.get_host(), mysql_instance.get_host_port_ipv4(3306));
 /// ```
 ///
 /// [`MySQL`]: https://www.mysql.com/
@@ -75,7 +75,7 @@ mod tests {
 
         let connection_string = &format!(
             "mysql://root@{}:{}/mysql",
-            node.get_host_ip_address(),
+            node.get_host(),
             node.get_host_port_ipv4(3306)
         );
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
@@ -94,7 +94,7 @@ mod tests {
 
         let connection_string = &format!(
             "mysql://root@{}:{}/mysql",
-            node.get_host_ip_address(),
+            node.get_host(),
             node.get_host_port_ipv4(3306)
         );
 

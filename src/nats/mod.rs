@@ -76,9 +76,10 @@ impl Image for Nats {
 
 #[cfg(test)]
 mod tests {
-    use crate::nats::{Nats, NatsServerArgs};
     use futures::StreamExt;
     use testcontainers::runners::AsyncRunner;
+
+    use crate::nats::{Nats, NatsServerArgs};
 
     #[test]
     fn set_user() {
@@ -95,8 +96,9 @@ mod tests {
     #[tokio::test]
     async fn it_works() {
         let container = Nats::default().start().await;
+        let host = container.get_host().await;
         let host_port = container.get_host_port_ipv4(4222).await;
-        let url = format!("127.0.0.1:{host_port}");
+        let url = format!("{host}:{host_port}");
 
         let nats_client = async_nats::ConnectOptions::default()
             .connect(url)

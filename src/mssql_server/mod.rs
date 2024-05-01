@@ -20,7 +20,7 @@ use testcontainers::{core::WaitFor, Image};
 /// let mssql_server = mssql_server::MssqlServer::default().start();
 /// let ado_connection_string = format!(
 ///    "Server=tcp:{},{};Database=test;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;",
-///    mssql_server.get_host_ip_address(),
+///    mssql_server.get_host(),
 ///    mssql_server.get_host_port_ipv4(1433)
 /// );
 /// ```
@@ -109,7 +109,7 @@ impl Image for MssqlServer {
 
 #[cfg(test)]
 mod tests {
-    use std::{error, net::IpAddr};
+    use std::error;
 
     use testcontainers::{runners::AsyncRunner, RunnableImage};
     use tiberius::{AuthMethod, Client, Config};
@@ -122,7 +122,7 @@ mod tests {
     async fn one_plus_one() -> Result<(), Box<dyn error::Error>> {
         let container = MssqlServer::default().start().await;
         let config = new_config(
-            container.get_host_ip_address().await,
+            container.get_host().await,
             container.get_host_port_ipv4(1433).await,
             "yourStrong(!)Password",
         );
@@ -141,7 +141,7 @@ mod tests {
         let image = MssqlServer::default().with_sa_password("yourStrongPassword123!");
         let container = image.start().await;
         let config = new_config(
-            container.get_host_ip_address().await,
+            container.get_host().await,
             container.get_host_port_ipv4(1433).await,
             "yourStrongPassword123!",
         );
@@ -160,7 +160,7 @@ mod tests {
         let image = RunnableImage::from(MssqlServer::default()).with_tag("2019-CU23-ubuntu-20.04");
         let container = image.start().await;
         let config = new_config(
-            container.get_host_ip_address().await,
+            container.get_host().await,
             container.get_host_port_ipv4(1433).await,
             "yourStrong(!)Password",
         );
@@ -185,7 +185,7 @@ mod tests {
         Ok(client)
     }
 
-    fn new_config(host: IpAddr, port: u16, password: &str) -> Config {
+    fn new_config(host: impl ToString, port: u16, password: &str) -> Config {
         let mut config = Config::new();
         config.host(host);
         config.port(port);

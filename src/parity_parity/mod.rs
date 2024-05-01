@@ -49,7 +49,7 @@ mod tests {
     fn parity_parity_net_version() {
         let _ = pretty_env_logger::try_init();
         let node = parity_parity::ParityEthereum.start();
-        let host_ip = node.get_host_ip_address();
+        let host_ip = node.get_host();
         let host_port = node.get_host_port_ipv4(8545);
 
         let response = reqwest::blocking::Client::new()

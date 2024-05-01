@@ -16,7 +16,7 @@ const TAG: &str = "7.2.0-v8";
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{RedisStack, REDIS_PORT}};
 ///
 /// let redis_instance = RedisStack.start();
-/// let host_ip = redis_instance.get_host_ip_address();
+/// let host_ip = redis_instance.get_host();
 /// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT);
 ///
 /// let url = format!("redis://{host_ip}:{host_port}");
@@ -64,7 +64,7 @@ mod tests {
     fn redis_fetch_an_integer_in_json() {
         let _ = pretty_env_logger::try_init();
         let node = RedisStack.start();
-        let host_ip = node.get_host_ip_address();
+        let host_ip = node.get_host();
         let host_port = node.get_host_port_ipv4(REDIS_PORT);
         let url = format!("redis://{host_ip}:{host_port}");
 

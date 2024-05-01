@@ -69,7 +69,7 @@ serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 surrealdb = { version = "1.2.0" }
 tar = "0.4.40"
-testcontainers = { version = "0.16.3", features = ["blocking"] }
+testcontainers = { version = "0.16.7", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = [

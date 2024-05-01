@@ -64,7 +64,7 @@ mod tests {
     fn solr_ping() {
         let solr_image = Solr::default();
         let container = solr_image.start();
-        let host_ip = container.get_host_ip_address();
+        let host_ip = container.get_host();
         let host_port = container.get_host_port_ipv4(SOLR_PORT);
 
         let url = format!(

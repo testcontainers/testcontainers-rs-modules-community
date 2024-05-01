@@ -54,7 +54,7 @@ mod tests {
 
         let node = ZookeeperImage::default().start().await;
 
-        let host_ip = node.get_host_ip_address().await;
+        let host_ip = node.get_host().await;
         let host_port = node.get_host_port_ipv4(2181).await;
         let zk_url = format!("{host_ip}:{host_port}");
         let client = Client::connect(&zk_url)
