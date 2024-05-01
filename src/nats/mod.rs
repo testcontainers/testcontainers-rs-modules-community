@@ -29,7 +29,6 @@ impl NatsServerArgs {
     }
 }
 
-
 impl Default for NatsServerArgs {
     fn default() -> Self {
         Self {
@@ -55,7 +54,6 @@ impl ImageArgs for NatsServerArgs {
         Box::new(args.into_iter())
     }
 }
-
 
 impl Image for Nats {
     type Args = NatsServerArgs;
