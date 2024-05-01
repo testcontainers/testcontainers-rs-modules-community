@@ -1,4 +1,4 @@
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{core::WaitFor, Image, ImageArgs};
 
 const NAME: &str = "nats";
 const TAG: &str = "2.10.14";
@@ -11,8 +11,41 @@ pub struct Nats {
     _private: (),
 }
 
+#[derive(Debug, Clone)]
+pub struct NatsServerArgs {
+    pub user: Option<String>,
+    pub pass: Option<String>,
+}
+
+impl Default for NatsServerArgs {
+    fn default() -> Self {
+        Self {
+            user: None,
+            pass: None,
+        }
+    }
+}
+
+impl ImageArgs for NatsServerArgs {
+    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
+        let mut args = Vec::new();
+
+        if let Some(ref user) = self.user {
+            args.push("--user".to_owned());
+            args.push(user.to_owned())
+        }
+        if let Some(ref pass) = self.pass {
+            args.push("--pass".to_owned());
+            args.push(pass.to_owned())
+        }
+
+        Box::new(args.into_iter())
+    }
+}
+
+
 impl Image for Nats {
-    type Args = ();
+    type Args = NatsServerArgs;
 
     fn name(&self) -> String {
         NAME.to_owned()
@@ -39,7 +72,6 @@ mod tests {
     #[tokio::test]
     async fn it_works() {
         let container = Nats::default().start().await;
-
         let host_port = container.get_host_port_ipv4(4222).await;
         let url = format!("127.0.0.1:{host_port}");
 
