@@ -13,9 +13,22 @@ pub struct Nats {
 
 #[derive(Debug, Clone)]
 pub struct NatsServerArgs {
-    pub user: Option<String>,
-    pub pass: Option<String>,
+    user: Option<String>,
+    pass: Option<String>,
 }
+
+impl NatsServerArgs {
+    pub fn with_user(mut self, user: &str) -> Self {
+        self.user = Some(user.to_owned());
+        self
+    }
+
+    pub fn with_password(mut self, password: &str) -> Self {
+        self.pass = Some(password.to_owned());
+        self
+    }
+}
+
 
 impl Default for NatsServerArgs {
     fn default() -> Self {
@@ -65,9 +78,21 @@ impl Image for Nats {
 
 #[cfg(test)]
 mod tests {
-    use crate::nats::Nats;
+    use crate::nats::{Nats, NatsServerArgs};
     use futures::StreamExt;
     use testcontainers::runners::AsyncRunner;
+
+    #[test]
+    fn set_user() {
+        let nats_cmd_args = NatsServerArgs::default().with_user("custom_user");
+        assert_eq!(nats_cmd_args.user, Some("custom_user".into()));
+    }
+
+    #[test]
+    fn set_password() {
+        let nats_cmd_args = NatsServerArgs::default().with_password("custom_password");
+        assert_eq!(nats_cmd_args.pass, Some("custom_password".into()));
+    }
 
     #[tokio::test]
     async fn it_works() {
