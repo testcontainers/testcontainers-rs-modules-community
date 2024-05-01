@@ -94,10 +94,8 @@ mod tests {
         let minio = minio::MinIO::default();
         let node = minio.start().await;
 
-        let host_ip = node.get_host().await;
         let host_port = node.get_host_port_ipv4(9000).await;
-
-        let client = build_s3_client(host_ip, host_port).await;
+        let client = build_s3_client(host_port).await;
 
         let bucket_name = "test-bucket";
 
@@ -119,8 +117,8 @@ mod tests {
         assert_eq!(bucket_name, buckets[0].name.as_ref().unwrap());
     }
 
-    async fn build_s3_client(hos_ip: impl Display, host_port: u16) -> Client {
-        let endpoint_uri = format!("http://{hos_ip}:{host_port}");
+    async fn build_s3_client(host_port: u16) -> Client {
+        let endpoint_uri = format!("http://127.0.0.1:{host_port}");
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("minioadmin", "minioadmin", None, None, "test");
 
