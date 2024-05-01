@@ -81,8 +81,6 @@ impl Image for MinIO {
 
 #[cfg(test)]
 mod tests {
-    use std::fmt::Display;
-
     use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_s3::{config::Credentials, Client};
     use testcontainers::runners::AsyncRunner;
