@@ -34,7 +34,7 @@ mod tests {
     #[tokio::test]
     async fn sqs_list_queues() {
         let node = ElasticMq.start().await;
-        let host_ip = node.get_host_ip_address().await;
+        let host_ip = node.get_host().await;
         let host_port = node.get_host_port_ipv4(9324).await;
         let client = build_sqs_client(host_ip, host_port).await;
 

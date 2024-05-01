@@ -11,7 +11,7 @@ use testcontainers::{core::WaitFor, Image, ImageArgs};
 ///
 /// let mosquitto_instance = mosquitto::Mosquitto.start();
 ///
-/// let broker_url = format!("{}:{}", mosquitto_instance.get_host_ip_address(), mosquitto_instance.get_host_port_ipv4(1883));
+/// let broker_url = format!("{}:{}", mosquitto_instance.get_host(), mosquitto_instance.get_host_port_ipv4(1883));
 /// ```
 ///
 /// [`Mosquitto`]: https://mosquitto.org/

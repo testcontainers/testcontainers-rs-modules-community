@@ -94,7 +94,7 @@ mod tests {
         let minio = minio::MinIO::default();
         let node = minio.start().await;
 
-        let host_ip = node.get_host_ip_address().await;
+        let host_ip = node.get_host().await;
         let host_port = node.get_host_port_ipv4(9000).await;
 
         let client = build_s3_client(host_ip, host_port).await;

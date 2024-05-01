@@ -15,7 +15,7 @@ const TAG: &str = "5.0";
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{Redis, REDIS_PORT}};
 ///
 /// let redis_instance = Redis::default().start();
-/// let host_ip = redis_instance.get_host_ip_address();
+/// let host_ip = redis_instance.get_host();
 /// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT);
 ///
 /// let url = format!("redis://{host_ip}:{host_port}");
@@ -59,7 +59,7 @@ mod tests {
     fn redis_fetch_an_integer() {
         let _ = pretty_env_logger::try_init();
         let node = Redis.start();
-        let host_ip = node.get_host_ip_address();
+        let host_ip = node.get_host();
         let host_port = node.get_host_port_ipv4(6379);
         let url = format!("redis://{host_ip}:{host_port}");
 

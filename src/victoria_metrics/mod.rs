@@ -58,7 +58,7 @@ mod tests {
     #[test]
     fn query_buildinfo() {
         let node = VictoriaMetricsImage.start();
-        let host_ip = node.get_host_ip_address();
+        let host_ip = node.get_host();
         let host_port = node.get_host_port_ipv4(8428);
         let url = format!("http://{host_ip}:{host_port}/api/v1/status/buildinfo");
 

@@ -16,7 +16,7 @@ const TAG: &str = "3.8.22-management";
 ///
 /// let rabbitmq_instance = rabbitmq::RabbitMq.start();
 ///
-/// let amqp_url = format!("amqp://{}:{}", rabbitmq_instance.get_host_ip_address(), rabbitmq_instance.get_host_port_ipv4(5672));
+/// let amqp_url = format!("amqp://{}:{}", rabbitmq_instance.get_host(), rabbitmq_instance.get_host_port_ipv4(5672));
 ///
 /// // do something with the started rabbitmq instance..
 /// ```
@@ -69,7 +69,7 @@ mod tests {
 
         let amqp_url = format!(
             "amqp://{}:{}",
-            rabbit_node.get_host_ip_address().await,
+            rabbit_node.get_host().await,
             rabbit_node.get_host_port_ipv4(5672).await
         );
 

@@ -20,7 +20,7 @@ const TAG: &str = "11-alpine";
 ///
 /// let connection_string = format!(
 ///     "postgres://postgres:postgres@{}:{}/postgres",
-///     postgres_instance.get_host_ip_address(),
+///     postgres_instance.get_host(),
 ///     postgres_instance.get_host_port_ipv4(5432)
 /// );
 /// ```
@@ -109,7 +109,7 @@ mod tests {
 
         let connection_string = &format!(
             "postgres://postgres@{}:{}/postgres",
-            node.get_host_ip_address(),
+            node.get_host(),
             node.get_host_port_ipv4(5432)
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
@@ -130,7 +130,7 @@ mod tests {
 
         let connection_string = &format!(
             "postgres://postgres:postgres@{}:{}/postgres",
-            node.get_host_ip_address(),
+            node.get_host(),
             node.get_host_port_ipv4(5432)
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();

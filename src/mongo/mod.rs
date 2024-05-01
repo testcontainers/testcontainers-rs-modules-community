@@ -33,7 +33,7 @@ mod tests {
     async fn mongo_fetch_document() {
         let _ = pretty_env_logger::try_init();
         let node = mongo::Mongo.start().await;
-        let host_ip = node.get_host_ip_address().await;
+        let host_ip = node.get_host().await;
         let host_port = node.get_host_port_ipv4(27017).await;
         let url = format!("mongodb://{host_ip}:{host_port}/");
 

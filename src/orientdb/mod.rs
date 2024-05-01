@@ -56,7 +56,7 @@ mod tests {
             client
                 .get(format!(
                     "http://{}:{}/listDatabases",
-                    node.get_host_ip_address(),
+                    node.get_host(),
                     node.get_host_port_ipv4(2480)
                 ))
                 .header("Accept-Encoding", "gzip,deflate")

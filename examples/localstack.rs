@@ -12,7 +12,7 @@ async fn main() -> Result<(), s3::Error> {
         RunnableImage::from(LocalStack).with_env_var(("SERVICES", "s3"));
     let container = image.start().await;
 
-    let host_ip = container.get_host_ip_address().await;
+    let host_ip = container.get_host().await;
     let host_port = container.get_host_port_ipv4(4566).await;
 
     // Set up AWS client

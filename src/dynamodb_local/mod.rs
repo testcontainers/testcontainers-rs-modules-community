@@ -48,7 +48,7 @@ mod tests {
     async fn dynamodb_local_create_table() {
         let _ = pretty_env_logger::try_init();
         let node = DynamoDb.start().await;
-        let host_ip = node.get_host_ip_address().await;
+        let host_ip = node.get_host().await;
         let host_port = node.get_host_port_ipv4(8000).await;
 
         let table_name = "books".to_string();

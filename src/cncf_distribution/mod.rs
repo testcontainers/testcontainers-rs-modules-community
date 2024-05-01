@@ -14,7 +14,7 @@ const TAG: &str = "2";
 /// let registry = cncf_distribution::CncfDistribution.start();
 ///
 /// let image_name = "test";
-/// let image_tag = format!("{}:{}/{image_name}", registry.get_host_ip_address(), registry.get_host_port_ipv4(5000));
+/// let image_tag = format!("{}:{}/{image_name}", registry.get_host(), registry.get_host_port_ipv4(5000));
 ///
 /// // now you can push an image tagged with `image_tag` and pull it afterward
 /// ```
