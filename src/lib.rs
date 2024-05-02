@@ -33,6 +33,9 @@ pub mod kafka;
 #[cfg(feature = "localstack")]
 #[cfg_attr(docsrs, doc(cfg(feature = "localstack")))]
 pub mod localstack;
+#[cfg(feature = "mariadb")]
+#[cfg_attr(docsrs, doc(cfg(feature = "mariadb")))]
+pub mod mariadb;
 #[cfg(feature = "minio")]
 #[cfg_attr(docsrs, doc(cfg(feature = "minio")))]
 pub mod minio;
