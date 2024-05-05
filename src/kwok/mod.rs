@@ -61,9 +61,8 @@ mod test {
         config::{AuthInfo, Cluster, KubeConfigOptions, Kubeconfig, NamedAuthInfo, NamedCluster},
         Api, Config,
     };
-    use testcontainers::clients;
 
-    use crate::kwok::KwokCluster;
+    use crate::{kwok::KwokCluster, testcontainers::runners::AsyncRunner};
 
     const CLUSTER_NAME: &str = "kwok-kwok";
     const CONTEXT_NAME: &str = "kwok-kwok";
@@ -71,9 +70,8 @@ mod test {
 
     #[tokio::test]
     async fn test_kwok_image() {
-        let docker = clients::Cli::default();
-        let node = docker.run(KwokCluster::default());
-        let host_port = node.get_host_port_ipv4(8080);
+        let node = KwokCluster.start().await;
+        let host_port = node.get_host_port_ipv4(8080).await;
 
         // Create a custom Kubeconfig
         let kubeconfig = Kubeconfig {
