@@ -40,3 +40,80 @@ impl Image for K3s {
         vec![KUBE_SECURE_PORT, RANCHER_WEBHOOK_PORT, TRAEFIK_HTTP]
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use k8s_openapi::api::core::v1::Pod;
+    use kube::api::ListParams;
+    use kube::config::{KubeConfigOptions, Kubeconfig};
+    use kube::{Api, Config, ResourceExt};
+    use std::env::temp_dir;
+    use std::fs;
+    use std::path::Path;
+    use testcontainers::core::Mount;
+    use testcontainers::runners::AsyncRunner;
+    use testcontainers::{ContainerAsync, RunnableImage};
+
+    use super::*;
+
+    #[tokio::test]
+    async fn k3s_pods() {
+        let conf_dir = temp_dir();
+        let k3s = RunnableImage::from(K3s::default())
+            .with_env_var(("K3S_KUBECONFIG_MODE", "644"))
+            .with_privileged(true)
+            .with_userns_mode("host")
+            .with_mount(Mount::bind_mount(
+                conf_dir.to_str().unwrap_or_default(),
+                "/etc/rancher/k3s/",
+            ));
+        let k3s_container = k3s.start().await;
+
+        let client = get_kube_client(&k3s_container, &conf_dir).await;
+
+        let pods = Api::<Pod>::all(client)
+            .list(&ListParams::default())
+            .await
+            .expect("Cannot read pods");
+
+        assert!(
+            pods.iter().any(|pod| pod.name_any().starts_with("coredns")),
+            "coredns pod not found"
+        );
+        assert!(
+            pods.iter()
+                .any(|pod| pod.name_any().starts_with("metrics-server")),
+            "metrics-server pod not found"
+        );
+        assert!(
+            pods.iter()
+                .any(|pod| pod.name_any().starts_with("local-path-provisioner")),
+            "local-path-provisioner pod not found"
+        );
+    }
+
+    pub async fn get_kube_client(container: &ContainerAsync<K3s>, conf_dir: &Path) -> kube::Client {
+        rustls::crypto::ring::default_provider()
+            .install_default()
+            .expect("Error initializing rustls provider");
+
+        let source_dir = conf_dir.join("k3s.yaml");
+
+        let conf_yaml = fs::read_to_string(&source_dir).expect("Error reading k3s.yaml");
+
+        let mut config = Kubeconfig::from_yaml(&conf_yaml).expect("Error loading kube config");
+
+        let port = container.get_host_port_ipv4(KUBE_SECURE_PORT).await;
+        config.clusters.iter_mut().for_each(|cluster| {
+            if let Some(server) = cluster.cluster.as_mut().and_then(|c| c.server.as_mut()) {
+                *server = format!("https://127.0.0.1:{}", port)
+            }
+        });
+
+        let client_config = Config::from_custom_kubeconfig(config, &KubeConfigOptions::default())
+            .await
+            .expect("Error building client config");
+
+        kube::Client::try_from(client_config).expect("Error building client")
+    }
+}
