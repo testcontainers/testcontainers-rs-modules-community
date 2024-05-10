@@ -8,6 +8,8 @@ use testcontainers_modules::{
 #[tokio::main]
 #[allow(clippy::result_large_err)]
 async fn main() -> Result<(), s3::Error> {
+    let _ = pretty_env_logger::try_init();
+
     let image: RunnableImage<LocalStack> =
         RunnableImage::from(LocalStack).with_env_var(("SERVICES", "s3"));
     let container = image.start().await;
