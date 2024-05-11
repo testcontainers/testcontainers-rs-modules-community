@@ -95,6 +95,7 @@ mod tests {
     use kube::api::ListParams;
     use kube::config::{KubeConfigOptions, Kubeconfig};
     use kube::{Api, Config, ResourceExt};
+    use rustls::crypto::CryptoProvider;
     use testcontainers::runners::AsyncRunner;
     use testcontainers::{ContainerAsync, RunnableImage};
 
@@ -133,9 +134,11 @@ mod tests {
     }
 
     pub async fn get_kube_client(container: &ContainerAsync<K3s>) -> kube::Client {
-        rustls::crypto::ring::default_provider()
-            .install_default()
-            .expect("Error initializing rustls provider");
+        if CryptoProvider::get_default().is_none() {
+            rustls::crypto::ring::default_provider()
+                .install_default()
+                .expect("Error initializing rustls provider");
+        }
 
         let conf_yaml = container
             .image()
