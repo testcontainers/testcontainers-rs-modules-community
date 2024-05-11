@@ -12,6 +12,33 @@ pub const TRAEFIK_HTTP: u16 = 80;
 pub const KUBE_SECURE_PORT: u16 = 6443;
 pub const RANCHER_WEBHOOK_PORT: u16 = 8443;
 
+/// Module to work with [`K3s`] inside of tests.
+///
+/// Starts an instance of K3s, a single-node server fully-functional Kubernetes cluster
+/// so you are able interact with the cluster using standard [`Kubernetes API`] exposed at [`KUBE_SECURE_PORT`] port
+///
+/// This module is based on the official [`K3s docker image`].
+///
+/// # Example
+/// ```
+/// use std::env::temp_dir;
+/// use testcontainers::RunnableImage;
+/// use testcontainers::runners::SyncRunner;
+/// use testcontainers_modules::k3s::{K3s, KUBE_SECURE_PORT};
+///
+/// let k3s_instance = RunnableImage::from(K3s::default().with_conf_mount(&temp_dir()))
+///            .with_privileged(true)
+///            .with_userns_mode("host")
+///            .start();
+///
+/// let kube_port = k3s_instance.get_host_port_ipv4(KUBE_SECURE_PORT);
+/// let kube_conf = k3s_instance.image().read_kube_config().expect("Cannot read kube conf");
+/// // use kube_port and kube_conf to connect and control k3s cluster
+/// ```
+///
+/// [`K3s`]: https://k3s.io/
+/// [`Kubernetes API`]: https://kubernetes.io/docs/concepts/overview/kubernetes-api/
+/// [`K3s docker image`]: https://hub.docker.com/r/rancher/k3s
 #[derive(Debug, Default, Clone)]
 pub struct K3s {
     env_vars: HashMap<String, String>,
