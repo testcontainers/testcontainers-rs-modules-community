@@ -46,7 +46,9 @@ pub struct K3s {
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct K3sArgs;
+pub struct K3sArgs {
+    _priv: (),
+}
 
 impl ImageArgs for K3sArgs {
     fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
