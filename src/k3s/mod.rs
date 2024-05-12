@@ -162,19 +162,23 @@ mod tests {
             .await
             .expect("Cannot read pods");
 
+        let pod_names = pods.into_iter()
+            .map(|pod| pod.name_any())
+            .collect::<Vec<_>>();
+
         assert!(
-            pods.iter().any(|pod| pod.name_any().starts_with("coredns")),
-            "coredns pod not found"
+            pod_names.iter().any(|pod_name| pod_name.starts_with("coredns")),
+            "coredns pod not found - found pods {pod_names:?}"
         );
         assert!(
-            pods.iter()
-                .any(|pod| pod.name_any().starts_with("metrics-server")),
-            "metrics-server pod not found"
+            pod_names.iter()
+                .any(|pod_name| pod_name.starts_with("metrics-server")),
+            "metrics-server pod not found - found pods {pod_names:?}"
         );
         assert!(
-            pods.iter()
-                .any(|pod| pod.name_any().starts_with("local-path-provisioner")),
-            "local-path-provisioner pod not found"
+            pod_names.iter()
+                .any(|pod_name| pod_name.starts_with("local-path-provisioner")),
+            "local-path-provisioner pod not found - found pods {pod_names:?}"
         );
     }
 
