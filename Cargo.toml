@@ -22,6 +22,7 @@ dynamodb = []
 elastic_search = []
 elasticmq = []
 google_cloud_sdk_emulators = []
+k3s = []
 kafka = []
 localstack = []
 mariadb = []
@@ -67,6 +68,7 @@ rdkafka = "0.36.0"
 redis = { version = "0.25.0", features = ["json"] }
 reqwest = { version = "0.12.1", features = ["blocking", "json"] }
 retry = "2.0.0"
+rustls = { version = "0.23.2", features = ["ring"] }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 surrealdb = { version = "1.2.0" }
@@ -81,7 +83,7 @@ tiberius = { version = "0.12.2", default-features = false, features = [
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 zookeeper-client = { version = "0.7.1" }
-kube = { version = "0.90.0", default-features = false, features = ["client"] }
+kube = { version = "0.90.0", default-features = false, features = ["client", "rustls-tls"] }
 k8s-openapi = { version = "0.21.1", features = ["v1_29"] }
 
 [[example]]

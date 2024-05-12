@@ -27,6 +27,9 @@ pub mod elasticmq;
 #[cfg(feature = "google_cloud_sdk_emulators")]
 #[cfg_attr(docsrs, doc(cfg(feature = "google_cloud_sdk_emulators")))]
 pub mod google_cloud_sdk_emulators;
+#[cfg(feature = "k3s")]
+#[cfg_attr(docsrs, doc(cfg(feature = "k3s")))]
+pub mod k3s;
 #[cfg(feature = "kafka")]
 #[cfg_attr(docsrs, doc(cfg(feature = "kafka")))]
 pub mod kafka;

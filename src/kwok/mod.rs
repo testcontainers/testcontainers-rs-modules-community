@@ -61,6 +61,7 @@ mod test {
         config::{AuthInfo, Cluster, KubeConfigOptions, Kubeconfig, NamedAuthInfo, NamedCluster},
         Api, Config,
     };
+    use rustls::crypto::CryptoProvider;
 
     use crate::{kwok::KwokCluster, testcontainers::runners::AsyncRunner};
 
@@ -70,6 +71,12 @@ mod test {
 
     #[tokio::test]
     async fn test_kwok_image() {
+        if CryptoProvider::get_default().is_none() {
+            rustls::crypto::ring::default_provider()
+                .install_default()
+                .expect("Error initializing rustls provider");
+        }
+
         let node = KwokCluster.start().await;
         let host_port = node.get_host_port_ipv4(8080).await;
 

@@ -44,6 +44,7 @@ impl Image for Zookeeper {
 
 #[cfg(test)]
 mod tests {
+    use rustls::crypto::CryptoProvider;
     use zookeeper_client::{Acls, Client, CreateMode, EventType};
 
     use crate::{testcontainers::runners::AsyncRunner, zookeeper::Zookeeper as ZookeeperImage};
@@ -51,6 +52,11 @@ mod tests {
     #[tokio::test]
     async fn zookeeper_check_directories_existence() {
         let _ = pretty_env_logger::try_init();
+        if CryptoProvider::get_default().is_none() {
+            rustls::crypto::ring::default_provider()
+                .install_default()
+                .expect("Error initializing rustls provider");
+        }
 
         let node = ZookeeperImage::default().start().await;
 
