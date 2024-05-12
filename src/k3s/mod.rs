@@ -52,7 +52,10 @@ pub struct K3sArgs {
 
 impl K3sArgs {
     pub fn with_snapshotter(self, snapshotter: impl Into<String>) -> Self {
-        Self { snapshotter: snapshotter.into(), ..self }
+        Self {
+            snapshotter: snapshotter.into(),
+            ..self
+        }
     }
 }
 
@@ -162,21 +165,26 @@ mod tests {
             .await
             .expect("Cannot read pods");
 
-        let pod_names = pods.into_iter()
+        let pod_names = pods
+            .into_iter()
             .map(|pod| pod.name_any())
             .collect::<Vec<_>>();
 
         assert!(
-            pod_names.iter().any(|pod_name| pod_name.starts_with("coredns")),
+            pod_names
+                .iter()
+                .any(|pod_name| pod_name.starts_with("coredns")),
             "coredns pod not found - found pods {pod_names:?}"
         );
         assert!(
-            pod_names.iter()
+            pod_names
+                .iter()
                 .any(|pod_name| pod_name.starts_with("metrics-server")),
             "metrics-server pod not found - found pods {pod_names:?}"
         );
         assert!(
-            pod_names.iter()
+            pod_names
+                .iter()
                 .any(|pod_name| pod_name.starts_with("local-path-provisioner")),
             "local-path-provisioner pod not found - found pods {pod_names:?}"
         );
