@@ -47,15 +47,19 @@ pub struct K3s {
 
 #[derive(Debug, Clone)]
 pub struct K3sArgs {
-    pub snapshotter: Option<String>,
-    _priv: (),
+    snapshotter: String,
+}
+
+impl K3sArgs {
+    pub fn with_snapshotter(self, snapshotter: impl Into<String>) -> Self {
+        Self { snapshotter: snapshotter.into(), ..self }
+    }
 }
 
 impl Default for K3sArgs {
     fn default() -> Self {
         Self {
-            snapshotter: Some(String::from("native")),
-            _priv: (),
+            snapshotter: String::from("native"),
         }
     }
 }
@@ -63,9 +67,7 @@ impl Default for K3sArgs {
 impl ImageArgs for K3sArgs {
     fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
         let mut args = vec![String::from("server")];
-        if let Some(snapshotter) = self.snapshotter {
-            args.push(format!("--snapshotter={snapshotter}"));
-        }
+        args.push(format!("--snapshotter={}", self.snapshotter));
         Box::new(args.into_iter())
     }
 }
