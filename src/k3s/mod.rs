@@ -45,14 +45,28 @@ pub struct K3s {
     conf_mount: Option<Mount>,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct K3sArgs {
+    pub snapshotter: Option<String>,
     _priv: (),
+}
+
+impl Default for K3sArgs {
+    fn default() -> Self {
+        Self {
+            snapshotter: Some(String::from("native")),
+            _priv: (),
+        }
+    }
 }
 
 impl ImageArgs for K3sArgs {
     fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        Box::new([String::from("server"), String::from("--snapshotter=native")].into_iter())
+        let mut args = vec![String::from("server")];
+        if let Some(snapshotter) = self.snapshotter {
+            args.push(format!("--snapshotter={snapshotter}"));
+        }
+        Box::new(args.into_iter())
     }
 }
 
