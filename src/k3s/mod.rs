@@ -1,10 +1,14 @@
-use std::collections::HashMap;
-use std::io;
-use std::io::ErrorKind;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    io,
+    io::ErrorKind,
+    path::{Path, PathBuf},
+};
 
-use testcontainers::core::{Mount, WaitFor};
-use testcontainers::{Image, ImageArgs};
+use testcontainers::{
+    core::{Mount, WaitFor},
+    Image, ImageArgs,
+};
 
 const NAME: &str = "rancher/k3s";
 const TAG: &str = "v1.28.8-k3s1";
@@ -87,9 +91,9 @@ impl Image for K3s {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::StdErrMessage {
-            message: String::from("Node controller sync successful"),
-        }]
+        vec![WaitFor::message_on_stderr(
+            "Node controller sync successful",
+        )]
     }
 
     fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
@@ -140,12 +144,13 @@ mod tests {
     use std::env::temp_dir;
 
     use k8s_openapi::api::core::v1::Pod;
-    use kube::api::ListParams;
-    use kube::config::{KubeConfigOptions, Kubeconfig};
-    use kube::{Api, Config, ResourceExt};
+    use kube::{
+        api::ListParams,
+        config::{KubeConfigOptions, Kubeconfig},
+        Api, Config, ResourceExt,
+    };
     use rustls::crypto::CryptoProvider;
-    use testcontainers::runners::AsyncRunner;
-    use testcontainers::{ContainerAsync, RunnableImage};
+    use testcontainers::{runners::AsyncRunner, ContainerAsync, RunnableImage};
 
     use super::*;
 
