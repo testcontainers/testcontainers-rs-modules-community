@@ -1,7 +1,7 @@
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "amazon/dynamodb-local";
-const TAG: &str = "2.0.0";
+const TAG: &str = "2.2.0";
 const DEFAULT_WAIT: u64 = 3000;
 
 #[derive(Default, Debug)]
