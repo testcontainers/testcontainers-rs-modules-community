@@ -17,8 +17,8 @@ const TAG: &str = "9.5.0-slim";
 /// ```
 /// use testcontainers_modules::{solr, testcontainers::runners::SyncRunner};
 ///
-/// let solr_instance = solr::Solr::default().start();
-/// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT);
+/// let solr_instance = solr::Solr::default().start()?;
+/// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT)?;
 
 /// let solr_url = format!("http://127.0.0.1:{}", host_port);
 ///
@@ -61,11 +61,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn solr_ping() {
+    fn solr_ping() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let solr_image = Solr::default();
-        let container = solr_image.start();
-        let host_ip = container.get_host();
-        let host_port = container.get_host_port_ipv4(SOLR_PORT);
+        let container = solr_image.start()?;
+        let host_ip = container.get_host()?;
+        let host_port = container.get_host_port_ipv4(SOLR_PORT)?;
 
         let url = format!(
             "http://{host_ip}:{}/solr/admin/cores?action=STATUS",
@@ -78,5 +78,6 @@ mod tests {
         let json: serde_json::Value = res.json().expect("valid JSON body");
 
         assert_eq!(json["responseHeader"]["status"], 0);
+        Ok(())
     }
 }

@@ -14,9 +14,9 @@ const TAG: &str = "3.8.22-management";
 /// ```
 /// use testcontainers_modules::{rabbitmq, testcontainers::runners::SyncRunner};
 ///
-/// let rabbitmq_instance = rabbitmq::RabbitMq.start();
+/// let rabbitmq_instance = rabbitmq::RabbitMq.start()?;
 ///
-/// let amqp_url = format!("amqp://{}:{}", rabbitmq_instance.get_host(), rabbitmq_instance.get_host_port_ipv4(5672));
+/// let amqp_url = format!("amqp://{}:{}", rabbitmq_instance.get_host()?, rabbitmq_instance.get_host_port_ipv4(5672)?);
 ///
 /// // do something with the started rabbitmq instance..
 /// ```
@@ -63,14 +63,15 @@ mod tests {
     use crate::{rabbitmq, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
-    async fn rabbitmq_produce_and_consume_messages() {
+    async fn rabbitmq_produce_and_consume_messages(
+    ) -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let rabbit_node = rabbitmq::RabbitMq.start().await;
+        let rabbit_node = rabbitmq::RabbitMq.start().await?;
 
         let amqp_url = format!(
             "amqp://{}:{}",
-            rabbit_node.get_host().await,
-            rabbit_node.get_host_port_ipv4(5672).await
+            rabbit_node.get_host().await?,
+            rabbit_node.get_host_port_ipv4(5672).await?
         );
 
         let options = ConnectionProperties::default();
@@ -145,5 +146,6 @@ mod tests {
         );
         assert_eq!(delivery.exchange.as_str(), "test_exchange");
         assert_eq!(delivery.routing_key.as_str(), "routing-key");
+        Ok(())
     }
 }

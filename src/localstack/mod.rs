@@ -58,10 +58,10 @@ mod tests {
 
     #[tokio::test]
     #[allow(clippy::result_large_err)]
-    async fn create_and_list_queue() -> Result<(), sqs::Error> {
-        let node = LocalStack.start().await;
-        let host_ip = node.get_host().await;
-        let host_port = node.get_host_port_ipv4(4566).await;
+    async fn create_and_list_queue() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = LocalStack.start().await?;
+        let host_ip = node.get_host().await?;
+        let host_port = node.get_host_port_ipv4(4566).await?;
 
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = sqs::config::Credentials::new("fake", "fake", None, None, "test");

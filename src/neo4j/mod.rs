@@ -6,7 +6,7 @@ use std::{
 
 use testcontainers::{
     core::{ContainerState, WaitFor},
-    Image, RunnableImage,
+    Image, RunnableImage, TestcontainersError,
 };
 
 /// Available Neo4j plugins.
@@ -193,42 +193,50 @@ impl Neo4jImage {
     }
 
     /// Return the port to connect to the Neo4j server via Bolt over IPv4.
-    pub fn bolt_port_ipv4(&self) -> u16 {
+    pub fn bolt_port_ipv4(&self) -> Result<u16, TestcontainersError> {
         self.state
             .read()
-            .unwrap()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .as_ref()
-            .expect("Container must be started before port can be retrieved")
+            .ok_or_else(|| {
+                TestcontainersError::other("Container must be started before port can be retrieved")
+            })?
             .host_port_ipv4(7687)
     }
 
     /// Return the port to connect to the Neo4j server via Bolt over IPv6.
-    pub fn bolt_port_ipv6(&self) -> u16 {
+    pub fn bolt_port_ipv6(&self) -> Result<u16, TestcontainersError> {
         self.state
             .read()
-            .unwrap()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .as_ref()
-            .expect("Container must be started before port can be retrieved")
+            .ok_or_else(|| {
+                TestcontainersError::other("Container must be started before port can be retrieved")
+            })?
             .host_port_ipv6(7687)
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv4.
-    pub fn http_port_ipv4(&self) -> u16 {
+    pub fn http_port_ipv4(&self) -> Result<u16, TestcontainersError> {
         self.state
             .read()
-            .unwrap()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .as_ref()
-            .expect("Container must be started before port can be retrieved")
+            .ok_or_else(|| {
+                TestcontainersError::other("Container must be started before port can be retrieved")
+            })?
             .host_port_ipv4(7474)
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv6.
-    pub fn http_port_ipv6(&self) -> u16 {
+    pub fn http_port_ipv6(&self) -> Result<u16, TestcontainersError> {
         self.state
             .read()
-            .unwrap()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .as_ref()
-            .expect("Container must be started before port can be retrieved")
+            .ok_or_else(|| {
+                TestcontainersError::other("Container must be started before port can be retrieved")
+            })?
             .host_port_ipv6(7474)
     }
 }
@@ -255,12 +263,15 @@ impl Image for Neo4jImage {
         Box::new(self.env_vars.iter())
     }
 
-    fn exec_after_start(&self, cs: ContainerState) -> Vec<testcontainers::core::ExecCommand> {
+    fn exec_after_start(
+        &self,
+        cs: ContainerState,
+    ) -> Result<Vec<testcontainers::core::ExecCommand>, TestcontainersError> {
         self.state
             .write()
-            .expect("failed to lock the sate of Neo4J")
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .replace(cs);
-        Vec::new()
+        Ok(Vec::new())
     }
 }
 
@@ -456,13 +467,13 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn it_works() {
-        let container = Neo4j::default().start().await;
+    async fn it_works() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let container = Neo4j::default().start().await?;
 
         let uri = format!(
             "bolt://{}:{}",
-            container.get_host().await,
-            container.image().bolt_port_ipv4()
+            container.get_host().await?,
+            container.image().bolt_port_ipv4()?
         );
 
         let auth_user = container.image().user().expect("default user");
@@ -473,5 +484,6 @@ mod tests {
         let row = result.next().await.unwrap().unwrap();
         let value: i64 = row.get("1").unwrap();
         assert_eq!(1, value);
+        Ok(())
     }
 }

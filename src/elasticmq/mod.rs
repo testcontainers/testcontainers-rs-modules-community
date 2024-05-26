@@ -32,15 +32,16 @@ mod tests {
     use crate::{elasticmq::ElasticMq, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
-    async fn sqs_list_queues() {
-        let node = ElasticMq.start().await;
-        let host_ip = node.get_host().await;
-        let host_port = node.get_host_port_ipv4(9324).await;
+    async fn sqs_list_queues() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = ElasticMq.start().await?;
+        let host_ip = node.get_host().await?;
+        let host_port = node.get_host_port_ipv4(9324).await?;
         let client = build_sqs_client(host_ip, host_port).await;
 
         let result = client.list_queues().send().await.unwrap();
         // list should be empty
-        assert!(result.queue_urls.filter(|urls| !urls.is_empty()).is_none())
+        assert!(result.queue_urls.filter(|urls| !urls.is_empty()).is_none());
+        Ok(())
     }
 
     async fn build_sqs_client(host_ip: impl Display, host_port: u16) -> Client {

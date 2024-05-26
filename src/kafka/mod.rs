@@ -98,7 +98,10 @@ impl Image for Kafka {
         vec![KAFKA_PORT]
     }
 
-    fn exec_after_start(&self, cs: ContainerState) -> Vec<ExecCommand> {
+    fn exec_after_start(
+        &self,
+        cs: ContainerState,
+    ) -> Result<Vec<ExecCommand>, testcontainers::TestcontainersError> {
         let mut commands = vec![];
         let cmd = vec![
             "kafka-configs".to_string(),
@@ -112,14 +115,14 @@ impl Image for Kafka {
             "--add-config".to_string(),
             format!(
                 "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
-                cs.host_port_ipv4(KAFKA_PORT)
+                cs.host_port_ipv4(KAFKA_PORT)?
             ),
         ];
         let ready_conditions = vec![WaitFor::message_on_stdout(
             "Checking need to trigger auto leader balancing",
         )];
         commands.push(ExecCommand::new(cmd).with_container_ready_conditions(ready_conditions));
-        commands
+        Ok(commands)
     }
 }
 
@@ -138,13 +141,13 @@ mod tests {
     use crate::kafka;
 
     #[tokio::test]
-    async fn produce_and_consume_messages() {
+    async fn produce_and_consume_messages() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let kafka_node = kafka::Kafka::default().start().await;
+        let kafka_node = kafka::Kafka::default().start().await?;
 
         let bootstrap_servers = format!(
             "127.0.0.1:{}",
-            kafka_node.get_host_port_ipv4(kafka::KAFKA_PORT).await
+            kafka_node.get_host_port_ipv4(kafka::KAFKA_PORT).await?
         );
 
         let producer = ClientConfig::new()
@@ -202,5 +205,7 @@ mod tests {
                     .unwrap()
             );
         }
+
+        Ok(())
     }
 }

@@ -50,7 +50,8 @@ mod tests {
     use crate::{testcontainers::runners::AsyncRunner, zookeeper::Zookeeper as ZookeeperImage};
 
     #[tokio::test]
-    async fn zookeeper_check_directories_existence() {
+    async fn zookeeper_check_directories_existence(
+    ) -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
         if CryptoProvider::get_default().is_none() {
             rustls::crypto::ring::default_provider()
@@ -58,10 +59,10 @@ mod tests {
                 .expect("Error initializing rustls provider");
         }
 
-        let node = ZookeeperImage::default().start().await;
+        let node = ZookeeperImage::default().start().await?;
 
-        let host_ip = node.get_host().await;
-        let host_port = node.get_host_port_ipv4(2181).await;
+        let host_ip = node.get_host().await?;
+        let host_port = node.get_host_port_ipv4(2181).await?;
         let zk_url = format!("{host_ip}:{host_port}");
         let client = Client::connect(&zk_url)
             .await
@@ -82,5 +83,6 @@ mod tests {
         let event = stat_watcher.changed().await;
         assert_eq!(event.event_type, EventType::NodeCreated);
         assert_eq!(event.path, path);
+        Ok(())
     }
 }

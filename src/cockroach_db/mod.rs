@@ -13,8 +13,8 @@ const DEFAULT_IMAGE_TAG: &str = "v23.2.3";
 /// ```
 /// use testcontainers_modules::{cockroach_db, testcontainers::runners::SyncRunner};
 ///
-/// let cockroach = cockroach_db::CockroachDb::default().start();
-/// let http_port = cockroach.get_host_port_ipv4(26257);
+/// let cockroach = cockroach_db::CockroachDb::default().start().unwrap();
+/// let http_port = cockroach.get_host_port_ipv4(26257).unwrap();
 ///
 /// // do something with the started cockroach instance..
 /// ```
@@ -103,13 +103,13 @@ mod tests {
     use crate::testcontainers::runners::SyncRunner;
 
     #[test]
-    fn cockroach_db_one_plus_one() {
+    fn cockroach_db_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let cockroach = CockroachDb::default();
-        let node = cockroach.start();
+        let node = cockroach.start()?;
 
         let connection_string = &format!(
             "postgresql://root@127.0.0.1:{}/defaultdb?sslmode=disable",
-            node.get_host_port_ipv4(26257)
+            node.get_host_port_ipv4(26257)?
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
 
@@ -119,5 +119,6 @@ mod tests {
         let first_row = &rows[0];
         let first_column: i64 = first_row.get(0);
         assert_eq!(first_column, 2);
+        Ok(())
     }
 }

@@ -15,8 +15,8 @@ const TAG: &str = "8.1";
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, mysql};
 ///
-/// let mysql_instance = mysql::Mysql::default().start();
-/// let mysql_url = format!("mysql://{}:{}/test",mysql_instance.get_host(), mysql_instance.get_host_port_ipv4(3306));
+/// let mysql_instance = mysql::Mysql::default().start()?;
+/// let mysql_url = format!("mysql://{}:{}/test", mysql_instance.get_host()?, mysql_instance.get_host_port_ipv4(3306)?);
 /// ```
 ///
 /// [`MySQL`]: https://www.mysql.com/
@@ -69,14 +69,14 @@ mod tests {
     };
 
     #[test]
-    fn mysql_one_plus_one() {
+    fn mysql_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let mysql_image = MysqlImage::default();
-        let node = mysql_image.start();
+        let node = mysql_image.start()?;
 
         let connection_string = &format!(
             "mysql://root@{}:{}/mysql",
-            node.get_host(),
-            node.get_host_port_ipv4(3306)
+            node.get_host()?,
+            node.get_host_port_ipv4(3306)?
         );
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
 
@@ -85,21 +85,23 @@ mod tests {
 
         let first_column: i32 = first_row.unwrap();
         assert_eq!(first_column, 2);
+        Ok(())
     }
 
     #[test]
-    fn mysql_custom_version() {
+    fn mysql_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let image = RunnableImage::from(MysqlImage::default()).with_tag("8.0.34");
-        let node = image.start();
+        let node = image.start()?;
 
         let connection_string = &format!(
             "mysql://root@{}:{}/mysql",
-            node.get_host(),
-            node.get_host_port_ipv4(3306)
+            node.get_host()?,
+            node.get_host_port_ipv4(3306)?
         );
 
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
         let first_row = conn.query_first("SELECT version()").unwrap();
         assert_eq!(first_row, Some(String::from("8.0.34")));
+        Ok(())
     }
 }

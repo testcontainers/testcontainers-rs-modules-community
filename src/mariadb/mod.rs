@@ -69,14 +69,14 @@ mod tests {
     };
 
     #[test]
-    fn mariadb_one_plus_one() {
+    fn mariadb_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let mariadb_image = MariadbImage::default();
-        let node = mariadb_image.start();
+        let node = mariadb_image.start()?;
 
         let connection_string = &format!(
             "mysql://root@{}:{}/test",
-            node.get_host(),
-            node.get_host_port_ipv4(3306)
+            node.get_host()?,
+            node.get_host_port_ipv4(3306)?
         );
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
 
@@ -85,17 +85,18 @@ mod tests {
 
         let first_column: i32 = first_row.unwrap();
         assert_eq!(first_column, 2);
+        Ok(())
     }
 
     #[test]
-    fn mariadb_custom_version() {
+    fn mariadb_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let image = RunnableImage::from(MariadbImage::default()).with_tag("11.2.3");
-        let node = image.start();
+        let node = image.start()?;
 
         let connection_string = &format!(
             "mysql://root@{}:{}/test",
-            node.get_host(),
-            node.get_host_port_ipv4(3306)
+            node.get_host()?,
+            node.get_host_port_ipv4(3306)?
         );
 
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
@@ -106,5 +107,6 @@ mod tests {
             "Expected version to start with 11.2.3, got: {}",
             first_column
         );
+        Ok(())
     }
 }

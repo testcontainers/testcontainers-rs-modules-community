@@ -154,15 +154,15 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn k3s_pods() {
+    async fn k3s_pods() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let conf_dir = temp_dir();
         let k3s = RunnableImage::from(K3s::default().with_conf_mount(&conf_dir))
             .with_privileged(true)
             .with_userns_mode("host");
 
-        let k3s_container = k3s.start().await;
+        let k3s_container = k3s.start().await?;
 
-        let client = get_kube_client(&k3s_container).await;
+        let client = get_kube_client(&k3s_container).await?;
 
         let pods = Api::<Pod>::all(client)
             .list(&ListParams::default())
@@ -192,33 +192,32 @@ mod tests {
                 .any(|pod_name| pod_name.starts_with("local-path-provisioner")),
             "local-path-provisioner pod not found - found pods {pod_names:?}"
         );
+        Ok(())
     }
 
-    pub async fn get_kube_client(container: &ContainerAsync<K3s>) -> kube::Client {
+    pub async fn get_kube_client(
+        container: &ContainerAsync<K3s>,
+    ) -> Result<kube::Client, Box<dyn std::error::Error + 'static>> {
         if CryptoProvider::get_default().is_none() {
             rustls::crypto::ring::default_provider()
                 .install_default()
                 .expect("Error initializing rustls provider");
         }
 
-        let conf_yaml = container
-            .image()
-            .read_kube_config()
-            .expect("Error reading k3s.yaml");
+        let conf_yaml = container.image().read_kube_config()?;
 
         let mut config = Kubeconfig::from_yaml(&conf_yaml).expect("Error loading kube config");
 
-        let port = container.get_host_port_ipv4(KUBE_SECURE_PORT).await;
+        let port = container.get_host_port_ipv4(KUBE_SECURE_PORT).await?;
         config.clusters.iter_mut().for_each(|cluster| {
             if let Some(server) = cluster.cluster.as_mut().and_then(|c| c.server.as_mut()) {
                 *server = format!("https://127.0.0.1:{}", port)
             }
         });
 
-        let client_config = Config::from_custom_kubeconfig(config, &KubeConfigOptions::default())
-            .await
-            .expect("Error building client config");
+        let client_config =
+            Config::from_custom_kubeconfig(config, &KubeConfigOptions::default()).await?;
 
-        kube::Client::try_from(client_config).expect("Error building client")
+        Ok(kube::Client::try_from(client_config)?)
     }
 }

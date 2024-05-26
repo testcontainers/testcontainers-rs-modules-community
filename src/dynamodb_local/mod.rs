@@ -45,11 +45,11 @@ mod tests {
     use crate::{dynamodb_local::DynamoDb, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
-    async fn dynamodb_local_create_table() {
+    async fn dynamodb_local_create_table() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = DynamoDb.start().await;
-        let host_ip = node.get_host().await;
-        let host_port = node.get_host_port_ipv4(8000).await;
+        let node = DynamoDb.start().await?;
+        let host = node.get_host().await?;
+        let host_port = node.get_host_port_ipv4(8000).await?;
 
         let table_name = "books".to_string();
 
@@ -71,7 +71,7 @@ mod tests {
             .build()
             .unwrap();
 
-        let dynamodb = build_dynamodb_client(host_ip, host_port).await;
+        let dynamodb = build_dynamodb_client(host, host_port).await;
         let create_table_result = dynamodb
             .create_table()
             .table_name(table_name)
@@ -86,10 +86,11 @@ mod tests {
         let list_tables_result = req.send().await.unwrap();
 
         assert_eq!(list_tables_result.table_names().len(), 1);
+        Ok(())
     }
 
-    async fn build_dynamodb_client(host_ip: impl Display, host_port: u16) -> Client {
-        let endpoint_uri = format!("http://{host_ip}:{host_port}");
+    async fn build_dynamodb_client(host: impl Display, host_port: u16) -> Client {
+        let endpoint_uri = format!("http://{host}:{host_port}");
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("fakeKey", "fakeSecret", None, None, "test");
 
