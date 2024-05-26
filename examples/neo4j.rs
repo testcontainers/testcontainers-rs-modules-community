@@ -2,14 +2,14 @@ use testcontainers_modules::{neo4j::Neo4j, testcontainers::runners::AsyncRunner}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
-    let container = Neo4j::default().start().await;
+    let container = Neo4j::default().start().await?;
 
     // prepare neo4rs client
     let config = neo4rs::ConfigBuilder::new()
         .uri(format!(
             "bolt://{}:{}",
-            container.get_host().await,
-            container.image().bolt_port_ipv4()
+            container.get_host().await?,
+            container.image().bolt_port_ipv4()?
         ))
         .user(container.image().user().expect("default user is set"))
         .password(

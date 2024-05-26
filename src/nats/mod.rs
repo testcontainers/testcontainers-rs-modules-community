@@ -11,7 +11,7 @@ pub struct Nats {
     _private: (),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct NatsServerArgs {
     user: Option<String>,
     pass: Option<String>,
@@ -26,15 +26,6 @@ impl NatsServerArgs {
     pub fn with_password(mut self, password: &str) -> Self {
         self.pass = Some(password.to_owned());
         self
-    }
-}
-
-impl Default for NatsServerArgs {
-    fn default() -> Self {
-        Self {
-            user: None,
-            pass: None,
-        }
     }
 }
 
@@ -94,10 +85,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn it_works() {
-        let container = Nats::default().start().await;
-        let host = container.get_host().await;
-        let host_port = container.get_host_port_ipv4(4222).await;
+    async fn it_works() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let container = Nats::default().start().await?;
+        let host = container.get_host().await?;
+        let host_port = container.get_host_port_ipv4(4222).await?;
         let url = format!("{host}:{host_port}");
 
         let nats_client = async_nats::ConnectOptions::default()
@@ -118,5 +109,6 @@ mod tests {
             .await
             .expect("failed to fetch nats message");
         assert_eq!(message.payload, "data");
+        Ok(())
     }
 }

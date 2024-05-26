@@ -64,11 +64,11 @@ mod tests {
     use crate::trufflesuite_ganachecli;
 
     #[test]
-    fn trufflesuite_ganachecli_listaccounts() {
+    fn trufflesuite_ganachecli_listaccounts() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = trufflesuite_ganachecli::GanacheCli.start();
-        let host_ip = node.get_host();
-        let host_port = node.get_host_port_ipv4(8545);
+        let node = trufflesuite_ganachecli::GanacheCli.start()?;
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(8545)?;
 
         let response = reqwest::blocking::Client::new()
             .post(format!("http://{host_ip}:{host_port}"))
@@ -89,5 +89,6 @@ mod tests {
         let response: serde_json::Value = serde_json::from_str(&response).unwrap();
 
         assert_eq!(response["result"], "42");
+        Ok(())
     }
 }

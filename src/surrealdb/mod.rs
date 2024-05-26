@@ -28,11 +28,11 @@ impl ImageArgs for SurrealDbArgs {
 /// # };
 /// use testcontainers_modules::{surrealdb, testcontainers::runners::SyncRunner};
 ///
-/// let surrealdb_instance = surrealdb::SurrealDb::default().start();
+/// let surrealdb_instance = surrealdb::SurrealDb::default().start().unwrap();
 ///
 /// let connection_string = format!(
 ///    "127.0.0.1:{}",
-///    surrealdb_instance.get_host_port_ipv4(surrealdb::SURREALDB_PORT)
+///    surrealdb_instance.get_host_port_ipv4(surrealdb::SURREALDB_PORT).unwrap(),
 /// );
 ///
 /// # let runtime = tokio::runtime::Runtime::new().unwrap();
@@ -150,10 +150,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn surrealdb_select() {
+    async fn surrealdb_select() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = SurrealDb::default().start().await;
-        let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await;
+        let node = SurrealDb::default().start().await?;
+        let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await?;
         let url = format!("127.0.0.1:{host_port}");
 
         let db: Surreal<Client> = Surreal::init();
@@ -190,17 +190,18 @@ mod tests {
         assert_eq!(result.title, "Founder & CEO");
         assert_eq!(result.name.first, "Tobie");
         assert_eq!(result.name.last, "Morgan Hitchcock");
-        assert!(result.marketing)
+        assert!(result.marketing);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn surrealdb_no_auth() {
+    async fn surrealdb_no_auth() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
         let node = SurrealDb::default()
             .with_authentication(false)
             .start()
-            .await;
-        let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await;
+            .await?;
+        let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await?;
         let url = format!("127.0.0.1:{host_port}");
 
         let db: Surreal<Client> = Surreal::init();
@@ -230,6 +231,7 @@ mod tests {
         assert_eq!(result.title, "Founder & CEO");
         assert_eq!(result.name.first, "Tobie");
         assert_eq!(result.name.last, "Morgan Hitchcock");
-        assert!(result.marketing)
+        assert!(result.marketing);
+        Ok(())
     }
 }

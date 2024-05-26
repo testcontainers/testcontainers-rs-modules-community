@@ -9,9 +9,9 @@ use testcontainers::{core::WaitFor, Image, ImageArgs};
 /// ```
 /// use testcontainers_modules::{mosquitto, testcontainers::runners::SyncRunner};
 ///
-/// let mosquitto_instance = mosquitto::Mosquitto.start();
+/// let mosquitto_instance = mosquitto::Mosquitto.start().unwrap();
 ///
-/// let broker_url = format!("{}:{}", mosquitto_instance.get_host(), mosquitto_instance.get_host_port_ipv4(1883));
+/// let broker_url = format!("{}:{}", mosquitto_instance.get_host().unwrap(), mosquitto_instance.get_host_port_ipv4(1883).unwrap());
 /// ```
 ///
 /// [`Mosquitto`]: https://mosquitto.org/

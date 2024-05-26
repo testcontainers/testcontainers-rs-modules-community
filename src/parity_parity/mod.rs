@@ -46,11 +46,11 @@ mod tests {
     use crate::parity_parity;
 
     #[test]
-    fn parity_parity_net_version() {
+    fn parity_parity_net_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = parity_parity::ParityEthereum.start();
-        let host_ip = node.get_host();
-        let host_port = node.get_host_port_ipv4(8545);
+        let node = parity_parity::ParityEthereum.start()?;
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(8545)?;
 
         let response = reqwest::blocking::Client::new()
             .post(format!("http://{host_ip}:{host_port}"))
@@ -71,5 +71,6 @@ mod tests {
         let response: serde_json::Value = serde_json::from_str(&response).unwrap();
 
         assert_eq!(response["result"], "17");
+        Ok(())
     }
 }

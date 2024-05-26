@@ -25,10 +25,10 @@ struct Person {
 #[tokio::main]
 async fn main() {
     let _ = pretty_env_logger::try_init();
-    let node = SurrealDb::default().start().await;
+    let node = SurrealDb::default().start().await.unwrap();
     let url = format!(
         "127.0.0.1:{}",
-        node.get_host_port_ipv4(SURREALDB_PORT).await
+        node.get_host_port_ipv4(SURREALDB_PORT).await.unwrap()
     );
 
     let db: Surreal<Client> = Surreal::init();

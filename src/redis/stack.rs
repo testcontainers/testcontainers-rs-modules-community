@@ -15,9 +15,9 @@ const TAG: &str = "7.2.0-v8";
 /// use serde_json::json;
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{RedisStack, REDIS_PORT}};
 ///
-/// let redis_instance = RedisStack.start();
-/// let host_ip = redis_instance.get_host();
-/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT);
+/// let redis_instance = RedisStack.start().unwrap();
+/// let host_ip = redis_instance.get_host().unwrap();
+/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT).unwrap();
 ///
 /// let url = format!("redis://{host_ip}:{host_port}");
 /// let client = redis::Client::open(url.as_ref()).unwrap();
@@ -61,11 +61,11 @@ mod tests {
     };
 
     #[test]
-    fn redis_fetch_an_integer_in_json() {
+    fn redis_fetch_an_integer_in_json() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = RedisStack.start();
-        let host_ip = node.get_host();
-        let host_port = node.get_host_port_ipv4(REDIS_PORT);
+        let node = RedisStack.start()?;
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(REDIS_PORT)?;
         let url = format!("redis://{host_ip}:{host_port}");
 
         let client = redis::Client::open(url.as_ref()).unwrap();
@@ -77,5 +77,6 @@ mod tests {
         );
         let result: String = con.json_get("my_key", "$..number").unwrap();
         assert_eq!("[42]", result);
+        Ok(())
     }
 }

@@ -7,15 +7,15 @@ use testcontainers_modules::{
 
 #[tokio::main]
 #[allow(clippy::result_large_err)]
-async fn main() -> Result<(), s3::Error> {
+async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let _ = pretty_env_logger::try_init();
 
     let image: RunnableImage<LocalStack> =
         RunnableImage::from(LocalStack).with_env_var(("SERVICES", "s3"));
-    let container = image.start().await;
+    let container = image.start().await?;
 
-    let host_ip = container.get_host().await;
-    let host_port = container.get_host_port_ipv4(4566).await;
+    let host_ip = container.get_host().await?;
+    let host_port = container.get_host_port_ipv4(4566).await?;
     // Set up AWS client
     let endpoint_url = format!("http://{host_ip}:{host_port}");
     let creds = s3::config::Credentials::new("fake", "fake", None, None, "test");

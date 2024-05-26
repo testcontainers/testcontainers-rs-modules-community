@@ -16,12 +16,12 @@ const TAG: &str = "11-alpine";
 /// ```
 /// use testcontainers_modules::{postgres, testcontainers::runners::SyncRunner};
 ///
-/// let postgres_instance = postgres::Postgres::default().start();
+/// let postgres_instance = postgres::Postgres::default().start().unwrap();
 ///
 /// let connection_string = format!(
 ///     "postgres://postgres:postgres@{}:{}/postgres",
-///     postgres_instance.get_host(),
-///     postgres_instance.get_host_port_ipv4(5432)
+///     postgres_instance.get_host().unwrap(),
+///     postgres_instance.get_host_port_ipv4(5432).unwrap()
 /// );
 /// ```
 ///
@@ -103,14 +103,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn postgres_one_plus_one() {
+    fn postgres_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let postgres_image = Postgres::default().with_host_auth();
-        let node = postgres_image.start();
+        let node = postgres_image.start()?;
 
         let connection_string = &format!(
             "postgres://postgres@{}:{}/postgres",
-            node.get_host(),
-            node.get_host_port_ipv4(5432)
+            node.get_host()?,
+            node.get_host_port_ipv4(5432)?
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
 
@@ -120,18 +120,19 @@ mod tests {
         let first_row = &rows[0];
         let first_column: i32 = first_row.get(0);
         assert_eq!(first_column, 2);
+        Ok(())
     }
 
     #[test]
-    fn postgres_custom_version() {
+    fn postgres_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let node = RunnableImage::from(Postgres::default())
             .with_tag("13-alpine")
-            .start();
+            .start()?;
 
         let connection_string = &format!(
             "postgres://postgres:postgres@{}:{}/postgres",
-            node.get_host(),
-            node.get_host_port_ipv4(5432)
+            node.get_host()?,
+            node.get_host_port_ipv4(5432)?
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
 
@@ -141,5 +142,6 @@ mod tests {
         let first_row = &rows[0];
         let first_column: String = first_row.get(0);
         assert!(first_column.contains("13"));
+        Ok(())
     }
 }

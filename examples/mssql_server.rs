@@ -5,12 +5,12 @@ use tokio_util::compat::TokioAsyncWriteCompatExt;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let image = MssqlServer::default();
-    let container = image.start().await;
+    let container = image.start().await?;
 
     // Build Tiberius config
     let mut config = tiberius::Config::new();
-    config.host(container.get_host().await);
-    config.port(container.get_host_port_ipv4(1433).await);
+    config.host(container.get_host().await?);
+    config.port(container.get_host_port_ipv4(1433).await?);
     config.authentication(tiberius::AuthMethod::sql_server(
         "sa",
         "yourStrong(!)Password",

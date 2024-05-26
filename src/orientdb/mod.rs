@@ -49,15 +49,15 @@ mod tests {
     #[test]
     fn orientdb_exists_database() {
         let _ = pretty_env_logger::try_init();
-        let node = OrientDb::default().start();
+        let node = OrientDb::default().start().unwrap();
         let client = reqwest::blocking::Client::new();
 
         let response = retry(Fixed::from_millis(500).take(5), || {
             client
                 .get(format!(
                     "http://{}:{}/listDatabases",
-                    node.get_host(),
-                    node.get_host_port_ipv4(2480)
+                    node.get_host().unwrap(),
+                    node.get_host_port_ipv4(2480).unwrap()
                 ))
                 .header("Accept-Encoding", "gzip,deflate")
                 .send()

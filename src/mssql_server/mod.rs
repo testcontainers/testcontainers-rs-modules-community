@@ -17,11 +17,11 @@ use testcontainers::{core::WaitFor, Image};
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, mssql_server};
 ///
-/// let mssql_server = mssql_server::MssqlServer::default().start();
+/// let mssql_server = mssql_server::MssqlServer::default().start().unwrap();
 /// let ado_connection_string = format!(
 ///    "Server=tcp:{},{};Database=test;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;",
-///    mssql_server.get_host(),
-///    mssql_server.get_host_port_ipv4(1433)
+///    mssql_server.get_host().unwrap(),
+///    mssql_server.get_host_port_ipv4(1433).unwrap()
 /// );
 /// ```
 ///
@@ -120,10 +120,10 @@ mod tests {
 
     #[tokio::test]
     async fn one_plus_one() -> Result<(), Box<dyn error::Error>> {
-        let container = MssqlServer::default().start().await;
+        let container = MssqlServer::default().start().await?;
         let config = new_config(
-            container.get_host().await,
-            container.get_host_port_ipv4(1433).await,
+            container.get_host().await?,
+            container.get_host_port_ipv4(1433).await?,
             "yourStrong(!)Password",
         );
         let mut client = get_mssql_client(config).await?;
@@ -139,10 +139,10 @@ mod tests {
     #[tokio::test]
     async fn custom_sa_password() -> Result<(), Box<dyn error::Error>> {
         let image = MssqlServer::default().with_sa_password("yourStrongPassword123!");
-        let container = image.start().await;
+        let container = image.start().await?;
         let config = new_config(
-            container.get_host().await,
-            container.get_host_port_ipv4(1433).await,
+            container.get_host().await?,
+            container.get_host_port_ipv4(1433).await?,
             "yourStrongPassword123!",
         );
         let mut client = get_mssql_client(config).await?;
@@ -158,10 +158,10 @@ mod tests {
     #[tokio::test]
     async fn custom_version() -> Result<(), Box<dyn error::Error>> {
         let image = RunnableImage::from(MssqlServer::default()).with_tag("2019-CU23-ubuntu-20.04");
-        let container = image.start().await;
+        let container = image.start().await?;
         let config = new_config(
-            container.get_host().await,
-            container.get_host_port_ipv4(1433).await,
+            container.get_host().await?,
+            container.get_host_port_ipv4(1433).await?,
             "yourStrong(!)Password",
         );
         let mut client = get_mssql_client(config).await?;

@@ -88,11 +88,11 @@ mod tests {
     use crate::minio;
 
     #[tokio::test]
-    async fn minio_buckets() {
+    async fn minio_buckets() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let minio = minio::MinIO::default();
-        let node = minio.start().await;
+        let node = minio.start().await?;
 
-        let host_port = node.get_host_port_ipv4(9000).await;
+        let host_port = node.get_host_port_ipv4(9000).await?;
         let client = build_s3_client(host_port).await;
 
         let bucket_name = "test-bucket";
@@ -113,6 +113,7 @@ mod tests {
             .unwrap();
         assert_eq!(1, buckets.len());
         assert_eq!(bucket_name, buckets[0].name.as_ref().unwrap());
+        Ok(())
     }
 
     async fn build_s3_client(host_port: u16) -> Client {

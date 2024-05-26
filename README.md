@@ -22,9 +22,9 @@ use testcontainers_modules::{postgres, testcontainers::runners::SyncRunner};
 
 #[test]
 fn test_with_postgres() {
-    let container = postgres::Postgres::default().start();
-    let host_ip = container.get_host();
-    let host_port = container.get_host_port_ipv4(5432);
+    let container = postgres::Postgres::default().start().unwrap();
+    let host_ip = container.get_host().unwrap();
+    let host_port = container.get_host_port_ipv4(5432).unwrap();
 }
 ```
 

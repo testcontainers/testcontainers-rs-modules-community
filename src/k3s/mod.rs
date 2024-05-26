@@ -1,10 +1,14 @@
-use std::collections::HashMap;
-use std::io;
-use std::io::ErrorKind;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    io,
+    io::ErrorKind,
+    path::{Path, PathBuf},
+};
 
-use testcontainers::core::{Mount, WaitFor};
-use testcontainers::{Image, ImageArgs};
+use testcontainers::{
+    core::{Mount, WaitFor},
+    Image, ImageArgs,
+};
 
 const NAME: &str = "rancher/k3s";
 const TAG: &str = "v1.28.8-k3s1";
@@ -29,7 +33,8 @@ pub const RANCHER_WEBHOOK_PORT: u16 = 8443;
 /// let k3s_instance = RunnableImage::from(K3s::default().with_conf_mount(&temp_dir()))
 ///            .with_privileged(true)
 ///            .with_userns_mode("host")
-///            .start();
+///            .start()
+///            .unwrap();
 ///
 /// let kube_port = k3s_instance.get_host_port_ipv4(KUBE_SECURE_PORT);
 /// let kube_conf = k3s_instance.image().read_kube_config().expect("Cannot read kube conf");
@@ -54,7 +59,6 @@ impl K3sArgs {
     pub fn with_snapshotter(self, snapshotter: impl Into<String>) -> Self {
         Self {
             snapshotter: snapshotter.into(),
-            ..self
         }
     }
 }
@@ -87,9 +91,9 @@ impl Image for K3s {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::StdErrMessage {
-            message: String::from("Node controller sync successful"),
-        }]
+        vec![WaitFor::message_on_stderr(
+            "Node controller sync successful",
+        )]
     }
 
     fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
@@ -131,7 +135,7 @@ impl K3s {
             .map(|conf_dir| conf_dir.join("k3s.yaml"))
             .ok_or_else(|| io::Error::new(ErrorKind::InvalidData, "K3s conf dir is not mounted"))?;
 
-        std::fs::read_to_string(&k3s_conf_file_path)
+        std::fs::read_to_string(k3s_conf_file_path)
     }
 }
 
@@ -140,25 +144,26 @@ mod tests {
     use std::env::temp_dir;
 
     use k8s_openapi::api::core::v1::Pod;
-    use kube::api::ListParams;
-    use kube::config::{KubeConfigOptions, Kubeconfig};
-    use kube::{Api, Config, ResourceExt};
+    use kube::{
+        api::ListParams,
+        config::{KubeConfigOptions, Kubeconfig},
+        Api, Config, ResourceExt,
+    };
     use rustls::crypto::CryptoProvider;
-    use testcontainers::runners::AsyncRunner;
-    use testcontainers::{ContainerAsync, RunnableImage};
+    use testcontainers::{runners::AsyncRunner, ContainerAsync, RunnableImage};
 
     use super::*;
 
     #[tokio::test]
-    async fn k3s_pods() {
+    async fn k3s_pods() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let conf_dir = temp_dir();
         let k3s = RunnableImage::from(K3s::default().with_conf_mount(&conf_dir))
             .with_privileged(true)
             .with_userns_mode("host");
 
-        let k3s_container = k3s.start().await;
+        let k3s_container = k3s.start().await?;
 
-        let client = get_kube_client(&k3s_container).await;
+        let client = get_kube_client(&k3s_container).await?;
 
         let pods = Api::<Pod>::all(client)
             .list(&ListParams::default())
@@ -188,33 +193,32 @@ mod tests {
                 .any(|pod_name| pod_name.starts_with("local-path-provisioner")),
             "local-path-provisioner pod not found - found pods {pod_names:?}"
         );
+        Ok(())
     }
 
-    pub async fn get_kube_client(container: &ContainerAsync<K3s>) -> kube::Client {
+    pub async fn get_kube_client(
+        container: &ContainerAsync<K3s>,
+    ) -> Result<kube::Client, Box<dyn std::error::Error + 'static>> {
         if CryptoProvider::get_default().is_none() {
             rustls::crypto::ring::default_provider()
                 .install_default()
                 .expect("Error initializing rustls provider");
         }
 
-        let conf_yaml = container
-            .image()
-            .read_kube_config()
-            .expect("Error reading k3s.yaml");
+        let conf_yaml = container.image().read_kube_config()?;
 
         let mut config = Kubeconfig::from_yaml(&conf_yaml).expect("Error loading kube config");
 
-        let port = container.get_host_port_ipv4(KUBE_SECURE_PORT).await;
+        let port = container.get_host_port_ipv4(KUBE_SECURE_PORT).await?;
         config.clusters.iter_mut().for_each(|cluster| {
             if let Some(server) = cluster.cluster.as_mut().and_then(|c| c.server.as_mut()) {
                 *server = format!("https://127.0.0.1:{}", port)
             }
         });
 
-        let client_config = Config::from_custom_kubeconfig(config, &KubeConfigOptions::default())
-            .await
-            .expect("Error building client config");
+        let client_config =
+            Config::from_custom_kubeconfig(config, &KubeConfigOptions::default()).await?;
 
-        kube::Client::try_from(client_config).expect("Error building client")
+        Ok(kube::Client::try_from(client_config)?)
     }
 }

@@ -70,22 +70,22 @@ mod test {
     const CLUSTER_USER: &str = "kwok-kwok";
 
     #[tokio::test]
-    async fn test_kwok_image() {
+    async fn test_kwok_image() -> Result<(), Box<dyn std::error::Error + 'static>> {
         if CryptoProvider::get_default().is_none() {
             rustls::crypto::ring::default_provider()
                 .install_default()
                 .expect("Error initializing rustls provider");
         }
 
-        let node = KwokCluster.start().await;
-        let host_port = node.get_host_port_ipv4(8080).await;
+        let node = KwokCluster.start().await?;
+        let host_port = node.get_host_port_ipv4(8080).await?;
 
         // Create a custom Kubeconfig
         let kubeconfig = Kubeconfig {
             clusters: vec![NamedCluster {
                 name: String::from(CLUSTER_NAME),
                 cluster: Some(Cluster {
-                    server: Some(String::from(format!("http://localhost:{host_port}"))), // your custom endpoint
+                    server: Some(format!("http://localhost:{host_port}")), // your custom endpoint
                     ..Default::default()
                 }),
             }],
@@ -133,5 +133,7 @@ mod test {
             namespace_names,
             vec!["default", "kube-node-lease", "kube-public", "kube-system"]
         );
+
+        Ok(())
     }
 }

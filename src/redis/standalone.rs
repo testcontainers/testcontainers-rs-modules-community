@@ -14,9 +14,9 @@ const TAG: &str = "5.0";
 /// use redis::Commands;
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{Redis, REDIS_PORT}};
 ///
-/// let redis_instance = Redis::default().start();
-/// let host_ip = redis_instance.get_host();
-/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT);
+/// let redis_instance = Redis::default().start().unwrap();
+/// let host_ip = redis_instance.get_host().unwrap();
+/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT).unwrap();
 ///
 /// let url = format!("redis://{host_ip}:{host_port}");
 /// let client = redis::Client::open(url.as_ref()).unwrap();
@@ -56,11 +56,11 @@ mod tests {
     use crate::{redis::Redis, testcontainers::runners::SyncRunner};
 
     #[test]
-    fn redis_fetch_an_integer() {
+    fn redis_fetch_an_integer() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = Redis.start();
-        let host_ip = node.get_host();
-        let host_port = node.get_host_port_ipv4(6379);
+        let node = Redis.start()?;
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(6379)?;
         let url = format!("redis://{host_ip}:{host_port}");
 
         let client = redis::Client::open(url.as_ref()).unwrap();
@@ -69,5 +69,6 @@ mod tests {
         con.set::<_, _, ()>("my_key", 42).unwrap();
         let result: i64 = con.get("my_key").unwrap();
         assert_eq!(42, result);
+        Ok(())
     }
 }

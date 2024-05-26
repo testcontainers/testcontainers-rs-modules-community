@@ -14,8 +14,8 @@ const CONSUL_LOCAL_CONFIG: &str = "CONSUL_LOCAL_CONFIG";
 /// ```
 /// use testcontainers_modules::{consul, testcontainers::runners::SyncRunner};
 ///
-/// let consul = consul::Consul::default().start();
-/// let http_port = consul.get_host_port_ipv4(8500);
+/// let consul = consul::Consul::default().start().unwrap();
+/// let http_port = consul.get_host_port_ipv4(8500).unwrap();
 ///
 /// // do something with the started consul instance..
 /// ```
@@ -81,10 +81,10 @@ mod tests {
     use crate::{consul::Consul, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
-    async fn consul_container() {
+    async fn consul_container() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let consul = Consul::default().with_local_config("{\"datacenter\":\"dc-rust\"}".to_owned());
-        let node = consul.start().await;
-        let port = node.get_host_port_ipv4(8500).await;
+        let node = consul.start().await?;
+        let port = node.get_host_port_ipv4(8500).await?;
 
         let response = reqwest::Client::new()
             .get(format!("http://localhost:{}/v1/agent/self", port))
@@ -102,6 +102,7 @@ mod tests {
             .unwrap()
             .as_str()
             .unwrap();
-        assert_eq!("dc-rust", dc)
+        assert_eq!("dc-rust", dc);
+        Ok(())
     }
 }
