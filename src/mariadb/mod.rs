@@ -15,8 +15,12 @@ const TAG: &str = "11.3";
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, mariadb};
 ///
-/// let mariadb_instance = mariadb::Mariadb::default().start();
-/// let mariadb_url = format!("mariadb://{}:{}/test", mariadb_instance.get_host(), mariadb_instance.get_host_port_ipv4(3306));
+/// let mariadb_instance = mariadb::Mariadb::default().start().unwrap();
+/// let mariadb_url = format!(
+///     "mariadb://{}:{}/test",
+///     mariadb_instance.get_host().unwrap(),
+///     mariadb_instance.get_host_port_ipv4(3306).unwrap(),
+/// );
 /// ```
 ///
 /// [`MariaDB`]: https://www.mariadb.com/

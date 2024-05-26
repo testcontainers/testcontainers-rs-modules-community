@@ -28,11 +28,11 @@ impl ImageArgs for SurrealDbArgs {
 /// # };
 /// use testcontainers_modules::{surrealdb, testcontainers::runners::SyncRunner};
 ///
-/// let surrealdb_instance = surrealdb::SurrealDb::default().start()?;
+/// let surrealdb_instance = surrealdb::SurrealDb::default().start().unwrap();
 ///
 /// let connection_string = format!(
 ///    "127.0.0.1:{}",
-///    surrealdb_instance.get_host_port_ipv4(surrealdb::SURREALDB_PORT)?
+///    surrealdb_instance.get_host_port_ipv4(surrealdb::SURREALDB_PORT).unwrap(),
 /// );
 ///
 /// # let runtime = tokio::runtime::Runtime::new().unwrap();

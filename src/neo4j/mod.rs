@@ -48,8 +48,8 @@ impl std::fmt::Display for Neo4jLabsPlugin {
 /// ```rust,no_run
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, neo4j::Neo4j};
 ///
-/// let container = Neo4j::default().start();
-/// let uri = format!("bolt://{}:{}", container.get_host(), container.image().bolt_port_ipv4());
+/// let container = Neo4j::default().start().unwrap();
+/// let uri = format!("bolt://{}:{}", container.get_host().unwrap(), container.image().bolt_port_ipv4().unwrap());
 /// let auth_user = container.image().user();
 /// let auth_pass = container.image().password();
 /// // connect to Neo4j with the uri, user and pass

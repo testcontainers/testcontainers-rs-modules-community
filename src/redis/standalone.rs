@@ -14,9 +14,9 @@ const TAG: &str = "5.0";
 /// use redis::Commands;
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{Redis, REDIS_PORT}};
 ///
-/// let redis_instance = Redis::default().start()?;
-/// let host_ip = redis_instance.get_host()?;
-/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT)?;
+/// let redis_instance = Redis::default().start().unwrap();
+/// let host_ip = redis_instance.get_host().unwrap();
+/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT).unwrap();
 ///
 /// let url = format!("redis://{host_ip}:{host_port}");
 /// let client = redis::Client::open(url.as_ref()).unwrap();

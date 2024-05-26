@@ -17,11 +17,11 @@ use testcontainers::{core::WaitFor, Image};
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, mssql_server};
 ///
-/// let mssql_server = mssql_server::MssqlServer::default().start()?;
+/// let mssql_server = mssql_server::MssqlServer::default().start().unwrap();
 /// let ado_connection_string = format!(
 ///    "Server=tcp:{},{};Database=test;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;",
-///    mssql_server.get_host()?,
-///    mssql_server.get_host_port_ipv4(1433)?
+///    mssql_server.get_host().unwrap(),
+///    mssql_server.get_host_port_ipv4(1433).unwrap()
 /// );
 /// ```
 ///

@@ -11,10 +11,10 @@ const TAG: &str = "2";
 /// ```
 /// use testcontainers_modules::{cncf_distribution, testcontainers::runners::SyncRunner};
 ///
-/// let registry = cncf_distribution::CncfDistribution.start()?;
+/// let registry = cncf_distribution::CncfDistribution.start().unwrap();
 ///
 /// let image_name = "test";
-/// let image_tag = format!("{}:{}/{image_name}", registry.get_host(), registry.get_host_port_ipv4(5000)?);
+/// let image_tag = format!("{}:{}/{image_name}", registry.get_host().unwrap(), registry.get_host_port_ipv4(5000).unwrap());
 ///
 /// // now you can push an image tagged with `image_tag` and pull it afterward
 /// ```

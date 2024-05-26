@@ -15,8 +15,12 @@ const TAG: &str = "8.1";
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, mysql};
 ///
-/// let mysql_instance = mysql::Mysql::default().start()?;
-/// let mysql_url = format!("mysql://{}:{}/test", mysql_instance.get_host()?, mysql_instance.get_host_port_ipv4(3306)?);
+/// let mysql_instance = mysql::Mysql::default().start().unwrap();
+/// let mysql_url = format!(
+///     "mysql://{}:{}/test",
+///     mysql_instance.get_host().unwrap(),
+///     mysql_instance.get_host_port_ipv4(3306).unwrap()
+/// );
 /// ```
 ///
 /// [`MySQL`]: https://www.mysql.com/

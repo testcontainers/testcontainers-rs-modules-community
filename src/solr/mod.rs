@@ -17,8 +17,8 @@ const TAG: &str = "9.5.0-slim";
 /// ```
 /// use testcontainers_modules::{solr, testcontainers::runners::SyncRunner};
 ///
-/// let solr_instance = solr::Solr::default().start()?;
-/// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT)?;
+/// let solr_instance = solr::Solr::default().start().unwrap();
+/// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT).unwrap();
 
 /// let solr_url = format!("http://127.0.0.1:{}", host_port);
 ///

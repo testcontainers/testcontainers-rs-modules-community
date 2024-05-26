@@ -33,7 +33,8 @@ pub const RANCHER_WEBHOOK_PORT: u16 = 8443;
 /// let k3s_instance = RunnableImage::from(K3s::default().with_conf_mount(&temp_dir()))
 ///            .with_privileged(true)
 ///            .with_userns_mode("host")
-///            .start();
+///            .start()
+///            .unwrap();
 ///
 /// let kube_port = k3s_instance.get_host_port_ipv4(KUBE_SECURE_PORT);
 /// let kube_conf = k3s_instance.image().read_kube_config().expect("Cannot read kube conf");
