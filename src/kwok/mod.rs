@@ -85,7 +85,7 @@ mod test {
             clusters: vec![NamedCluster {
                 name: String::from(CLUSTER_NAME),
                 cluster: Some(Cluster {
-                    server: Some(String::from(format!("http://localhost:{host_port}"))), // your custom endpoint
+                    server: Some(format!("http://localhost:{host_port}")), // your custom endpoint
                     ..Default::default()
                 }),
             }],

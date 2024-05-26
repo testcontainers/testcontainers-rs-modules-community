@@ -58,7 +58,6 @@ impl K3sArgs {
     pub fn with_snapshotter(self, snapshotter: impl Into<String>) -> Self {
         Self {
             snapshotter: snapshotter.into(),
-            ..self
         }
     }
 }
@@ -135,7 +134,7 @@ impl K3s {
             .map(|conf_dir| conf_dir.join("k3s.yaml"))
             .ok_or_else(|| io::Error::new(ErrorKind::InvalidData, "K3s conf dir is not mounted"))?;
 
-        std::fs::read_to_string(&k3s_conf_file_path)
+        std::fs::read_to_string(k3s_conf_file_path)
     }
 }
 

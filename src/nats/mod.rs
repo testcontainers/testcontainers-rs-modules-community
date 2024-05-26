@@ -11,7 +11,7 @@ pub struct Nats {
     _private: (),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct NatsServerArgs {
     user: Option<String>,
     pass: Option<String>,
@@ -26,15 +26,6 @@ impl NatsServerArgs {
     pub fn with_password(mut self, password: &str) -> Self {
         self.pass = Some(password.to_owned());
         self
-    }
-}
-
-impl Default for NatsServerArgs {
-    fn default() -> Self {
-        Self {
-            user: None,
-            pass: None,
-        }
     }
 }
 
