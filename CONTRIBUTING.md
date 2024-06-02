@@ -27,6 +27,7 @@ First of all, thank you for contributing to testcontainers-rs-modules-community.
 - Ensure you have an [up-to-date Rust toolchain](https://rustup.rs/), with `clippy` and `rustfmt` components installed
 - Install the [cargo-hack](https://github.com/taiki-e/cargo-hack) subcommand (recommended)
 - Fork this repository
+- Optionally, if you need to run `Oracle` tests, you must setup `Oracle Client`, as indicated in the documentation of the [Rust-oracle](https://docs.rs/oracle/latest/oracle/) crate (note that ARM architecture is not supported, as there is no Oracle Database Free port for ARM chips)
 
 ### Working with existing modules
 
