@@ -15,7 +15,7 @@ Every module is treated as a feature inside this crate.
     - Enable `blocking` feature if you want to use modules within synchronous tests (feature-gate for `SyncRunner`)
 2. Then start using the modules inside your tests with either `AsyncRunner` or `SyncRunner`
 
-Simple example of using `postgres` module with `SyncRunner` (`blocking` and `posrges` features enabled):
+Simple example of using `postgres` module with `SyncRunner` (`blocking` and `postgres` features enabled):
 
 ```rust,ignore
 use testcontainers_modules::{postgres, testcontainers::runners::SyncRunner};
