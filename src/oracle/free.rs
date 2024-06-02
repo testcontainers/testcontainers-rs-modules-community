@@ -11,6 +11,9 @@ const DEFAULT_IMAGE_TAG: &str = "23-slim-faststart";
 ///
 /// The default schema is `test`, with a password `test`.
 ///
+/// NOTE: Currently, there is no Oracle Database Free port for ARM chips,
+/// hence Oracle Database Free images cannot run on the new Apple M chips via Docker Desktop.
+///
 /// # Example
 /// ```
 /// use testcontainers_modules::{oracle::free::Oracle, testcontainers::runners::SyncRunner};
