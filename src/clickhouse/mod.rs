@@ -109,7 +109,8 @@ mod tests {
         let client = clickhouse::Client::default().with_url(&format!("tcp://{}:{}", host, port));
         #[derive(Row, Deserialize)]
         struct MyRow {
-            a: u8,
+            #[serde(rename = "a")] // we don't read the field, so it's a dead-code in tests
+            _a: u8,
         }
         let rows = client.query("SELECT * FROM t").fetch_all::<MyRow>().await?;
         assert_eq!(rows.len(), 3);
