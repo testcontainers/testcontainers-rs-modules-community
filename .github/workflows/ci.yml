@@ -120,5 +120,13 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-hack
+      - name: Install the latest Oracle instant client
+        run: |
+          curl -Lo basic.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip
+          mkdir linux
+          unzip basic.zip -d linux -x "META-INF/*"
+          IC_DIR=$PWD/$(ls -d linux/instantclient*)
+          echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
+          echo $IC_DIR >> $GITHUB_PATH
       - name: Tests
         run: cargo hack test --each-feature --clean-per-run
