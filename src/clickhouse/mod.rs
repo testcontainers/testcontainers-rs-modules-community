@@ -59,6 +59,7 @@ impl Image for ClickHouse {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
+        // TODO: use HTTP call to check rediness (depends on https://github.com/testcontainers/testcontainers-rs/issues/648)
         vec![WaitFor::seconds(10)]
     }
 
