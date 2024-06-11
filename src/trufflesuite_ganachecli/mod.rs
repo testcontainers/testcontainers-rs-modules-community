@@ -1,21 +1,25 @@
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use std::borrow::Cow;
+
+use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "trufflesuite/ganache-cli";
 const TAG: &str = "v6.1.3";
 
 #[derive(Debug, Default)]
-pub struct GanacheCli;
+pub struct GanacheCli {
+    cmd: GanacheCliCmd,
+}
 
 #[derive(Debug, Clone)]
-pub struct GanacheCliArgs {
+pub struct GanacheCliCmd {
     pub network_id: u32,
     pub number_of_accounts: u32,
     pub mnemonic: String,
 }
 
-impl Default for GanacheCliArgs {
+impl Default for GanacheCliCmd {
     fn default() -> Self {
-        GanacheCliArgs {
+        GanacheCliCmd {
             network_id: 42,
             number_of_accounts: 7,
             mnemonic: "supersecure".to_string(),
@@ -23,8 +27,11 @@ impl Default for GanacheCliArgs {
     }
 }
 
-impl ImageArgs for GanacheCliArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
+impl IntoIterator for &GanacheCliCmd {
+    type Item = String;
+    type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
         let mut args = Vec::new();
 
         if !self.mnemonic.is_empty() {
@@ -37,23 +44,25 @@ impl ImageArgs for GanacheCliArgs {
         args.push("-i".to_string());
         args.push(self.network_id.to_string());
 
-        Box::new(args.into_iter())
+        args.into_iter()
     }
 }
 
 impl Image for GanacheCli {
-    type Args = GanacheCliArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("Listening on localhost:")]
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        &self.cmd
     }
 }
 
@@ -66,7 +75,7 @@ mod tests {
     #[test]
     fn trufflesuite_ganachecli_listaccounts() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = trufflesuite_ganachecli::GanacheCli.start()?;
+        let node = trufflesuite_ganachecli::GanacheCli::default().start()?;
         let host_ip = node.get_host()?;
         let host_port = node.get_host_port_ipv4(8545)?;
 

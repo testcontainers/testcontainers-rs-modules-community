@@ -1,4 +1,6 @@
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use std::borrow::Cow;
+
+use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "google/cloud-sdk";
 const TAG: &str = "362.0.0-emulators";
@@ -11,7 +13,7 @@ pub const PUBSUB_PORT: u16 = 8085;
 pub const SPANNER_PORT: u16 = 9010;
 
 #[derive(Debug, Clone)]
-pub struct CloudSdkArgs {
+pub struct CloudSdkCmd {
     pub host: String,
     pub port: u16,
     pub emulator: Emulator,
@@ -26,8 +28,11 @@ pub enum Emulator {
     Spanner,
 }
 
-impl ImageArgs for CloudSdkArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
+impl IntoIterator for &CloudSdkCmd {
+    type Item = String;
+    type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
         let (emulator, project) = match &self.emulator {
             Emulator::Bigtable => ("bigtable", None),
             Emulator::Datastore { project } => ("datastore", Some(project)),
@@ -49,54 +54,54 @@ impl ImageArgs for CloudSdkArgs {
         args.push("--host-port".to_owned());
         args.push(format!("{}:{}", self.host, self.port));
 
-        Box::new(args.into_iter())
+        args.into_iter()
     }
 }
 
 #[derive(Debug)]
 pub struct CloudSdk {
-    exposed_port: u16,
+    exposed_ports: Vec<u16>,
     ready_condition: WaitFor,
+    cmd: CloudSdkCmd,
 }
 
 impl Image for CloudSdk {
-    type Args = CloudSdkArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![self.ready_condition.clone()]
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![self.exposed_port]
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        &self.cmd
+    }
+
+    fn expose_ports(&self) -> &[u16] {
+        &self.exposed_ports
     }
 }
 
 impl CloudSdk {
-    fn new(port: u16, emulator: Emulator, ready_condition: WaitFor) -> (Self, CloudSdkArgs) {
-        let arguments = CloudSdkArgs {
+    fn new(port: u16, emulator: Emulator, ready_condition: WaitFor) -> Self {
+        let cmd = CloudSdkCmd {
             host: HOST.to_owned(),
             port,
             emulator,
         };
-        let exposed_port = port;
-        (
-            Self {
-                exposed_port,
-                ready_condition,
-            },
-            arguments,
-        )
+        Self {
+            exposed_ports: vec![port],
+            ready_condition,
+            cmd,
+        }
     }
 
-    pub fn bigtable() -> (Self, CloudSdkArgs) {
+    pub fn bigtable() -> Self {
         Self::new(
             BIGTABLE_PORT,
             Emulator::Bigtable,
@@ -104,7 +109,7 @@ impl CloudSdk {
         )
     }
 
-    pub fn firestore() -> (Self, CloudSdkArgs) {
+    pub fn firestore() -> Self {
         Self::new(
             FIRESTORE_PORT,
             Emulator::Firestore,
@@ -112,7 +117,7 @@ impl CloudSdk {
         )
     }
 
-    pub fn datastore(project: impl Into<String>) -> (Self, CloudSdkArgs) {
+    pub fn datastore(project: impl Into<String>) -> Self {
         let project = project.into();
         Self::new(
             DATASTORE_PORT,
@@ -121,7 +126,7 @@ impl CloudSdk {
         )
     }
 
-    pub fn pubsub() -> (Self, CloudSdkArgs) {
+    pub fn pubsub() -> Self {
         Self::new(
             PUBSUB_PORT,
             Emulator::PubSub,
@@ -129,7 +134,7 @@ impl CloudSdk {
         )
     }
 
-    pub fn spanner() -> (Self, CloudSdkArgs) {
+    pub fn spanner() -> Self {
         Self::new(
             SPANNER_PORT, // gRPC port
             Emulator::Spanner,

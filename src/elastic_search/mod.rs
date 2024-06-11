@@ -1,48 +1,36 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "docker.elastic.co/elasticsearch/elasticsearch";
 const TAG: &str = "7.16.1";
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ElasticSearch {
-    env_vars: HashMap<String, String>,
-    tag: String,
-}
-
-impl Default for ElasticSearch {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("discovery.type".to_owned(), "single-node".to_owned());
-        ElasticSearch {
-            env_vars,
-            tag: TAG.to_owned(),
-        }
-    }
+    _priv: (),
 }
 
 impl Image for ElasticSearch {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        self.tag.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("[YELLOW] to [GREEN]")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [("discovery.type", "single-node")]
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![9200, 9300]
+    fn expose_ports(&self) -> &[u16] {
+        &[9200, 9300]
     }
 }
 

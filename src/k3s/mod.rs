@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     collections::HashMap,
     io,
     io::ErrorKind,
@@ -7,7 +8,7 @@ use std::{
 
 use testcontainers::{
     core::{Mount, WaitFor},
-    Image, ImageArgs,
+    Image,
 };
 
 const NAME: &str = "rancher/k3s";
@@ -48,14 +49,15 @@ pub const RANCHER_WEBHOOK_PORT: u16 = 8443;
 pub struct K3s {
     env_vars: HashMap<String, String>,
     conf_mount: Option<Mount>,
+    cmd: K3sCmd,
 }
 
 #[derive(Debug, Clone)]
-pub struct K3sArgs {
+pub struct K3sCmd {
     snapshotter: String,
 }
 
-impl K3sArgs {
+impl K3sCmd {
     pub fn with_snapshotter(self, snapshotter: impl Into<String>) -> Self {
         Self {
             snapshotter: snapshotter.into(),
@@ -63,7 +65,7 @@ impl K3sArgs {
     }
 }
 
-impl Default for K3sArgs {
+impl Default for K3sCmd {
     fn default() -> Self {
         Self {
             snapshotter: String::from("native"),
@@ -71,23 +73,13 @@ impl Default for K3sArgs {
     }
 }
 
-impl ImageArgs for K3sArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        let mut args = vec![String::from("server")];
-        args.push(format!("--snapshotter={}", self.snapshotter));
-        Box::new(args.into_iter())
-    }
-}
-
 impl Image for K3s {
-    type Args = K3sArgs;
-
-    fn name(&self) -> String {
-        NAME.to_string()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_string()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -96,20 +88,26 @@ impl Image for K3s {
         )]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 
-    fn mounts(&self) -> Box<dyn Iterator<Item = &Mount> + '_> {
+    fn mounts(&self) -> impl IntoIterator<Item = &Mount> {
         let mut mounts = Vec::new();
         if let Some(conf_mount) = &self.conf_mount {
             mounts.push(conf_mount);
         }
-        Box::new(mounts.into_iter())
+        mounts
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![KUBE_SECURE_PORT, RANCHER_WEBHOOK_PORT, TRAEFIK_HTTP]
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        &self.cmd
+    }
+
+    fn expose_ports(&self) -> &[u16] {
+        &[KUBE_SECURE_PORT, RANCHER_WEBHOOK_PORT, TRAEFIK_HTTP]
     }
 }
 
@@ -136,6 +134,17 @@ impl K3s {
             .ok_or_else(|| io::Error::new(ErrorKind::InvalidData, "K3s conf dir is not mounted"))?;
 
         std::fs::read_to_string(k3s_conf_file_path)
+    }
+}
+
+impl IntoIterator for &K3sCmd {
+    type Item = String;
+    type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let mut cmd = vec![String::from("server")];
+        cmd.push(format!("--snapshotter={}", self.snapshotter));
+        cmd.into_iter()
     }
 }
 

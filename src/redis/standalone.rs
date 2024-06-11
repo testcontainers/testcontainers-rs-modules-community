@@ -34,14 +34,12 @@ const TAG: &str = "5.0";
 pub struct Redis;
 
 impl Image for Redis {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {

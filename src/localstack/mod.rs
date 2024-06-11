@@ -30,14 +30,12 @@ const DEFAULT_WAIT: u64 = 3000;
 pub struct LocalStack;
 
 impl Image for LocalStack {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {

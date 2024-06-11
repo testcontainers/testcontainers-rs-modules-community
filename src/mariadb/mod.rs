@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -25,30 +25,18 @@ const TAG: &str = "11.3";
 ///
 /// [`MariaDB`]: https://www.mariadb.com/
 /// [`MariaDB docker image`]: https://hub.docker.com/_/mariadb
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Mariadb {
-    env_vars: HashMap<String, String>,
-}
-
-impl Default for Mariadb {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("MARIADB_DATABASE".to_owned(), "test".to_owned());
-        env_vars.insert("MARIADB_ALLOW_EMPTY_ROOT_PASSWORD".into(), "1".into());
-
-        Self { env_vars }
-    }
+    _priv: (),
 }
 
 impl Image for Mariadb {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -58,8 +46,13 @@ impl Image for Mariadb {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [
+            ("MARIADB_DATABASE", "test"),
+            ("MARIADB_ALLOW_EMPTY_ROOT_PASSWORD", "1"),
+        ]
     }
 }
 

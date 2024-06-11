@@ -30,14 +30,12 @@ const DEFAULT_WAIT: u64 = 3000;
 pub struct KwokCluster;
 
 impl Image for KwokCluster {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -47,8 +45,8 @@ impl Image for KwokCluster {
         ]
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![8080]
+    fn expose_ports(&self) -> &[u16] {
+        &[8080]
     }
 }
 

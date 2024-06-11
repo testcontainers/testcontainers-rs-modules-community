@@ -242,14 +242,12 @@ impl Neo4jImage {
 }
 
 impl Image for Neo4jImage {
-    type Args = ();
-
-    fn name(&self) -> String {
-        "neo4j".to_owned()
+    fn name(&self) -> &str {
+        "neo4j"
     }
 
-    fn tag(&self) -> String {
-        self.version.clone()
+    fn tag(&self) -> &str {
+        &self.version
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -259,8 +257,10 @@ impl Image for Neo4jImage {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 
     fn exec_after_start(

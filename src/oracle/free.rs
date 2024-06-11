@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -41,52 +41,36 @@ const DEFAULT_IMAGE_TAG: &str = "23-slim-faststart";
 /// [`Oracle Database Free`]: https://www.oracle.com/database/free/
 /// [Oracle official dockerfiles]: https://github.com/oracle/docker-images/tree/main/OracleDatabase
 /// [`gvenzl/oracle-free:23-slim-faststart`]: https://hub.docker.com/r/gvenzl/oracle-free
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Oracle {
-    name: String,
-    tag: String,
-    env_vars: HashMap<String, String>,
-}
-
-impl Default for Oracle {
-    fn default() -> Self {
-        let name = DEFAULT_IMAGE_NAME.to_owned();
-        let tag = DEFAULT_IMAGE_TAG.to_owned();
-
-        let mut env_vars = HashMap::new();
-        env_vars.insert("ORACLE_PASSWORD".to_owned(), "testsys".to_owned());
-        env_vars.insert("APP_USER".to_owned(), "test".to_owned());
-        env_vars.insert("APP_USER_PASSWORD".to_owned(), "test".to_owned());
-
-        Self {
-            name,
-            tag,
-            env_vars,
-        }
-    }
+    _priv: (),
 }
 
 impl Image for Oracle {
-    type Args = ();
-
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        DEFAULT_IMAGE_NAME
     }
 
-    fn tag(&self) -> String {
-        self.tag.clone()
+    fn tag(&self) -> &str {
+        DEFAULT_IMAGE_TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("DATABASE IS READY TO USE!")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [
+            ("ORACLE_PASSWORD", "testsys"),
+            ("APP_USER", "test"),
+            ("APP_USER_PASSWORD", "test"),
+        ]
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![1521]
+    fn expose_ports(&self) -> &[u16] {
+        &[1521]
     }
 }
 

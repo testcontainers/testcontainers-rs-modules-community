@@ -8,14 +8,12 @@ const DEFAULT_WAIT: u64 = 3000;
 pub struct DynamoDb;
 
 impl Image for DynamoDb {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
