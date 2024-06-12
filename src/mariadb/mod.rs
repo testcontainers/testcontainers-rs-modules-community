@@ -62,7 +62,7 @@ mod tests {
 
     use crate::{
         mariadb::Mariadb as MariadbImage,
-        testcontainers::{runners::SyncRunner, RunnableImage},
+        testcontainers::{runners::SyncRunner, ImageExt},
     };
 
     #[test]
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn mariadb_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let image = RunnableImage::from(MariadbImage::default()).with_tag("11.2.3");
+        let image = MariadbImage::default().with_tag("11.2.3");
         let node = image.start()?;
 
         let connection_string = &format!(

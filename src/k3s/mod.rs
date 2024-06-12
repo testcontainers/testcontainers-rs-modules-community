@@ -27,11 +27,12 @@ pub const RANCHER_WEBHOOK_PORT: u16 = 8443;
 /// # Example
 /// ```
 /// use std::env::temp_dir;
-/// use testcontainers::RunnableImage;
-/// use testcontainers::runners::SyncRunner;
-/// use testcontainers_modules::k3s::{K3s, KUBE_SECURE_PORT};
+/// use testcontainers_modules::{
+///     testcontainers::{ImageExt, runners::SyncRunner},
+///     k3s::{K3s, KUBE_SECURE_PORT}
+/// };
 ///
-/// let k3s_instance = RunnableImage::from(K3s::default().with_conf_mount(&temp_dir()))
+/// let k3s_instance = K3s::default().with_conf_mount(&temp_dir())
 ///            .with_privileged(true)
 ///            .with_userns_mode("host")
 ///            .start()
@@ -159,14 +160,15 @@ mod tests {
         Api, Config, ResourceExt,
     };
     use rustls::crypto::CryptoProvider;
-    use testcontainers::{runners::AsyncRunner, ContainerAsync, RunnableImage};
+    use testcontainers::{runners::AsyncRunner, ContainerAsync, ImageExt};
 
     use super::*;
 
     #[tokio::test]
     async fn k3s_pods() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let conf_dir = temp_dir();
-        let k3s = RunnableImage::from(K3s::default().with_conf_mount(&conf_dir))
+        let k3s = K3s::default()
+            .with_conf_mount(&conf_dir)
             .with_privileged(true)
             .with_userns_mode("host");
 

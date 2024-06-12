@@ -13,16 +13,12 @@ const DEFAULT_WAIT: u64 = 3000;
 /// For configuration, Kwok Cluster uses environment variables. You can go [here](https://kwok.sigs.k8s.io/docs/user/configuration/#a-note-on-cli-flags-environment-variables-and-configuration-files)
 /// for the full list.
 ///
-/// Testcontainers support setting environment variables with the method
-/// `RunnableImage::with_env_var((impl Into<String>, impl Into<String>))`. You will have to convert
-/// the Image into a RunnableImage first.
+/// Testcontainers support setting environment variables with the method [`testcontainers::ImageExt::with_env_var`].
 ///
 /// ```
-/// use testcontainers_modules::kwok::KwokCluster;
-/// use testcontainers::RunnableImage;
+/// use testcontainers_modules::{testcontainers::ImageExt, kwok::KwokCluster};
 ///
-/// let image: RunnableImage<KwokCluster> = KwokCluster::default().into();
-/// let image = image.with_env_var(("KWOK_PROMETHEUS_PORT", "9090"));
+/// let container_request = KwokCluster::default().with_env_var("KWOK_PROMETHEUS_PORT", "9090");
 /// ```
 ///
 /// No environment variables are required.

@@ -2,7 +2,7 @@ use aws_config::{BehaviorVersion, Region};
 use aws_sdk_s3 as s3;
 use testcontainers_modules::{
     localstack::LocalStack,
-    testcontainers::{runners::AsyncRunner, RunnableImage},
+    testcontainers::{runners::AsyncRunner, ImageExt},
 };
 
 #[tokio::main]
@@ -10,9 +10,8 @@ use testcontainers_modules::{
 async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let _ = pretty_env_logger::try_init();
 
-    let image: RunnableImage<LocalStack> =
-        RunnableImage::from(LocalStack).with_env_var(("SERVICES", "s3"));
-    let container = image.start().await?;
+    let request = LocalStack::default().with_env_var("SERVICES", "s3");
+    let container = request.start().await?;
 
     let host_ip = container.get_host().await?;
     let host_port = container.get_host_port_ipv4(4566).await?;

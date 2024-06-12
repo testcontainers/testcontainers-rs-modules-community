@@ -18,16 +18,16 @@ const DEFAULT_WAIT: u64 = 3000;
 /// the Image into a RunnableImage first.
 ///
 /// ```
-/// use testcontainers_modules::localstack::LocalStack;
-/// use testcontainers::RunnableImage;
+/// use testcontainers_modules::{localstack::LocalStack, testcontainers::ImageExt};
 ///
-/// let image: RunnableImage<LocalStack> = LocalStack::default().into();
-/// let image = image.with_env_var(("SERVICES", "s3"));
+/// let container_request = LocalStack::default().with_env_var("SERVICES", "s3");
 /// ```
 ///
 /// No environment variables are required.
 #[derive(Default, Debug)]
-pub struct LocalStack;
+pub struct LocalStack {
+    _priv: (),
+}
 
 impl Image for LocalStack {
     fn name(&self) -> &str {
@@ -57,7 +57,7 @@ mod tests {
     #[tokio::test]
     #[allow(clippy::result_large_err)]
     async fn create_and_list_queue() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let node = LocalStack.start().await?;
+        let node = LocalStack::default().start().await?;
         let host_ip = node.get_host().await?;
         let host_port = node.get_host_port_ipv4(4566).await?;
 

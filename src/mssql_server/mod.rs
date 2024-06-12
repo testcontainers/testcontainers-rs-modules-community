@@ -111,7 +111,7 @@ impl Image for MssqlServer {
 mod tests {
     use std::error;
 
-    use testcontainers::{runners::AsyncRunner, RunnableImage};
+    use testcontainers::{runners::AsyncRunner, ImageExt};
     use tiberius::{AuthMethod, Client, Config};
     use tokio::net::TcpStream;
     use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
@@ -157,7 +157,7 @@ mod tests {
 
     #[tokio::test]
     async fn custom_version() -> Result<(), Box<dyn error::Error>> {
-        let image = RunnableImage::from(MssqlServer::default()).with_tag("2019-CU23-ubuntu-20.04");
+        let image = MssqlServer::default().with_tag("2019-CU23-ubuntu-20.04");
         let container = image.start().await?;
         let config = new_config(
             container.get_host().await?,

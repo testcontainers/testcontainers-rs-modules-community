@@ -62,7 +62,7 @@ mod tests {
 
     use crate::{
         mysql::Mysql as MysqlImage,
-        testcontainers::{runners::SyncRunner, RunnableImage},
+        testcontainers::{runners::SyncRunner, ImageExt},
     };
 
     #[test]
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn mysql_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let image = RunnableImage::from(MysqlImage::default()).with_tag("8.0.34");
+        let image = MysqlImage::default().with_tag("8.0.34");
         let node = image.start()?;
 
         let connection_string = &format!(

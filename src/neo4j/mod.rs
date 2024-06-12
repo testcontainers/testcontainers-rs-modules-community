@@ -6,7 +6,7 @@ use std::{
 
 use testcontainers::{
     core::{ContainerState, WaitFor},
-    Image, RunnableImage, TestcontainersError,
+    ContainerRequest, Image, TestcontainersError,
 };
 
 /// Available Neo4j plugins.
@@ -351,7 +351,7 @@ impl From<Neo4j> for Neo4jImage {
     }
 }
 
-impl From<Neo4j> for RunnableImage<Neo4jImage> {
+impl From<Neo4j> for ContainerRequest<Neo4jImage> {
     fn from(neo4j: Neo4j) -> Self {
         Self::from(neo4j.build())
     }

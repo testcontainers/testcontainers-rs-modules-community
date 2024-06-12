@@ -75,7 +75,7 @@ impl Image for Nats {
 #[cfg(test)]
 mod tests {
     use futures::StreamExt;
-    use testcontainers::{runners::AsyncRunner, RunnableImage};
+    use testcontainers::{runners::AsyncRunner, ImageExt};
 
     use crate::nats::{Nats, NatsServerCmd};
 
@@ -83,14 +83,14 @@ mod tests {
     fn set_user() {
         let nats_cmd_args = NatsServerCmd::default().with_user("custom_user");
         assert_eq!(nats_cmd_args.user, Some("custom_user".into()));
-        let _image_with_cmd = RunnableImage::from(Nats::default()).with_cmd(&nats_cmd_args);
+        let _image_with_cmd = Nats::default().with_cmd(&nats_cmd_args);
     }
 
     #[test]
     fn set_password() {
         let nats_cmd_args = NatsServerCmd::default().with_password("custom_password");
         assert_eq!(nats_cmd_args.pass, Some("custom_password".into()));
-        let _image_with_cmd = RunnableImage::from(Nats::default()).with_cmd(&nats_cmd_args);
+        let _image_with_cmd = Nats::default().with_cmd(&nats_cmd_args);
     }
 
     #[tokio::test]

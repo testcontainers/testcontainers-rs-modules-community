@@ -98,7 +98,7 @@ impl Image for Postgres {
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::{runners::SyncRunner, RunnableImage};
+    use testcontainers::{runners::SyncRunner, ImageExt};
 
     use super::*;
 
@@ -125,9 +125,7 @@ mod tests {
 
     #[test]
     fn postgres_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let node = RunnableImage::from(Postgres::default())
-            .with_tag("13-alpine")
-            .start()?;
+        let node = Postgres::default().with_tag("13-alpine").start()?;
 
         let connection_string = &format!(
             "postgres://postgres:postgres@{}:{}/postgres",

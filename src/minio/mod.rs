@@ -94,19 +94,17 @@ impl Image for MinIO {
 mod tests {
     use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_s3::{config::Credentials, Client};
-    use testcontainers::runners::AsyncRunner;
+    use testcontainers::{runners::AsyncRunner, ImageExt};
 
     use crate::{minio, minio::MinIOServerCmd};
 
     #[tokio::test]
     async fn minio_buckets() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let minio = testcontainers::RunnableImage::from(minio::MinIO::default()).with_cmd(
-            &MinIOServerCmd {
-                dir: "/data".to_string(),
-                certs_dir: None,
-                json_log: true,
-            },
-        );
+        let minio = minio::MinIO::default().with_cmd(&MinIOServerCmd {
+            dir: "/data".to_string(),
+            certs_dir: None,
+            json_log: true,
+        });
         let node = minio.start().await?;
 
         let host_port = node.get_host_port_ipv4(9000).await?;
