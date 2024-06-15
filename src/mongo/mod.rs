@@ -23,7 +23,7 @@ impl Image for Mongo {
 #[cfg(test)]
 mod tests {
     use mongodb::*;
-    use testcontainers::runners::AsyncRunner;
+    use testcontainers::{core::IntoContainerPort, runners::AsyncRunner};
 
     use crate::mongo;
 
@@ -32,7 +32,7 @@ mod tests {
         let _ = pretty_env_logger::try_init();
         let node = mongo::Mongo.start().await?;
         let host_ip = node.get_host().await?;
-        let host_port = node.get_host_port_ipv4(27017).await?;
+        let host_port = node.get_host_port_ipv4(27017.tcp()).await?;
         let url = format!("mongodb://{host_ip}:{host_port}/");
 
         let client: Client = Client::with_uri_str(&url).await.unwrap();

@@ -39,6 +39,7 @@ mod tests {
         },
         Client,
     };
+    use testcontainers::core::IntoContainerPort;
 
     use crate::{dynamodb_local::DynamoDb, testcontainers::runners::AsyncRunner};
 
@@ -47,7 +48,7 @@ mod tests {
         let _ = pretty_env_logger::try_init();
         let node = DynamoDb.start().await?;
         let host = node.get_host().await?;
-        let host_port = node.get_host_port_ipv4(8000).await?;
+        let host_port = node.get_host_port_ipv4(8000.tcp()).await?;
 
         let table_name = "books".to_string();
 

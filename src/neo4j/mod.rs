@@ -5,7 +5,7 @@ use std::{
 };
 
 use testcontainers::{
-    core::{ContainerState, WaitFor},
+    core::{ContainerState, IntoContainerPort, WaitFor},
     ContainerRequest, Image, TestcontainersError,
 };
 
@@ -201,7 +201,7 @@ impl Neo4jImage {
             .ok_or_else(|| {
                 TestcontainersError::other("Container must be started before port can be retrieved")
             })?
-            .host_port_ipv4(7687)
+            .host_port_ipv4(7687.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via Bolt over IPv6.
@@ -213,7 +213,7 @@ impl Neo4jImage {
             .ok_or_else(|| {
                 TestcontainersError::other("Container must be started before port can be retrieved")
             })?
-            .host_port_ipv6(7687)
+            .host_port_ipv6(7687.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv4.
@@ -225,7 +225,7 @@ impl Neo4jImage {
             .ok_or_else(|| {
                 TestcontainersError::other("Container must be started before port can be retrieved")
             })?
-            .host_port_ipv4(7474)
+            .host_port_ipv4(7474.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv6.
@@ -237,7 +237,7 @@ impl Neo4jImage {
             .ok_or_else(|| {
                 TestcontainersError::other("Container must be started before port can be retrieved")
             })?
-            .host_port_ipv6(7474)
+            .host_port_ipv6(7474.tcp())
     }
 }
 

@@ -1,15 +1,15 @@
 use std::{borrow::Cow, collections::HashMap};
 
 use testcontainers::{
-    core::{ContainerState, ExecCommand, WaitFor},
+    core::{ContainerPort, ContainerState, ExecCommand, WaitFor},
     Image,
 };
 
 const NAME: &str = "confluentinc/cp-kafka";
 const TAG: &str = "6.1.1";
 
-pub const KAFKA_PORT: u16 = 9093;
-const ZOOKEEPER_PORT: u16 = 2181;
+pub const KAFKA_PORT: ContainerPort = ContainerPort::Tcp(9093);
+const ZOOKEEPER_PORT: ContainerPort = ContainerPort::Tcp(2181);
 
 #[derive(Debug)]
 pub struct Kafka {
@@ -86,7 +86,7 @@ zookeeper-server-start zookeeper.properties &
         ]
     }
 
-    fn expose_ports(&self) -> &[u16] {
+    fn expose_ports(&self) -> &[ContainerPort] {
         &[KAFKA_PORT]
     }
 

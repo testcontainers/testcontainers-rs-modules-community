@@ -7,15 +7,15 @@ use std::{
 };
 
 use testcontainers::{
-    core::{Mount, WaitFor},
+    core::{ContainerPort, Mount, WaitFor},
     Image,
 };
 
 const NAME: &str = "rancher/k3s";
 const TAG: &str = "v1.28.8-k3s1";
-pub const TRAEFIK_HTTP: u16 = 80;
-pub const KUBE_SECURE_PORT: u16 = 6443;
-pub const RANCHER_WEBHOOK_PORT: u16 = 8443;
+pub const TRAEFIK_HTTP: ContainerPort = ContainerPort::Tcp(80);
+pub const KUBE_SECURE_PORT: ContainerPort = ContainerPort::Tcp(6443);
+pub const RANCHER_WEBHOOK_PORT: ContainerPort = ContainerPort::Tcp(8443);
 
 /// Module to work with [`K3s`] inside of tests.
 ///
@@ -107,7 +107,7 @@ impl Image for K3s {
         &self.cmd
     }
 
-    fn expose_ports(&self) -> &[u16] {
+    fn expose_ports(&self) -> &[ContainerPort] {
         &[KUBE_SECURE_PORT, RANCHER_WEBHOOK_PORT, TRAEFIK_HTTP]
     }
 }

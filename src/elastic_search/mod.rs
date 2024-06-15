@@ -1,6 +1,9 @@
 use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "docker.elastic.co/elasticsearch/elasticsearch";
 const TAG: &str = "7.16.1";
@@ -29,8 +32,8 @@ impl Image for ElasticSearch {
         [("discovery.type", "single-node")]
     }
 
-    fn expose_ports(&self) -> &[u16] {
-        &[9200, 9300]
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[ContainerPort::Tcp(9200), ContainerPort::Tcp(9300)]
     }
 }
 

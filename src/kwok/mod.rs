@@ -1,4 +1,7 @@
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "registry.k8s.io/kwok/cluster";
 const TAG: &str = "v0.5.2-k8s.v1.29.2";
@@ -41,8 +44,8 @@ impl Image for KwokCluster {
         ]
     }
 
-    fn expose_ports(&self) -> &[u16] {
-        &[8080]
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[ContainerPort::Tcp(8080)]
     }
 }
 
@@ -56,6 +59,7 @@ mod test {
         Api, Config,
     };
     use rustls::crypto::CryptoProvider;
+    use testcontainers::core::IntoContainerPort;
 
     use crate::{kwok::KwokCluster, testcontainers::runners::AsyncRunner};
 
@@ -72,7 +76,7 @@ mod test {
         }
 
         let node = KwokCluster.start().await?;
-        let host_port = node.get_host_port_ipv4(8080).await?;
+        let host_port = node.get_host_port_ipv4(8080.tcp()).await?;
 
         // Create a custom Kubeconfig
         let kubeconfig = Kubeconfig {

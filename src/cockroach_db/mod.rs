@@ -81,6 +81,8 @@ impl IntoIterator for CockroachDbCmd {
 
 #[cfg(test)]
 mod tests {
+    use testcontainers::core::IntoContainerPort;
+
     use super::*;
     use crate::testcontainers::runners::SyncRunner;
 
@@ -91,7 +93,7 @@ mod tests {
 
         let connection_string = &format!(
             "postgresql://root@127.0.0.1:{}/defaultdb?sslmode=disable",
-            node.get_host_port_ipv4(26257)?
+            node.get_host_port_ipv4(26257.tcp())?
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
 

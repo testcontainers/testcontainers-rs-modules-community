@@ -59,6 +59,7 @@ impl Image for Mariadb {
 #[cfg(test)]
 mod tests {
     use mysql::prelude::Queryable;
+    use testcontainers::core::IntoContainerPort;
 
     use crate::{
         mariadb::Mariadb as MariadbImage,
@@ -73,7 +74,7 @@ mod tests {
         let connection_string = &format!(
             "mysql://root@{}:{}/test",
             node.get_host()?,
-            node.get_host_port_ipv4(3306)?
+            node.get_host_port_ipv4(3306.tcp())?
         );
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
 
@@ -93,7 +94,7 @@ mod tests {
         let connection_string = &format!(
             "mysql://root@{}:{}/test",
             node.get_host()?,
-            node.get_host_port_ipv4(3306)?
+            node.get_host_port_ipv4(3306.tcp())?
         );
 
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();

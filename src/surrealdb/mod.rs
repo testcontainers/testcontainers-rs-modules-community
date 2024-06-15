@@ -1,11 +1,14 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "surrealdb/surrealdb";
 const TAG: &str = "v1.1.1";
 
-pub const SURREALDB_PORT: u16 = 8000;
+pub const SURREALDB_PORT: ContainerPort = ContainerPort::Tcp(8000);
 
 /// Module to work with [`SurrealDB`] inside of tests.
 /// Starts an instance of SurrealDB.
@@ -114,7 +117,7 @@ impl Image for SurrealDb {
         ["start"]
     }
 
-    fn expose_ports(&self) -> &[u16] {
+    fn expose_ports(&self) -> &[ContainerPort] {
         &[SURREALDB_PORT]
     }
 }

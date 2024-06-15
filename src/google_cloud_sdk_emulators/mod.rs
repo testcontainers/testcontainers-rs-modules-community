@@ -1,21 +1,24 @@
 use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "google/cloud-sdk";
 const TAG: &str = "362.0.0-emulators";
 
 const HOST: &str = "0.0.0.0";
-pub const BIGTABLE_PORT: u16 = 8086;
-pub const DATASTORE_PORT: u16 = 8081;
-pub const FIRESTORE_PORT: u16 = 8080;
-pub const PUBSUB_PORT: u16 = 8085;
-pub const SPANNER_PORT: u16 = 9010;
+pub const BIGTABLE_PORT: ContainerPort = ContainerPort::Tcp(8086);
+pub const DATASTORE_PORT: ContainerPort = ContainerPort::Tcp(8081);
+pub const FIRESTORE_PORT: ContainerPort = ContainerPort::Tcp(8080);
+pub const PUBSUB_PORT: ContainerPort = ContainerPort::Tcp(8085);
+pub const SPANNER_PORT: ContainerPort = ContainerPort::Tcp(9010);
 
 #[derive(Debug, Clone)]
 pub struct CloudSdkCmd {
     pub host: String,
-    pub port: u16,
+    pub port: ContainerPort,
     pub emulator: Emulator,
 }
 
@@ -60,7 +63,7 @@ impl IntoIterator for &CloudSdkCmd {
 
 #[derive(Debug)]
 pub struct CloudSdk {
-    exposed_ports: Vec<u16>,
+    exposed_ports: Vec<ContainerPort>,
     ready_condition: WaitFor,
     cmd: CloudSdkCmd,
 }
@@ -82,13 +85,13 @@ impl Image for CloudSdk {
         &self.cmd
     }
 
-    fn expose_ports(&self) -> &[u16] {
+    fn expose_ports(&self) -> &[ContainerPort] {
         &self.exposed_ports
     }
 }
 
 impl CloudSdk {
-    fn new(port: u16, emulator: Emulator, ready_condition: WaitFor) -> Self {
+    fn new(port: ContainerPort, emulator: Emulator, ready_condition: WaitFor) -> Self {
         let cmd = CloudSdkCmd {
             host: HOST.to_owned(),
             port,
