@@ -1,6 +1,10 @@
 use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, Image};
+use k8s_openapi::api::core::v1::ContainerPort;
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const DEFAULT_IMAGE_NAME: &str = "gvenzl/oracle-free";
 const DEFAULT_IMAGE_TAG: &str = "23-slim-faststart";
@@ -69,8 +73,8 @@ impl Image for Oracle {
         ]
     }
 
-    fn expose_ports(&self) -> &[u16] {
-        &[1521]
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[ContainerPort::Tcp(1521)]
     }
 }
 
