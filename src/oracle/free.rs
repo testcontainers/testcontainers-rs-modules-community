@@ -82,7 +82,7 @@ mod tests {
     use std::time::Duration;
 
     use super::*;
-    use crate::testcontainers::runners::SyncRunner;
+    use crate::testcontainers::{ImageExt, runners::SyncRunner};
 
     // remember to provide Oracle client 11.2 or later (see https://crates.io/crates/oracle)
 
