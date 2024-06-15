@@ -9,16 +9,16 @@ const NAME: &str = "google/cloud-sdk";
 const TAG: &str = "362.0.0-emulators";
 
 const HOST: &str = "0.0.0.0";
-pub const BIGTABLE_PORT: ContainerPort = ContainerPort::Tcp(8086);
-pub const DATASTORE_PORT: ContainerPort = ContainerPort::Tcp(8081);
-pub const FIRESTORE_PORT: ContainerPort = ContainerPort::Tcp(8080);
-pub const PUBSUB_PORT: ContainerPort = ContainerPort::Tcp(8085);
-pub const SPANNER_PORT: ContainerPort = ContainerPort::Tcp(9010);
+pub const BIGTABLE_PORT: u16 = 8086;
+pub const DATASTORE_PORT: u16 = 8081;
+pub const FIRESTORE_PORT: u16 = 8080;
+pub const PUBSUB_PORT: u16 = 8085;
+pub const SPANNER_PORT: u16 = 9010;
 
 #[derive(Debug, Clone)]
 pub struct CloudSdkCmd {
     pub host: String,
-    pub port: ContainerPort,
+    pub port: u16,
     pub emulator: Emulator,
 }
 
@@ -91,14 +91,14 @@ impl Image for CloudSdk {
 }
 
 impl CloudSdk {
-    fn new(port: ContainerPort, emulator: Emulator, ready_condition: WaitFor) -> Self {
+    fn new(port: u16, emulator: Emulator, ready_condition: WaitFor) -> Self {
         let cmd = CloudSdkCmd {
             host: HOST.to_owned(),
             port,
             emulator,
         };
         Self {
-            exposed_ports: vec![port],
+            exposed_ports: vec![ContainerPort::Tcp(port)],
             ready_condition,
             cmd,
         }
