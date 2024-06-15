@@ -107,7 +107,7 @@ zookeeper-server-start zookeeper.properties &
             "--add-config".to_string(),
             format!(
                 "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
-                cs.host_port_ipv4(KAFKA_PORT)?
+                cs.host_port_ipv4(ContainerPort::Tcp(KAFKA_PORT))?
             ),
         ];
         let ready_conditions = vec![WaitFor::message_on_stdout(
