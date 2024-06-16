@@ -33,7 +33,7 @@ of `testcontainers-modules` with aligned version between these crates.
 For example:
 
 ```rust
-use testcontainers_modules::testcontainers::RunnableImage;
+use testcontainers_modules::testcontainers::ImageExt;
 ```
 
 You can also see [examples](https://github.com/testcontainers/testcontainers-rs-modules-community/tree/main/examples)
@@ -46,13 +46,13 @@ Just use [RunnableImage](https://docs.rs/testcontainers/latest/testcontainers/co
 ```rust,ignore
 use testcontainers_modules::{
     redis::Redis,
-    testcontainers::RunnableImage
+    testcontainers::{ContainerRequest, ImageExt}
 };
 
 
 /// Create a Redis module with `6.2-alpine` tag and custom password
-fn create_redis() -> RunnableImage<Redis> {
-    RunnableImage::from(Redis::default())
+fn create_redis() -> ContainerRequest<Redis> {
+    Redis::default()
         .with_tag("6.2-alpine")
         .with_env_var(("REDIS_PASSWORD", "my_secret_password"))
 }
