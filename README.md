@@ -54,7 +54,7 @@ use testcontainers_modules::{
 fn create_redis() -> ContainerRequest<Redis> {
     Redis::default()
         .with_tag("6.2-alpine")
-        .with_env_var(("REDIS_PASSWORD", "my_secret_password"))
+        .with_env_var("REDIS_PASSWORD", "my_secret_password")
 }
 ```
 
