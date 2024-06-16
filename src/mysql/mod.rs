@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -25,30 +25,18 @@ const TAG: &str = "8.1";
 ///
 /// [`MySQL`]: https://www.mysql.com/
 /// [`MySQL docker image`]: https://hub.docker.com/_/mysql
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Mysql {
-    env_vars: HashMap<String, String>,
-}
-
-impl Default for Mysql {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("MYSQL_DATABASE".to_owned(), "test".to_owned());
-        env_vars.insert("MYSQL_ALLOW_EMPTY_PASSWORD".into(), "yes".into());
-
-        Self { env_vars }
-    }
+    _priv: (),
 }
 
 impl Image for Mysql {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -58,8 +46,13 @@ impl Image for Mysql {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [
+            ("MYSQL_DATABASE", "test"),
+            ("MYSQL_ALLOW_EMPTY_PASSWORD", "yes"),
+        ]
     }
 }
 
@@ -69,7 +62,7 @@ mod tests {
 
     use crate::{
         mysql::Mysql as MysqlImage,
-        testcontainers::{runners::SyncRunner, RunnableImage},
+        testcontainers::{runners::SyncRunner, ImageExt},
     };
 
     #[test]
@@ -94,7 +87,7 @@ mod tests {
 
     #[test]
     fn mysql_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let image = RunnableImage::from(MysqlImage::default()).with_tag("8.0.34");
+        let image = MysqlImage::default().with_tag("8.0.34");
         let node = image.start()?;
 
         let connection_string = &format!(

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -84,14 +84,12 @@ impl Default for MssqlServer {
 }
 
 impl Image for MssqlServer {
-    type Args = ();
-
-    fn name(&self) -> String {
-        Self::NAME.to_owned()
+    fn name(&self) -> &str {
+        Self::NAME
     }
 
-    fn tag(&self) -> String {
-        Self::TAG.to_owned()
+    fn tag(&self) -> &str {
+        Self::TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -102,8 +100,10 @@ impl Image for MssqlServer {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 }
 
@@ -111,7 +111,7 @@ impl Image for MssqlServer {
 mod tests {
     use std::error;
 
-    use testcontainers::{runners::AsyncRunner, RunnableImage};
+    use testcontainers::{runners::AsyncRunner, ImageExt};
     use tiberius::{AuthMethod, Client, Config};
     use tokio::net::TcpStream;
     use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
@@ -157,7 +157,7 @@ mod tests {
 
     #[tokio::test]
     async fn custom_version() -> Result<(), Box<dyn error::Error>> {
-        let image = RunnableImage::from(MssqlServer::default()).with_tag("2019-CU23-ubuntu-20.04");
+        let image = MssqlServer::default().with_tag("2019-CU23-ubuntu-20.04");
         let container = image.start().await?;
         let config = new_config(
             container.get_host().await?,

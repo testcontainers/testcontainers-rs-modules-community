@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -25,30 +25,18 @@ const TAG: &str = "11.3";
 ///
 /// [`MariaDB`]: https://www.mariadb.com/
 /// [`MariaDB docker image`]: https://hub.docker.com/_/mariadb
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Mariadb {
-    env_vars: HashMap<String, String>,
-}
-
-impl Default for Mariadb {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("MARIADB_DATABASE".to_owned(), "test".to_owned());
-        env_vars.insert("MARIADB_ALLOW_EMPTY_ROOT_PASSWORD".into(), "1".into());
-
-        Self { env_vars }
-    }
+    _priv: (),
 }
 
 impl Image for Mariadb {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -58,18 +46,24 @@ impl Image for Mariadb {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [
+            ("MARIADB_DATABASE", "test"),
+            ("MARIADB_ALLOW_EMPTY_ROOT_PASSWORD", "1"),
+        ]
     }
 }
 
 #[cfg(test)]
 mod tests {
     use mysql::prelude::Queryable;
+    use testcontainers::core::IntoContainerPort;
 
     use crate::{
         mariadb::Mariadb as MariadbImage,
-        testcontainers::{runners::SyncRunner, RunnableImage},
+        testcontainers::{runners::SyncRunner, ImageExt},
     };
 
     #[test]
@@ -80,7 +74,7 @@ mod tests {
         let connection_string = &format!(
             "mysql://root@{}:{}/test",
             node.get_host()?,
-            node.get_host_port_ipv4(3306)?
+            node.get_host_port_ipv4(3306.tcp())?
         );
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
 
@@ -94,13 +88,13 @@ mod tests {
 
     #[test]
     fn mariadb_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let image = RunnableImage::from(MariadbImage::default()).with_tag("11.2.3");
+        let image = MariadbImage::default().with_tag("11.2.3");
         let node = image.start()?;
 
         let connection_string = &format!(
             "mysql://root@{}:{}/test",
             node.get_host()?,
-            node.get_host_port_ipv4(3306)?
+            node.get_host_port_ipv4(3306.tcp())?
         );
 
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();

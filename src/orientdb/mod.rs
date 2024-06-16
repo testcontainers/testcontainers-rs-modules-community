@@ -1,41 +1,32 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "orientdb";
 const TAG: &str = "3.2.19";
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct OrientDb {
-    env_vars: HashMap<String, String>,
-}
-
-impl Default for OrientDb {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("ORIENTDB_ROOT_PASSWORD".to_owned(), "root".to_owned());
-
-        OrientDb { env_vars }
-    }
+    _priv: (),
 }
 
 impl Image for OrientDb {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stderr("OrientDB Studio available at")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [("ORIENTDB_ROOT_PASSWORD", "root")]
     }
 }
 

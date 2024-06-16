@@ -1,20 +1,14 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "surrealdb/surrealdb";
 const TAG: &str = "v1.1.1";
 
-pub const SURREALDB_PORT: u16 = 8000;
-
-#[derive(Debug, Default, Clone)]
-pub struct SurrealDbArgs;
-
-impl ImageArgs for SurrealDbArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        Box::new(vec!["start".to_owned()].into_iter())
-    }
-}
+pub const SURREALDB_PORT: ContainerPort = ContainerPort::Tcp(8000);
 
 /// Module to work with [`SurrealDB`] inside of tests.
 /// Starts an instance of SurrealDB.
@@ -101,26 +95,30 @@ impl Default for SurrealDb {
 }
 
 impl Image for SurrealDb {
-    type Args = SurrealDbArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stderr("Started web server on ")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![SURREALDB_PORT]
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        ["start"]
+    }
+
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[SURREALDB_PORT]
     }
 }
 

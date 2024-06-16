@@ -1,4 +1,6 @@
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use std::borrow::Cow;
+
+use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "nats";
 const TAG: &str = "2.10.14";
@@ -8,16 +10,16 @@ const TAG: &str = "2.10.14";
 /// This image is based on the official [Nats](https://hub.docker.com/_/nats) image.
 #[derive(Debug, Default)]
 pub struct Nats {
-    _private: (),
+    cmd: NatsServerCmd,
 }
 
 #[derive(Default, Debug, Clone)]
-pub struct NatsServerArgs {
+pub struct NatsServerCmd {
     user: Option<String>,
     pass: Option<String>,
 }
 
-impl NatsServerArgs {
+impl NatsServerCmd {
     pub fn with_user(mut self, user: &str) -> Self {
         self.user = Some(user.to_owned());
         self
@@ -29,8 +31,11 @@ impl NatsServerArgs {
     }
 }
 
-impl ImageArgs for NatsServerArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
+impl IntoIterator for &NatsServerCmd {
+    type Item = String;
+    type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
         let mut args = Vec::new();
 
         if let Some(ref user) = self.user {
@@ -42,19 +47,17 @@ impl ImageArgs for NatsServerArgs {
             args.push(pass.to_owned())
         }
 
-        Box::new(args.into_iter())
+        args.into_iter()
     }
 }
 
 impl Image for Nats {
-    type Args = NatsServerArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -63,25 +66,31 @@ impl Image for Nats {
             WaitFor::message_on_stderr("Server is ready"),
         ]
     }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        &self.cmd
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use futures::StreamExt;
-    use testcontainers::runners::AsyncRunner;
+    use testcontainers::{runners::AsyncRunner, ImageExt};
 
-    use crate::nats::{Nats, NatsServerArgs};
+    use crate::nats::{Nats, NatsServerCmd};
 
     #[test]
     fn set_user() {
-        let nats_cmd_args = NatsServerArgs::default().with_user("custom_user");
+        let nats_cmd_args = NatsServerCmd::default().with_user("custom_user");
         assert_eq!(nats_cmd_args.user, Some("custom_user".into()));
+        let _image_with_cmd = Nats::default().with_cmd(&nats_cmd_args);
     }
 
     #[test]
     fn set_password() {
-        let nats_cmd_args = NatsServerArgs::default().with_password("custom_password");
+        let nats_cmd_args = NatsServerCmd::default().with_password("custom_password");
         assert_eq!(nats_cmd_args.pass, Some("custom_password".into()));
+        let _image_with_cmd = Nats::default().with_cmd(&nats_cmd_args);
     }
 
     #[tokio::test]

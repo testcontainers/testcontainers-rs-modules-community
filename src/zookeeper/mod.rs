@@ -1,33 +1,22 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "bitnami/zookeeper";
 const TAG: &str = "3.9.0";
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Zookeeper {
-    env_vars: HashMap<String, String>,
-}
-
-impl Default for Zookeeper {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("ALLOW_ANONYMOUS_LOGIN".to_owned(), "yes".to_owned());
-
-        Self { env_vars }
-    }
+    _priv: (),
 }
 
 impl Image for Zookeeper {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -37,8 +26,10 @@ impl Image for Zookeeper {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [("ALLOW_ANONYMOUS_LOGIN", "yes")]
     }
 }
 

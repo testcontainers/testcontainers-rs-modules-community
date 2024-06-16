@@ -1,9 +1,14 @@
-use std::collections::BTreeMap;
+use std::{borrow::Cow, collections::BTreeMap};
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{wait::HttpWaitStrategy, ContainerPort, WaitFor},
+    Image,
+};
 
 const DEFAULT_IMAGE_NAME: &str = "clickhouse/clickhouse-server";
 const DEFAULT_IMAGE_TAG: &str = "23.3.8.21-alpine";
+
+const CLICKHOUSE_PORT: ContainerPort = ContainerPort::Tcp(8123);
 
 /// Module to work with [`ClickHouse`] inside of tests.
 ///
@@ -21,50 +26,34 @@ const DEFAULT_IMAGE_TAG: &str = "23.3.8.21-alpine";
 ///
 /// [`ClickHouse`]: https://clickhouse.com/
 /// [`Clickhouse docker image`]: https://hub.docker.com/r/clickhouse/clickhouse-server
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ClickHouse {
-    name: String,
-    tag: String,
     env_vars: BTreeMap<String, String>,
 }
 
-impl Default for ClickHouse {
-    fn default() -> Self {
-        ClickHouse::new(
-            DEFAULT_IMAGE_NAME.to_string(),
-            DEFAULT_IMAGE_TAG.to_string(),
-        )
-    }
-}
-
-impl ClickHouse {
-    fn new(name: String, tag: String) -> Self {
-        ClickHouse {
-            name,
-            tag,
-            env_vars: Default::default(),
-        }
-    }
-}
-
 impl Image for ClickHouse {
-    type Args = ();
-
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        DEFAULT_IMAGE_NAME
     }
 
-    fn tag(&self) -> String {
-        self.tag.clone()
+    fn tag(&self) -> &str {
+        DEFAULT_IMAGE_TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        // TODO: use HTTP call to check rediness (depends on https://github.com/testcontainers/testcontainers-rs/issues/648)
-        vec![WaitFor::seconds(10)]
+        vec![WaitFor::http(
+            HttpWaitStrategy::new("/").with_expected_status_code(200_u16),
+        )]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
+    }
+
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[CLICKHOUSE_PORT]
     }
 }
 
@@ -106,7 +95,7 @@ mod tests {
         assert_eq!(response.status(), 200);
 
         // testing tcp endpoint
-        let client = clickhouse::Client::default().with_url(&format!("tcp://{}:{}", host, port));
+        let client = clickhouse::Client::default().with_url(format!("tcp://{host}:{port}"));
         #[derive(Row, Deserialize)]
         struct MyRow {
             #[serde(rename = "a")] // we don't read the field, so it's a dead-code in tests

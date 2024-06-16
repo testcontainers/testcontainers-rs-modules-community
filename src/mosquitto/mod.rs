@@ -1,4 +1,6 @@
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use std::borrow::Cow;
+
+use testcontainers::{core::WaitFor, Image};
 
 /// Module to work with [`Mosquitto`] inside of tests.
 ///
@@ -9,7 +11,7 @@ use testcontainers::{core::WaitFor, Image, ImageArgs};
 /// ```
 /// use testcontainers_modules::{mosquitto, testcontainers::runners::SyncRunner};
 ///
-/// let mosquitto_instance = mosquitto::Mosquitto.start().unwrap();
+/// let mosquitto_instance = mosquitto::Mosquitto::default().start().unwrap();
 ///
 /// let broker_url = format!("{}:{}", mosquitto_instance.get_host().unwrap(), mosquitto_instance.get_host_port_ipv4(1883).unwrap());
 /// ```
@@ -21,31 +23,17 @@ const NAME: &str = "eclipse-mosquitto";
 const TAG: &str = "2.0.18";
 
 #[derive(Debug, Default, Clone)]
-pub struct Mosquitto;
-#[derive(Debug, Default, Clone)]
-pub struct MosquittoArgs;
-
-impl ImageArgs for MosquittoArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        Box::new(
-            vec![
-                "mosquitto".to_string(),
-                "-c".to_string(),
-                "/mosquitto-no-auth.conf".to_string(),
-            ]
-            .into_iter(),
-        )
-    }
+pub struct Mosquitto {
+    _priv: (),
 }
-impl Image for Mosquitto {
-    type Args = MosquittoArgs;
 
-    fn name(&self) -> String {
-        NAME.to_owned()
+impl Image for Mosquitto {
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -53,5 +41,9 @@ impl Image for Mosquitto {
             "mosquitto version {} running",
             TAG
         ))]
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        ["mosquitto", "-c", "/mosquitto-no-auth.conf"]
     }
 }

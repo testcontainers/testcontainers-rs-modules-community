@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use testcontainers::{
-    core::{ContainerState, ExecCommand, WaitFor},
-    Image, ImageArgs,
+    core::{ContainerPort, ContainerState, ExecCommand, WaitFor},
+    Image,
 };
 
 const NAME: &str = "confluentinc/cp-kafka";
@@ -10,31 +10,6 @@ const TAG: &str = "6.1.1";
 
 pub const KAFKA_PORT: u16 = 9093;
 const ZOOKEEPER_PORT: u16 = 2181;
-
-#[derive(Debug, Default, Clone)]
-pub struct KafkaArgs;
-
-impl ImageArgs for KafkaArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        Box::new(
-            vec![
-                "/bin/bash".to_owned(),
-                "-c".to_owned(),
-                format!(
-                    r#"
-echo 'clientPort={ZOOKEEPER_PORT}' > zookeeper.properties;
-echo 'dataDir=/var/lib/zookeeper/data' >> zookeeper.properties;
-echo 'dataLogDir=/var/lib/zookeeper/log' >> zookeeper.properties;
-zookeeper-server-start zookeeper.properties &
-. /etc/confluent/docker/bash-config &&
-/etc/confluent/docker/configure &&
-/etc/confluent/docker/launch"#,
-                ),
-            ]
-            .into_iter(),
-        )
-    }
-}
 
 #[derive(Debug)]
 pub struct Kafka {
@@ -76,26 +51,43 @@ impl Default for Kafka {
 }
 
 impl Image for Kafka {
-    type Args = KafkaArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("Creating new log file")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![KAFKA_PORT]
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        vec![
+            "/bin/bash".to_owned(),
+            "-c".to_owned(),
+            format!(
+                r#"
+echo 'clientPort={ZOOKEEPER_PORT}' > zookeeper.properties;
+echo 'dataDir=/var/lib/zookeeper/data' >> zookeeper.properties;
+echo 'dataLogDir=/var/lib/zookeeper/log' >> zookeeper.properties;
+zookeeper-server-start zookeeper.properties &
+. /etc/confluent/docker/bash-config &&
+/etc/confluent/docker/configure &&
+/etc/confluent/docker/launch"#,
+            ),
+        ]
+    }
+
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[ContainerPort::Tcp(KAFKA_PORT)]
     }
 
     fn exec_after_start(
@@ -115,7 +107,7 @@ impl Image for Kafka {
             "--add-config".to_string(),
             format!(
                 "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
-                cs.host_port_ipv4(KAFKA_PORT)?
+                cs.host_port_ipv4(ContainerPort::Tcp(KAFKA_PORT))?
             ),
         ];
         let ready_conditions = vec![WaitFor::message_on_stdout(

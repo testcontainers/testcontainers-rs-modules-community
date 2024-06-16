@@ -5,8 +5,8 @@ use std::{
 };
 
 use testcontainers::{
-    core::{ContainerState, WaitFor},
-    Image, RunnableImage, TestcontainersError,
+    core::{ContainerState, IntoContainerPort, WaitFor},
+    ContainerRequest, Image, TestcontainersError,
 };
 
 /// Available Neo4j plugins.
@@ -201,7 +201,7 @@ impl Neo4jImage {
             .ok_or_else(|| {
                 TestcontainersError::other("Container must be started before port can be retrieved")
             })?
-            .host_port_ipv4(7687)
+            .host_port_ipv4(7687.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via Bolt over IPv6.
@@ -213,7 +213,7 @@ impl Neo4jImage {
             .ok_or_else(|| {
                 TestcontainersError::other("Container must be started before port can be retrieved")
             })?
-            .host_port_ipv6(7687)
+            .host_port_ipv6(7687.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv4.
@@ -225,7 +225,7 @@ impl Neo4jImage {
             .ok_or_else(|| {
                 TestcontainersError::other("Container must be started before port can be retrieved")
             })?
-            .host_port_ipv4(7474)
+            .host_port_ipv4(7474.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv6.
@@ -237,19 +237,17 @@ impl Neo4jImage {
             .ok_or_else(|| {
                 TestcontainersError::other("Container must be started before port can be retrieved")
             })?
-            .host_port_ipv6(7474)
+            .host_port_ipv6(7474.tcp())
     }
 }
 
 impl Image for Neo4jImage {
-    type Args = ();
-
-    fn name(&self) -> String {
-        "neo4j".to_owned()
+    fn name(&self) -> &str {
+        "neo4j"
     }
 
-    fn tag(&self) -> String {
-        self.version.clone()
+    fn tag(&self) -> &str {
+        &self.version
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -259,8 +257,10 @@ impl Image for Neo4jImage {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 
     fn exec_after_start(
@@ -351,7 +351,7 @@ impl From<Neo4j> for Neo4jImage {
     }
 }
 
-impl From<Neo4j> for RunnableImage<Neo4jImage> {
+impl From<Neo4j> for ContainerRequest<Neo4jImage> {
     fn from(neo4j: Neo4j) -> Self {
         Self::from(neo4j.build())
     }

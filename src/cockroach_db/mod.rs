@@ -1,6 +1,6 @@
-use std::collections::BTreeMap;
+use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use testcontainers::{core::WaitFor, Image};
 
 const DEFAULT_IMAGE_NAME: &str = "cockroachdb/cockroach";
 const DEFAULT_IMAGE_TAG: &str = "v23.2.3";
@@ -22,83 +22,67 @@ const DEFAULT_IMAGE_TAG: &str = "v23.2.3";
 /// [`Cockroach`]: https://www.cockroachlabs.com/
 /// [`Cockroach docker image`]: https://hub.docker.com/r/cockroachdb/cockroach
 /// [`Cockroach commands`]: https://www.cockroachlabs.com/docs/stable/cockroach-commands
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct CockroachDb {
-    name: String,
-    tag: String,
-    env_vars: BTreeMap<String, String>,
-}
-
-impl Default for CockroachDb {
-    fn default() -> Self {
-        CockroachDb::new(
-            DEFAULT_IMAGE_NAME.to_string(),
-            DEFAULT_IMAGE_TAG.to_string(),
-        )
-    }
+    cmd: CockroachDbCmd,
 }
 
 impl CockroachDb {
-    fn new(name: String, tag: String) -> Self {
-        CockroachDb {
-            name,
-            tag,
-            env_vars: Default::default(),
-        }
+    pub fn new(cmd: CockroachDbCmd) -> Self {
+        CockroachDb { cmd }
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct CockroachDbArgs {
-    command: String,
-    args: Vec<String>,
+#[derive(Debug, Clone, Copy)]
+pub enum CockroachDbCmd {
+    StartSingleNode { insecure: bool },
 }
 
-impl CockroachDbArgs {
-    pub fn new(command: String, args: Vec<String>) -> Self {
-        Self { command, args }
-    }
-}
-
-impl Default for CockroachDbArgs {
+impl Default for CockroachDbCmd {
     fn default() -> Self {
-        Self {
-            command: "start-single-node".to_string(),
-            args: vec!["--insecure".to_string()],
-        }
-    }
-}
-
-impl ImageArgs for CockroachDbArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        let mut command_and_args = self.args.clone();
-        command_and_args.insert(0, self.command.clone());
-        Box::new(command_and_args.into_iter())
+        Self::StartSingleNode { insecure: true }
     }
 }
 
 impl Image for CockroachDb {
-    type Args = CockroachDbArgs;
-
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        DEFAULT_IMAGE_NAME
     }
 
-    fn tag(&self) -> String {
-        self.tag.clone()
+    fn tag(&self) -> &str {
+        DEFAULT_IMAGE_TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("CockroachDB node starting at")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        self.cmd
+    }
+}
+
+impl IntoIterator for CockroachDbCmd {
+    type Item = String;
+    type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            CockroachDbCmd::StartSingleNode { insecure } => {
+                let mut cmd = vec!["start-single-node".to_string()];
+                if insecure {
+                    cmd.push("--insecure".to_string());
+                }
+                cmd.into_iter()
+            }
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use testcontainers::core::IntoContainerPort;
+
     use super::*;
     use crate::testcontainers::runners::SyncRunner;
 
@@ -109,7 +93,7 @@ mod tests {
 
         let connection_string = &format!(
             "postgresql://root@127.0.0.1:{}/defaultdb?sslmode=disable",
-            node.get_host_port_ipv4(26257)?
+            node.get_host_port_ipv4(26257.tcp())?
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
 

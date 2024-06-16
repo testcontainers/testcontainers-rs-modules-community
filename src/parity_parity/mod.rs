@@ -1,41 +1,35 @@
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use std::borrow::Cow;
+
+use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "parity/parity";
 const TAG: &str = "v2.5.0";
 
 #[derive(Debug, Default)]
-pub struct ParityEthereum;
-
-#[derive(Debug, Default, Clone)]
-pub struct ParityEthereumArgs;
-
-impl ImageArgs for ParityEthereumArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        Box::new(
-            vec![
-                "--config=dev".to_string(),
-                "--jsonrpc-apis=all".to_string(),
-                "--unsafe-expose".to_string(),
-                "--tracing=on".to_string(),
-            ]
-            .into_iter(),
-        )
-    }
+pub struct ParityEthereum {
+    _priv: (),
 }
 
 impl Image for ParityEthereum {
-    type Args = ParityEthereumArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stderr("Public node URL:")]
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        [
+            "--config=dev",
+            "--jsonrpc-apis=all",
+            "--unsafe-expose",
+            "--tracing=on",
+        ]
     }
 }
 
@@ -48,7 +42,7 @@ mod tests {
     #[test]
     fn parity_parity_net_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = parity_parity::ParityEthereum.start()?;
+        let node = parity_parity::ParityEthereum::default().start()?;
         let host_ip = node.get_host()?;
         let host_port = node.get_host_port_ipv4(8545)?;
 
