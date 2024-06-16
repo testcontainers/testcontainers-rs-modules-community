@@ -20,7 +20,7 @@ const DEFAULT_IMAGE_TAG: &str = "23-slim-faststart";
 /// # Example
 /// ```
 /// use std::time::Duration;
-/// use testcontainers_modules::{oracle::free::Oracle, testcontainers::runners::SyncRunner};
+/// use testcontainers_modules::{oracle::free::Oracle, testcontainers::{runners::SyncRunner, ImageExt}};
 ///
 /// // On slower machines the image sometimes needs to be pulled before,
 /// // and there is more time needed than 60 seconds
