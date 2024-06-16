@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{borrow::Cow, collections::BTreeMap};
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -22,55 +22,36 @@ const CONSUL_LOCAL_CONFIG: &str = "CONSUL_LOCAL_CONFIG";
 ///
 /// [`Consul`]: https://www.consul.io/
 /// [`Consul docker image`]: https://hub.docker.com/r/hashicorp/consul
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Consul {
-    name: String,
-    tag: String,
     env_vars: BTreeMap<String, String>,
 }
 
-impl Default for Consul {
-    fn default() -> Self {
-        Consul::new(
-            DEFAULT_IMAGE_NAME.to_string(),
-            DEFAULT_IMAGE_TAG.to_string(),
-        )
-    }
-}
-
 impl Consul {
-    fn new(name: String, tag: String) -> Self {
-        Consul {
-            name,
-            tag,
-            env_vars: Default::default(),
-        }
-    }
-
     pub fn with_local_config(self, config: String) -> Self {
         let mut env_vars = self.env_vars;
         env_vars.insert(CONSUL_LOCAL_CONFIG.to_owned(), config);
-        Self { env_vars, ..self }
+        Self { env_vars }
     }
 }
 
 impl Image for Consul {
-    type Args = ();
-
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        DEFAULT_IMAGE_NAME
     }
 
-    fn tag(&self) -> String {
-        self.tag.clone()
+    fn tag(&self) -> &str {
+        DEFAULT_IMAGE_TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("agent: Consul agent running!")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 }
 

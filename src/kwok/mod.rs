@@ -1,4 +1,7 @@
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "registry.k8s.io/kwok/cluster";
 const TAG: &str = "v0.5.2-k8s.v1.29.2";
@@ -13,16 +16,12 @@ const DEFAULT_WAIT: u64 = 3000;
 /// For configuration, Kwok Cluster uses environment variables. You can go [here](https://kwok.sigs.k8s.io/docs/user/configuration/#a-note-on-cli-flags-environment-variables-and-configuration-files)
 /// for the full list.
 ///
-/// Testcontainers support setting environment variables with the method
-/// `RunnableImage::with_env_var((impl Into<String>, impl Into<String>))`. You will have to convert
-/// the Image into a RunnableImage first.
+/// Testcontainers support setting environment variables with the method [`testcontainers::ImageExt::with_env_var`].
 ///
 /// ```
-/// use testcontainers_modules::kwok::KwokCluster;
-/// use testcontainers::RunnableImage;
+/// use testcontainers_modules::{testcontainers::ImageExt, kwok::KwokCluster};
 ///
-/// let image: RunnableImage<KwokCluster> = KwokCluster::default().into();
-/// let image = image.with_env_var(("KWOK_PROMETHEUS_PORT", "9090"));
+/// let container_request = KwokCluster::default().with_env_var("KWOK_PROMETHEUS_PORT", "9090");
 /// ```
 ///
 /// No environment variables are required.
@@ -30,14 +29,12 @@ const DEFAULT_WAIT: u64 = 3000;
 pub struct KwokCluster;
 
 impl Image for KwokCluster {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -47,8 +44,8 @@ impl Image for KwokCluster {
         ]
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![8080]
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[ContainerPort::Tcp(8080)]
     }
 }
 
@@ -62,6 +59,7 @@ mod test {
         Api, Config,
     };
     use rustls::crypto::CryptoProvider;
+    use testcontainers::core::IntoContainerPort;
 
     use crate::{kwok::KwokCluster, testcontainers::runners::AsyncRunner};
 
@@ -78,7 +76,7 @@ mod test {
         }
 
         let node = KwokCluster.start().await?;
-        let host_port = node.get_host_port_ipv4(8080).await?;
+        let host_port = node.get_host_port_ipv4(8080.tcp()).await?;
 
         // Create a custom Kubeconfig
         let kubeconfig = Kubeconfig {

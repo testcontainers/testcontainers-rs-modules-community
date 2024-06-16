@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "minio/minio";
 const TAG: &str = "RELEASE.2022-02-07T08-17-33Z";
@@ -11,6 +11,7 @@ const CONSOLE_ADDRESS: &str = ":9001";
 #[derive(Debug)]
 pub struct MinIO {
     env_vars: HashMap<String, String>,
+    cmd: MinIOServerCmd,
 }
 
 impl Default for MinIO {
@@ -21,18 +22,21 @@ impl Default for MinIO {
             CONSOLE_ADDRESS.to_owned(),
         );
 
-        Self { env_vars }
+        Self {
+            env_vars,
+            cmd: MinIOServerCmd::default(),
+        }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct MinIOServerArgs {
+pub struct MinIOServerCmd {
     pub dir: String,
     pub certs_dir: Option<String>,
     pub json_log: bool,
 }
 
-impl Default for MinIOServerArgs {
+impl Default for MinIOServerCmd {
     fn default() -> Self {
         Self {
             dir: DIR.to_owned(),
@@ -42,8 +46,11 @@ impl Default for MinIOServerArgs {
     }
 }
 
-impl ImageArgs for MinIOServerArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
+impl IntoIterator for &MinIOServerCmd {
+    type Item = String;
+    type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
         let mut args = vec!["server".to_owned(), self.dir.to_owned()];
 
         if let Some(ref certs_dir) = self.certs_dir {
@@ -55,27 +62,31 @@ impl ImageArgs for MinIOServerArgs {
             args.push("--json".to_owned());
         }
 
-        Box::new(args.into_iter())
+        args.into_iter()
     }
 }
 
 impl Image for MinIO {
-    type Args = MinIOServerArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("API:")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        &self.cmd
     }
 }
 
@@ -85,7 +96,7 @@ mod tests {
     use aws_sdk_s3::{config::Credentials, Client};
     use testcontainers::runners::AsyncRunner;
 
-    use crate::minio;
+    use crate::{minio, minio::MinIOServerCmd};
 
     #[tokio::test]
     async fn minio_buckets() -> Result<(), Box<dyn std::error::Error + 'static>> {

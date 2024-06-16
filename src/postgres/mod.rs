@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -75,14 +75,12 @@ impl Default for Postgres {
 }
 
 impl Image for Postgres {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -91,14 +89,16 @@ impl Image for Postgres {
         )]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::{runners::SyncRunner, RunnableImage};
+    use testcontainers::{runners::SyncRunner, ImageExt};
 
     use super::*;
 
@@ -125,9 +125,7 @@ mod tests {
 
     #[test]
     fn postgres_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let node = RunnableImage::from(Postgres::default())
-            .with_tag("13-alpine")
-            .start()?;
+        let node = Postgres::default().with_tag("13-alpine").start()?;
 
         let connection_string = &format!(
             "postgres://postgres:postgres@{}:{}/postgres",

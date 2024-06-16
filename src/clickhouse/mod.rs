@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{borrow::Cow, collections::BTreeMap};
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -21,41 +21,18 @@ const DEFAULT_IMAGE_TAG: &str = "23.3.8.21-alpine";
 ///
 /// [`ClickHouse`]: https://clickhouse.com/
 /// [`Clickhouse docker image`]: https://hub.docker.com/r/clickhouse/clickhouse-server
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ClickHouse {
-    name: String,
-    tag: String,
     env_vars: BTreeMap<String, String>,
 }
 
-impl Default for ClickHouse {
-    fn default() -> Self {
-        ClickHouse::new(
-            DEFAULT_IMAGE_NAME.to_string(),
-            DEFAULT_IMAGE_TAG.to_string(),
-        )
-    }
-}
-
-impl ClickHouse {
-    fn new(name: String, tag: String) -> Self {
-        ClickHouse {
-            name,
-            tag,
-            env_vars: Default::default(),
-        }
-    }
-}
-
 impl Image for ClickHouse {
-    type Args = ();
-
-    fn name(&self) -> String {
-        self.name.clone()
+    fn name(&self) -> &str {
+        DEFAULT_IMAGE_NAME
     }
 
-    fn tag(&self) -> String {
-        self.tag.clone()
+    fn tag(&self) -> &str {
+        DEFAULT_IMAGE_TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -63,8 +40,10 @@ impl Image for ClickHouse {
         vec![WaitFor::seconds(10)]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 }
 
@@ -106,7 +85,7 @@ mod tests {
         assert_eq!(response.status(), 200);
 
         // testing tcp endpoint
-        let client = clickhouse::Client::default().with_url(&format!("tcp://{}:{}", host, port));
+        let client = clickhouse::Client::default().with_url(format!("tcp://{host}:{port}"));
         #[derive(Row, Deserialize)]
         struct MyRow {
             #[serde(rename = "a")] // we don't read the field, so it's a dead-code in tests

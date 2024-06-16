@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use testcontainers::{core::WaitFor, Image};
 
 pub const SOLR_PORT: u16 = 8983;
@@ -30,26 +28,20 @@ const TAG: &str = "9.5.0-slim";
 /// [`Solr reference guide`]: https://solr.apache.org/guide/solr/latest/
 #[derive(Debug, Default)]
 pub struct Solr {
-    env_vars: HashMap<String, String>,
+    _priv: (),
 }
 
 impl Image for Solr {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("o.e.j.s.Server Started Server")]
-    }
-
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
     }
 }
 

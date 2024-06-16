@@ -7,14 +7,12 @@ const TAG: &str = "5.0.6";
 pub struct Mongo;
 
 impl Image for Mongo {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -25,7 +23,7 @@ impl Image for Mongo {
 #[cfg(test)]
 mod tests {
     use mongodb::*;
-    use testcontainers::runners::AsyncRunner;
+    use testcontainers::{core::IntoContainerPort, runners::AsyncRunner};
 
     use crate::mongo;
 
@@ -34,7 +32,7 @@ mod tests {
         let _ = pretty_env_logger::try_init();
         let node = mongo::Mongo.start().await?;
         let host_ip = node.get_host().await?;
-        let host_port = node.get_host_port_ipv4(27017).await?;
+        let host_port = node.get_host_port_ipv4(27017.tcp()).await?;
         let url = format!("mongodb://{host_ip}:{host_port}/");
 
         let client: Client = Client::with_uri_str(&url).await.unwrap();
