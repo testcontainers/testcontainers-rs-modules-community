@@ -79,12 +79,6 @@ mod tests {
     use super::*;
     use crate::testcontainers::runners::AsyncRunner;
     use serde::{Deserialize, Serialize};
-    use tracing::Level;
-    use tracing_subscriber::{
-        fmt::{self, writer::MakeWriterExt},
-        layer::SubscriberExt,
-        util::SubscriberInitExt,
-    };
     use vaultrs::{
         client::{VaultClient, VaultClientSettingsBuilder},
         kv2,
@@ -100,16 +94,6 @@ mod tests {
     #[tokio::test]
     async fn hashicorp_vault_secret_set_and_read(
     ) -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let (non_blocking_stdout, _guard_stdout) =
-            tracing_appender::non_blocking(std::io::stdout());
-        tracing_subscriber::registry()
-            .with(
-                fmt::Layer::new()
-                    .with_writer(non_blocking_stdout.with_max_level(Level::DEBUG))
-                    .pretty(),
-            )
-            .init();
-
         let vault = HashicorpVault::default().start().await.unwrap();
         let endpoint = format!("http://0.0.0.0:{}", vault.get_host_port_ipv4(8200).await?);
 
