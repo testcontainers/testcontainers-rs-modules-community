@@ -96,7 +96,7 @@ mod tests {
     use aws_sdk_s3::{config::Credentials, Client};
     use testcontainers::runners::AsyncRunner;
 
-    use crate::{minio, minio::MinIOServerCmd};
+    use crate::minio;
 
     #[tokio::test]
     async fn minio_buckets() -> Result<(), Box<dyn std::error::Error + 'static>> {
