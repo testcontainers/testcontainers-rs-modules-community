@@ -50,7 +50,7 @@ cockroach_db = []
 kwok = []
 
 [dependencies]
-testcontainers = { version = "0.18.0" }
+testcontainers = { version = "0.19.0" }
 
 [dev-dependencies]
 async-nats = "0.35.0"
@@ -70,14 +70,14 @@ postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
 rdkafka = "0.36.0"
 redis = { version = "0.25.0", features = ["json"] }
-reqwest = { version = "0.12.1", features = ["blocking", "json"] }
+reqwest = { version = "0.12.5", features = ["blocking", "json", "rustls-tls", "rustls-tls-native-roots"], default-features = false }
 retry = "2.0.0"
 rustls = { version = "0.23.2", features = ["ring"] }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 surrealdb = { version = "1.2.0" }
 tar = "0.4.40"
-testcontainers = { version = "0.18.0", features = ["blocking"] }
+testcontainers = { version = "0.19.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = [
