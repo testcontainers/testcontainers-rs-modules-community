@@ -1,4 +1,5 @@
 use std::{borrow::Cow, collections::BTreeMap};
+
 use testcontainers::{core::WaitFor, Image};
 
 const DEFAULT_IMAGE_NAME: &str = "hashicorp/vault";
@@ -76,13 +77,14 @@ impl Image for HashicorpVault {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::testcontainers::runners::AsyncRunner;
     use serde::{Deserialize, Serialize};
     use vaultrs::{
         client::{VaultClient, VaultClientSettingsBuilder},
         kv2,
     };
+
+    use super::*;
+    use crate::testcontainers::runners::AsyncRunner;
 
     // Create and read secrets
     #[derive(Debug, Deserialize, Serialize)]
