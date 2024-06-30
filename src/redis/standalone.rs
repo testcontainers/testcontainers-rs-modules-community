@@ -30,7 +30,7 @@ const TAG: &str = "5.0";
 /// [`Redis docker image`]: https://hub.docker.com/_/redis
 /// [`Redis reference guide`]: https://redis.io/docs/interact/
 /// [`REDIS_PORT`]: super::REDIS_PORT
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Redis;
 
 impl Image for Redis {

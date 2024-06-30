@@ -8,7 +8,7 @@ const TAG: &str = "2.10.14";
 /// Nats image for [testcontainers](https://crates.io/crates/testcontainers).
 ///
 /// This image is based on the official [Nats](https://hub.docker.com/_/nats) image.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Nats {
     cmd: NatsServerCmd,
 }

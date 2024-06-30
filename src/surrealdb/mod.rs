@@ -39,7 +39,7 @@ pub const SURREALDB_PORT: ContainerPort = ContainerPort::Tcp(8000);
 /// [`SurrealDB`]: https://surrealdb.com/
 /// [`SurrealDB docker image`]: https://hub.docker.com/r/surrealdb/surrealdb
 ///
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SurrealDb {
     env_vars: HashMap<String, String>,
 }

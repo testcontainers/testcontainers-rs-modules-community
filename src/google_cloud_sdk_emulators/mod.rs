@@ -61,7 +61,7 @@ impl IntoIterator for &CloudSdkCmd {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CloudSdk {
     exposed_ports: Vec<ContainerPort>,
     ready_condition: WaitFor,

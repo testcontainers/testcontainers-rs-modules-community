@@ -22,7 +22,7 @@ const DEFAULT_IMAGE_TAG: &str = "v23.2.3";
 /// [`Cockroach`]: https://www.cockroachlabs.com/
 /// [`Cockroach docker image`]: https://hub.docker.com/r/cockroachdb/cockroach
 /// [`Cockroach commands`]: https://www.cockroachlabs.com/docs/stable/cockroach-commands
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct CockroachDb {
     cmd: CockroachDbCmd,
 }

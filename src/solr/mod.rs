@@ -26,7 +26,7 @@ const TAG: &str = "9.5.0-slim";
 /// [`Solr`]: https://solr.apache.org/
 /// [`Solr docker image`]: https://hub.docker.com/_/solr
 /// [`Solr reference guide`]: https://solr.apache.org/guide/solr/latest/
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Solr {
     _priv: (),
 }

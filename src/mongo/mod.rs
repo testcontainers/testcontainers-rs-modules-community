@@ -3,7 +3,7 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "mongo";
 const TAG: &str = "5.0.6";
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Mongo;
 
 impl Image for Mongo {

@@ -5,7 +5,7 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "trufflesuite/ganache-cli";
 const TAG: &str = "v6.1.3";
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct GanacheCli {
     cmd: GanacheCliCmd,
 }

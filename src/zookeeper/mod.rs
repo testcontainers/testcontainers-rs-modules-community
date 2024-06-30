@@ -5,7 +5,7 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "bitnami/zookeeper";
 const TAG: &str = "3.9.0";
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Zookeeper {
     _priv: (),
 }

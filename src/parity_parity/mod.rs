@@ -5,7 +5,7 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "parity/parity";
 const TAG: &str = "v2.5.0";
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ParityEthereum {
     _priv: (),
 }
