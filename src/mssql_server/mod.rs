@@ -50,7 +50,7 @@ use testcontainers::{core::WaitFor, Image};
 ///
 /// The edition of SQL Server.
 /// The default value is `Developer`, which will run the container using the Developer Edition.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MssqlServer {
     env_vars: HashMap<String, String>,
 }

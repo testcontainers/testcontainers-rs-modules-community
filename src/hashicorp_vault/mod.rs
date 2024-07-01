@@ -22,7 +22,7 @@ const DEFAULT_IMAGE_TAG: &str = "1.17";
 /// [`Hashicorp Vault`]: https://github.com/hashicorp/vault
 /// [`Hashicorp Vault docker image`]: https://hub.docker.com/r/hashicorp/vault
 /// [`Hashicorp Vault commands`]: https://developer.hashicorp.com/vault/docs/commands
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HashicorpVault {
     name: String,
     tag: String,

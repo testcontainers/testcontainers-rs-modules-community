@@ -8,7 +8,7 @@ const TAG: &str = "RELEASE.2022-02-07T08-17-33Z";
 const DIR: &str = "/data";
 const CONSOLE_ADDRESS: &str = ":9001";
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MinIO {
     env_vars: HashMap<String, String>,
     cmd: MinIOServerCmd,

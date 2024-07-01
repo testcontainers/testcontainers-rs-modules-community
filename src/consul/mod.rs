@@ -22,7 +22,7 @@ const CONSUL_LOCAL_CONFIG: &str = "CONSUL_LOCAL_CONFIG";
 ///
 /// [`Consul`]: https://www.consul.io/
 /// [`Consul docker image`]: https://hub.docker.com/r/hashicorp/consul
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Consul {
     env_vars: BTreeMap<String, String>,
 }

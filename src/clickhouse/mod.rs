@@ -26,7 +26,7 @@ const CLICKHOUSE_PORT: ContainerPort = ContainerPort::Tcp(8123);
 ///
 /// [`ClickHouse`]: https://clickhouse.com/
 /// [`Clickhouse docker image`]: https://hub.docker.com/r/clickhouse/clickhouse-server
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ClickHouse {
     env_vars: BTreeMap<String, String>,
 }

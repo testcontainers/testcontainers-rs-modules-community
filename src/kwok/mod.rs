@@ -25,7 +25,7 @@ const DEFAULT_WAIT: u64 = 3000;
 /// ```
 ///
 /// No environment variables are required.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct KwokCluster;
 
 impl Image for KwokCluster {
