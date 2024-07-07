@@ -1,6 +1,6 @@
 [package]
 name = "testcontainers-modules"
-version = "0.6.1"
+version = "0.7.1"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
@@ -28,6 +28,7 @@ k3s = []
 kafka = []
 localstack = []
 mariadb = []
+meilisearch = []
 minio = []
 mongo = []
 mosquitto = []
@@ -52,6 +53,7 @@ kwok = []
 [dependencies]
 testcontainers = { version = "0.20.0" }
 
+
 [dev-dependencies]
 async-nats = "0.35.0"
 aws-config = "1.0.1"
@@ -62,6 +64,7 @@ aws-types = "1.0.1"
 bollard = "0.16"
 futures = "0.3"
 lapin = "2.3.1"
+meilisearch-sdk = "0.26.1"
 mongodb = "2.6.1"
 mysql = "25.0.0"
 neo4rs = "0.7.0"

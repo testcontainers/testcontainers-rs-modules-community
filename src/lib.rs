@@ -48,6 +48,9 @@ pub mod localstack;
 #[cfg(feature = "mariadb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mariadb")))]
 pub mod mariadb;
+#[cfg(feature = "meilisearch")]
+#[cfg_attr(docsrs, doc(cfg(feature = "meilisearch")))]
+pub mod meilisearch;
 #[cfg(feature = "minio")]
 #[cfg_attr(docsrs, doc(cfg(feature = "minio")))]
 pub mod minio;

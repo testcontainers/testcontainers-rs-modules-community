@@ -1,4 +1,5 @@
 use std::{borrow::Cow, collections::BTreeMap};
+
 use testcontainers::{core::WaitFor, Image};
 
 const DEFAULT_IMAGE_NAME: &str = "hashicorp/vault";
@@ -21,7 +22,7 @@ const DEFAULT_IMAGE_TAG: &str = "1.17";
 /// [`Hashicorp Vault`]: https://github.com/hashicorp/vault
 /// [`Hashicorp Vault docker image`]: https://hub.docker.com/r/hashicorp/vault
 /// [`Hashicorp Vault commands`]: https://developer.hashicorp.com/vault/docs/commands
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HashicorpVault {
     name: String,
     tag: String,
@@ -76,13 +77,14 @@ impl Image for HashicorpVault {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::testcontainers::runners::AsyncRunner;
     use serde::{Deserialize, Serialize};
     use vaultrs::{
         client::{VaultClient, VaultClientSettingsBuilder},
         kv2,
     };
+
+    use super::*;
+    use crate::testcontainers::runners::AsyncRunner;
 
     // Create and read secrets
     #[derive(Debug, Deserialize, Serialize)]

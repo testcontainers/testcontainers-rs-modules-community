@@ -8,7 +8,7 @@ use testcontainers::{
 const NAME: &str = "docker.elastic.co/elasticsearch/elasticsearch";
 const TAG: &str = "7.16.1";
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ElasticSearch {
     _priv: (),
 }

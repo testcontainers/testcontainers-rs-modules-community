@@ -31,7 +31,7 @@ const TAG: &str = "7.2.0-v8";
 /// [`Redis Stack docker image`]: https://hub.docker.com/r/redis/redis-stack-server
 /// [`Redis reference guide`]: https://redis.io/docs/interact/
 /// [`REDIS_PORT`]: super::REDIS_PORT
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct RedisStack;
 
 impl Image for RedisStack {
