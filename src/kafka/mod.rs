@@ -11,7 +11,7 @@ const TAG: &str = "6.1.1";
 pub const KAFKA_PORT: u16 = 9093;
 const ZOOKEEPER_PORT: u16 = 2181;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Kafka {
     env_vars: HashMap<String, String>,
 }

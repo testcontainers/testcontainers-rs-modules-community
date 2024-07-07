@@ -25,7 +25,7 @@ const TAG: &str = "8.1";
 ///
 /// [`MySQL`]: https://www.mysql.com/
 /// [`MySQL docker image`]: https://hub.docker.com/_/mysql
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Mysql {
     _priv: (),
 }

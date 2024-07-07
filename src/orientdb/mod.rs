@@ -5,7 +5,7 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "orientdb";
 const TAG: &str = "3.2.19";
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct OrientDb {
     _priv: (),
 }
