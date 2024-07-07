@@ -27,6 +27,9 @@ const TAG: &str = "8.1";
 /// [`MySQL docker image`]: https://hub.docker.com/_/mysql
 #[derive(Debug, Default, Clone)]
 pub struct Mysql {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 

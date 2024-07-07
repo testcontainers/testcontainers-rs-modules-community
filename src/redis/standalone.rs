@@ -31,7 +31,12 @@ const TAG: &str = "5.0";
 /// [`Redis reference guide`]: https://redis.io/docs/interact/
 /// [`REDIS_PORT`]: super::REDIS_PORT
 #[derive(Debug, Default, Clone)]
-pub struct Redis;
+pub struct Redis {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for Redis {
     fn name(&self) -> &str {
@@ -56,7 +61,7 @@ mod tests {
     #[test]
     fn redis_fetch_an_integer() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = Redis.start()?;
+        let node = Redis::default().start()?;
         let host_ip = node.get_host()?;
         let host_port = node.get_host_port_ipv4(6379)?;
         let url = format!("redis://{host_ip}:{host_port}");

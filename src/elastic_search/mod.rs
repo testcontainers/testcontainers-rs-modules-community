@@ -10,6 +10,9 @@ const TAG: &str = "7.16.1";
 
 #[derive(Debug, Default, Clone)]
 pub struct ElasticSearch {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 
