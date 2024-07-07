@@ -84,9 +84,10 @@ impl Image for Postgres {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stderr(
-            "database system is ready to accept connections",
-        )]
+        vec![
+            WaitFor::message_on_stderr("database system is ready to accept connections"),
+            WaitFor::message_on_stdout("database system is ready to accept connections"),
+        ]
     }
 
     fn env_vars(
@@ -104,6 +105,7 @@ mod tests {
 
     #[test]
     fn postgres_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
         let postgres_image = Postgres::default().with_host_auth();
         let node = postgres_image.start()?;
 
