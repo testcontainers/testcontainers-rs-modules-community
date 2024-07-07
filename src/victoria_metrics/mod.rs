@@ -24,7 +24,7 @@ const TAG: &str = "v1.96.0";
 /// [`VictoriaMetrics`]: https://docs.victoriametrics.com/
 /// [`VictoriaMetrics API examples`]: https://docs.victoriametrics.com/url-examples.html#victoriametrics-api-examples
 /// [`VictoriaMetrics Docker image`]: https://hub.docker.com/r/victoriametrics/victoria-metrics
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct VictoriaMetrics;
 
 impl Image for VictoriaMetrics {

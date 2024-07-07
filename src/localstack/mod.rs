@@ -24,7 +24,7 @@ const DEFAULT_WAIT: u64 = 3000;
 /// ```
 ///
 /// No environment variables are required.
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct LocalStack {
     _priv: (),
 }

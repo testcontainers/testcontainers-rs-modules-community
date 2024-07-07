@@ -4,7 +4,7 @@ const NAME: &str = "amazon/dynamodb-local";
 const TAG: &str = "2.0.0";
 const DEFAULT_WAIT: u64 = 3000;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct DynamoDb;
 
 impl Image for DynamoDb {

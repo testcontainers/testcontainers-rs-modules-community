@@ -44,7 +44,7 @@ const DEFAULT_IMAGE_TAG: &str = "23-slim-faststart";
 /// [`Oracle Database Free`]: https://www.oracle.com/database/free/
 /// [Oracle official dockerfiles]: https://github.com/oracle/docker-images/tree/main/OracleDatabase
 /// [`gvenzl/oracle-free:23-slim-faststart`]: https://hub.docker.com/r/gvenzl/oracle-free
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Oracle {
     _priv: (),
 }

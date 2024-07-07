@@ -8,7 +8,7 @@ const TAG: &str = "RELEASE.2022-02-07T08-17-33Z";
 const DIR: &str = "/data";
 const CONSOLE_ADDRESS: &str = ":9001";
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MinIO {
     env_vars: HashMap<String, String>,
     cmd: MinIOServerCmd,
@@ -96,7 +96,7 @@ mod tests {
     use aws_sdk_s3::{config::Credentials, Client};
     use testcontainers::runners::AsyncRunner;
 
-    use crate::{minio, minio::MinIOServerCmd};
+    use crate::minio;
 
     #[tokio::test]
     async fn minio_buckets() -> Result<(), Box<dyn std::error::Error + 'static>> {

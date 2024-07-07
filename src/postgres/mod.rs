@@ -30,7 +30,7 @@ const TAG: &str = "11-alpine";
 ///
 /// [`Postgres`]: https://www.postgresql.org/
 /// [`Postgres docker image`]: https://hub.docker.com/_/postgres
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Postgres {
     env_vars: HashMap<String, String>,
 }

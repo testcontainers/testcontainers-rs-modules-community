@@ -25,7 +25,7 @@ const TAG: &str = "11.3";
 ///
 /// [`MariaDB`]: https://www.mariadb.com/
 /// [`MariaDB docker image`]: https://hub.docker.com/_/mariadb
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Mariadb {
     _priv: (),
 }

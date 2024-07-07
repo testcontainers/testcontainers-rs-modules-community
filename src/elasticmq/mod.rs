@@ -3,7 +3,7 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "softwaremill/elasticmq";
 const TAG: &str = "1.5.2";
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct ElasticMq;
 
 impl Image for ElasticMq {
