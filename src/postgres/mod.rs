@@ -1,12 +1,9 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{
-    core::{wait::LogWaitStrategy, WaitFor},
-    Image,
-};
+use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "postgres";
-const TAG: &str = "11-alpine";
+const TAG: &str = "9-alpine";
 
 /// Module to work with [`Postgres`] inside of tests.
 ///
@@ -87,9 +84,10 @@ impl Image for Postgres {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::log(
-            LogWaitStrategy::stderr("database system is ready to accept connections").with_times(2),
-        )]
+        vec![
+            WaitFor::message_on_stderr("database system is ready to accept connections"),
+            WaitFor::message_on_stdout("database system is ready to accept connections"),
+        ]
     }
 
     fn env_vars(
@@ -107,6 +105,7 @@ mod tests {
 
     #[test]
     fn postgres_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
         let postgres_image = Postgres::default().with_host_auth();
         let node = postgres_image.start()?;
 
