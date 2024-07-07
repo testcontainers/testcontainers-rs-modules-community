@@ -3,7 +3,7 @@ use std::{borrow::Cow, collections::HashMap};
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "postgres";
-const TAG: &str = "9-alpine";
+const TAG: &str = "11-alpine";
 
 /// Module to work with [`Postgres`] inside of tests.
 ///
