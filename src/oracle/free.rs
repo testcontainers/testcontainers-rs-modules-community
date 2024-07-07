@@ -22,17 +22,8 @@ const DEFAULT_IMAGE_TAG: &str = "23-slim-faststart";
 /// use std::time::Duration;
 /// use testcontainers_modules::{oracle::free::Oracle, testcontainers::{runners::SyncRunner, ImageExt}};
 ///
-/// // On slower machines the image sometimes needs to be pulled before,
-/// // and there is more time needed than 60 seconds
-/// // (the default startup timeout; pull is not timed).
-///
-/// // On a faster machine this should suffice:
-/// // let oracle = Oracle::default().unwrap();
-///
+/// // On slower machines more time needed than 60 seconds may be required (see `with_startup_timeout`).
 /// let oracle = Oracle::default()
-///     .pull_image()
-///     .unwrap()
-///     .with_startup_timeout(Duration::from_secs(75))
 ///     .start()
 ///     .unwrap();
 ///
