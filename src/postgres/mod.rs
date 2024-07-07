@@ -1,6 +1,9 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{wait::LogWaitStrategy, WaitFor},
+    Image,
+};
 
 const NAME: &str = "postgres";
 const TAG: &str = "11-alpine";
@@ -84,8 +87,8 @@ impl Image for Postgres {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stderr(
-            "database system is ready to accept connections",
+        vec![WaitFor::log(
+            LogWaitStrategy::stderr("database system is ready to accept connections").with_times(2),
         )]
     }
 
