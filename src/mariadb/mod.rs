@@ -27,6 +27,9 @@ const TAG: &str = "11.3";
 /// [`MariaDB docker image`]: https://hub.docker.com/_/mariadb
 #[derive(Debug, Default, Clone)]
 pub struct Mariadb {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 

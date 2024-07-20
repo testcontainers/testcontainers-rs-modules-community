@@ -24,6 +24,9 @@ const TAG: &str = "2.0.18";
 
 #[derive(Debug, Default, Clone)]
 pub struct Mosquitto {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 

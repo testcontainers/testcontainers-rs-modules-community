@@ -4,7 +4,12 @@ const NAME: &str = "mongo";
 const TAG: &str = "5.0.6";
 
 #[derive(Default, Debug, Clone)]
-pub struct Mongo;
+pub struct Mongo {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for Mongo {
     fn name(&self) -> &str {
@@ -30,7 +35,7 @@ mod tests {
     #[tokio::test]
     async fn mongo_fetch_document() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = mongo::Mongo.start().await?;
+        let node = mongo::Mongo::default().start().await?;
         let host_ip = node.get_host().await?;
         let host_port = node.get_host_port_ipv4(27017.tcp()).await?;
         let url = format!("mongodb://{host_ip}:{host_port}/");

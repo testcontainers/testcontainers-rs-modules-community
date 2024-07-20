@@ -28,6 +28,9 @@ const TAG: &str = "9.5.0-slim";
 /// [`Solr reference guide`]: https://solr.apache.org/guide/solr/latest/
 #[derive(Debug, Default, Clone)]
 pub struct Solr {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 
