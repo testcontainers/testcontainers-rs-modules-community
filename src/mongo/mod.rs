@@ -62,19 +62,23 @@ impl Image for Mongo {
     ) -> Result<Vec<ExecCommand>, testcontainers::TestcontainersError> {
         match self.kind {
             InstanceKind::Standalone => Ok(Default::default()),
-            InstanceKind::ReplSet => Ok(vec![ExecCommand::new(vec![
-                "mongosh".to_string(),
-                "--quiet".to_string(),
-                "--eval".to_string(),
-                "'rs.initiate()'".to_string(),
-            ])
-            .with_cmd_ready_condition(CmdWaitFor::message_on_stdout(
-                "Using a default configuration for the set",
-            ))
-            // Wait for the replica set to be ready
-            // This is a workaround because the replica set isn't immediately ready
-            // Without this delay, an immediate connection to the replica set would fail
-            .with_container_ready_conditions(vec![WaitFor::seconds(2)])]),
+            InstanceKind::ReplSet => Ok(vec![
+                ExecCommand::new(vec![
+                    "mongosh".to_string(),
+                    "--quiet".to_string(),
+                    "--eval".to_string(),
+                    "'rs.initiate()'".to_string(),
+                ])
+                .with_cmd_ready_condition(CmdWaitFor::message_on_stdout(
+                    "Using a default configuration for the set",
+                )),
+                ExecCommand::new(vec![
+                    "mongosh".to_string(),
+                    "--eval".to_string(),
+                    "'rs.status()'".to_string(),
+                ])
+                .with_cmd_ready_condition(CmdWaitFor::message_on_stdout("ok: 1")),
+            ]),
         }
     }
 }
