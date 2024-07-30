@@ -72,11 +72,11 @@ mod tests {
 
         let host = node.get_host().await?;
         let port = node.get_host_port_ipv4(8123).await?;
-        let url = format!("http://{}:{}", host, port);
+        let url = format!("http://{host}:{port}");
 
         // testing http endpoint
         // curl http://localhost:8123/ping and check if the response is "Ok."
-        let response = Client::new().get(&format!("{}/ping", url)).send().await?;
+        let response = Client::new().get(&format!("{url}/ping")).send().await?;
         assert_eq!(response.status(), 200);
 
         // create table
@@ -94,8 +94,7 @@ mod tests {
         let response = Client::new().post(url.clone()).body(query).send().await?;
         assert_eq!(response.status(), 200);
 
-        // testing tcp endpoint
-        let client = clickhouse::Client::default().with_url(format!("tcp://{host}:{port}"));
+        let client = clickhouse::Client::default().with_url(url.clone());
         #[derive(Row, Deserialize)]
         struct MyRow {
             #[serde(rename = "a")] // we don't read the field, so it's a dead-code in tests
