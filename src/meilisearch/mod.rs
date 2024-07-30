@@ -196,14 +196,14 @@ mod tests {
             let task = client
                 .create_index("movies", None)
                 .await?
-                .wait_for_completion(&client, None, None)
+                .wait_for_completion(client, None, None)
                 .await?;
-            let movies = task.try_make_index(&client).unwrap();
+            let movies = task.try_make_index(client).unwrap();
             assert_eq!(movies.as_ref(), "movies");
             movies
                 .add_documents(&Movie::examples(), Some("id"))
                 .await?
-                .wait_for_completion(&client, None, None)
+                .wait_for_completion(client, None, None)
                 .await?;
             Ok(movies)
         }
