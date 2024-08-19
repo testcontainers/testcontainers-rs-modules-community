@@ -72,6 +72,9 @@ pub mod nats;
 #[cfg(feature = "neo4j")]
 #[cfg_attr(docsrs, doc(cfg(feature = "neo4j")))]
 pub mod neo4j;
+#[cfg(feature = "openldap")]
+#[cfg_attr(docsrs, doc(cfg(feature = "openldap")))]
+pub mod openldap;
 #[cfg(feature = "oracle")]
 #[cfg_attr(docsrs, doc(cfg(feature = "oracle")))]
 pub mod oracle;

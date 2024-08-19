@@ -40,6 +40,7 @@ nats = []
 neo4j = []
 oracle = []
 orientdb = []
+openldap = []
 parity = []
 postgres = []
 rabbitmq = []
@@ -66,6 +67,7 @@ aws-types = "1.0.1"
 bollard = "0.17.0"
 futures = "0.3"
 lapin = "2.3.1"
+ldap3 = "0.11.5"
 meilisearch-sdk = "0.26.1"
 mongodb = "3.0.1"
 mysql = "25.0.0"
@@ -116,3 +118,11 @@ required-features = ["mssql_server"]
 [[example]]
 name = "surrealdb"
 required-features = ["surrealdb"]
+
+[[example]]
+name = "openldap"
+required-features = ["openldap"]
+
+[[example]]
+name = "mongo"
+required-features = ["mongo"]
