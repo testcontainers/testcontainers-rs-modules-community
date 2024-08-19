@@ -56,7 +56,7 @@ are exposed through `mod.rs` files and conditionally compiled as Cargo features.
 ```bash
 cargo fmt --all -- --check
 cargo clippy --all-features
-cargo hack test --each-feature --clean-per-run 
+cargo hack test --each-feature --clean-per-run --locked
 ```
 - Consider following [conventional commits](https://julien.ponge.org/blog/the-power-of-conventional-commits/) when adding commits (recommended)
 - Raise your PR 🔥
