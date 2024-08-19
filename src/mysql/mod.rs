@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{core::WaitFor, CopyToContainer, Image};
 
 const NAME: &str = "mysql";
 const TAG: &str = "8.1";
@@ -27,7 +27,7 @@ const TAG: &str = "8.1";
 /// [`MySQL docker image`]: https://hub.docker.com/_/mysql
 #[derive(Debug, Default, Clone)]
 pub struct Mysql {
-    _priv: (),
+    init_sqls: Vec<CopyToContainer>,
 }
 
 impl Image for Mysql {
@@ -54,16 +54,53 @@ impl Image for Mysql {
             ("MYSQL_ALLOW_EMPTY_PASSWORD", "yes"),
         ]
     }
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        &self.init_sqls
+    }
+}
+impl crate::InitSql for Mysql {
+    fn with_init_sql(mut self, init_sql: impl ToString) -> Self {
+        let init_vec = init_sql.to_string().into_bytes();
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.init_sqls.len()
+        );
+        self.init_sqls.push(CopyToContainer::new(init_vec, target));
+        self
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use mysql::prelude::Queryable;
+    use testcontainers::core::IntoContainerPort;
 
     use crate::{
         mysql::Mysql as MysqlImage,
         testcontainers::{runners::SyncRunner, ImageExt},
     };
+
+    #[test]
+    fn mysql_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        use crate::InitSql;
+        let node = crate::mysql::Mysql::default()
+            .with_init_sql("CREATE TABLE foo (bar varchar(255));")
+            .start()?;
+
+        let connection_string = &format!(
+            "mysql://root@{}:{}/test",
+            node.get_host()?,
+            node.get_host_port_ipv4(3306.tcp())?
+        );
+        let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
+
+        let rows = conn.query("INSERT INTO foo(bar) VALUES ('blub')").unwrap();
+        assert_eq!(rows.len(), 0);
+
+        let rows = conn.query("SELECT bar FROM foo").unwrap();
+        assert_eq!(rows.len(), 1);
+        Ok(())
+    }
 
     #[test]
     fn mysql_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {

@@ -145,3 +145,30 @@ pub mod zookeeper;
 
 /// Re-exported version of `testcontainers` to avoid version conflicts
 pub use testcontainers;
+
+#[cfg(any(feature = "postgres", feature = "mariadb", feature = "mysql"))]
+#[cfg_attr(
+    docsrs,
+    doc(cfg(any(feature = "postgres", feature = "mariadb", feature = "mysql")))
+)]
+/// Trait to alight interface for users across different modules.
+pub trait InitSql {
+    /// Registers sql to be executed automatically when the container starts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use testcontainers_modules::postgres::Postgres;
+    /// # use testcontainers_modules::InitSql;
+    /// let postgres_image =
+    ///     Postgres::default().with_init_sql("CREATE EXTENSION IF NOT EXISTS hstore;");
+    /// ```
+    ///
+    /// ```rust,ignore
+    /// # use testcontainers_modules::postgres::Postgres;
+    /// # use testcontainers_modules::rdbms::InitSql;
+    /// let postgres_image = Postgres::default()
+    ///                                .with_init_sql(include_str!("path_to_init.sql"));
+    /// ```
+    fn with_init_sql(self, init_sql: impl ToString) -> Self;
+}

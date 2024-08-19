@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{core::WaitFor, CopyToContainer, Image};
 
 const NAME: &str = "mariadb";
 const TAG: &str = "11.3";
@@ -27,7 +27,7 @@ const TAG: &str = "11.3";
 /// [`MariaDB docker image`]: https://hub.docker.com/_/mariadb
 #[derive(Debug, Default, Clone)]
 pub struct Mariadb {
-    _priv: (),
+    init_sqls: Vec<CopyToContainer>,
 }
 
 impl Image for Mariadb {
@@ -54,8 +54,21 @@ impl Image for Mariadb {
             ("MARIADB_ALLOW_EMPTY_ROOT_PASSWORD", "1"),
         ]
     }
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        &self.init_sqls
+    }
 }
-
+impl crate::InitSql for Mariadb {
+    fn with_init_sql(mut self, init_sql: impl ToString) -> Self {
+        let init_vec = init_sql.to_string().into_bytes();
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.init_sqls.len()
+        );
+        self.init_sqls.push(CopyToContainer::new(init_vec, target));
+        self
+    }
+}
 #[cfg(test)]
 mod tests {
     use mysql::prelude::Queryable;
@@ -66,6 +79,27 @@ mod tests {
         testcontainers::{runners::SyncRunner, ImageExt},
     };
 
+    #[test]
+    fn mariadb_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        use crate::InitSql;
+        let node = MariadbImage::default()
+            .with_init_sql("CREATE TABLE foo (bar varchar(255));")
+            .start()?;
+
+        let connection_string = &format!(
+            "mysql://root@{}:{}/test",
+            node.get_host()?,
+            node.get_host_port_ipv4(3306.tcp())?
+        );
+        let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
+
+        let rows = conn.query("INSERT INTO foo(bar) VALUES ('blub')").unwrap();
+        assert_eq!(rows.len(), 0);
+
+        let rows = conn.query("SELECT bar FROM foo").unwrap();
+        assert_eq!(rows.len(), 1);
+        Ok(())
+    }
     #[test]
     fn mariadb_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let mariadb_image = MariadbImage::default();

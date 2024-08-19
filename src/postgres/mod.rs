@@ -1,6 +1,9 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{Mount, WaitFor},
+    CopyToContainer, Image,
+};
 
 const NAME: &str = "postgres";
 const TAG: &str = "11-alpine";
@@ -30,6 +33,7 @@ const TAG: &str = "11-alpine";
 #[derive(Debug, Clone)]
 pub struct Postgres {
     env_vars: HashMap<String, String>,
+    init_sqls: Vec<CopyToContainer>,
 }
 
 impl Postgres {
@@ -62,6 +66,17 @@ impl Postgres {
         self
     }
 }
+impl crate::InitSql for Postgres {
+    fn with_init_sql(mut self, init_sql: impl ToString) -> Self {
+        let init_vec = init_sql.to_string().into_bytes();
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.init_sqls.len()
+        );
+        self.init_sqls.push(CopyToContainer::new(init_vec, target));
+        self
+    }
+}
 
 impl Default for Postgres {
     fn default() -> Self {
@@ -70,7 +85,10 @@ impl Default for Postgres {
         env_vars.insert("POSTGRES_USER".to_owned(), "postgres".to_owned());
         env_vars.insert("POSTGRES_PASSWORD".to_owned(), "postgres".to_owned());
 
-        Self { env_vars }
+        Self {
+            env_vars,
+            init_sqls: Vec::new(),
+        }
     }
 }
 
@@ -94,6 +112,9 @@ impl Image for Postgres {
         &self,
     ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
         &self.env_vars
+    }
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        &self.init_sqls
     }
 }
 
@@ -142,6 +163,30 @@ mod tests {
         let first_row = &rows[0];
         let first_column: String = first_row.get(0);
         assert!(first_column.contains("13"));
+        Ok(())
+    }
+
+    #[test]
+    fn postgres_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        use crate::InitSql;
+        let node = Postgres::default()
+            .with_init_sql("CREATE TABLE foo (bar varchar(255));")
+            .start()?;
+
+        let connection_string = &format!(
+            "postgres://postgres:postgres@{}:{}/postgres",
+            node.get_host()?,
+            node.get_host_port_ipv4(5432)?
+        );
+        let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
+
+        let rows = conn
+            .query("INSERT INTO foo(bar) VALUES ($1)", &[&"blub"])
+            .unwrap();
+        assert_eq!(rows.len(), 0);
+
+        let rows = conn.query("SELECT bar FROM foo", &[]).unwrap();
+        assert_eq!(rows.len(), 1);
         Ok(())
     }
 }
