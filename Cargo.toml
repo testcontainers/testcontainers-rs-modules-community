@@ -116,3 +116,7 @@ required-features = ["mssql_server"]
 [[example]]
 name = "surrealdb"
 required-features = ["surrealdb"]
+
+[[example]]
+name = "mongo"
+required-features = ["mongo"]
