@@ -54,31 +54,35 @@ pub struct User {
 impl OpenLDAP {
     /// Sets the LDAP baseDN (or suffix) of the LDAP tree.
     /// Default: `"dc=example,dc=org"`
-    pub fn with_base_dn(mut self, base_dn: &str) -> Self {
+    pub fn with_base_dn(mut self, base_dn: impl ToString) -> Self {
         self.env_vars
-            .insert("LDAP_ROOT".to_owned(), base_dn.to_owned());
+            .insert("LDAP_ROOT".to_owned(), base_dn.to_string());
         self
     }
     /// Sets an admin account (there can only be one)
     /// Default username: `"admin"` => dn: `cn=admin,dc=example,dc=org` if using the default `base_dn` instead of overriding via [`OpenLDAP::with_base_dn`].
     /// Default password: `"adminpassword"`
-    pub fn with_admin(mut self, username: &str, password: &str) -> Self {
+    pub fn with_admin(mut self, username: impl ToString, password: impl ToString) -> Self {
         self.env_vars
-            .insert("LDAP_ADMIN_USERNAME".to_owned(), username.to_owned());
+            .insert("LDAP_ADMIN_USERNAME".to_owned(), username.to_string());
         self.env_vars
-            .insert("LDAP_ADMIN_PASSWORD".to_owned(), password.to_owned());
+            .insert("LDAP_ADMIN_PASSWORD".to_owned(), password.to_string());
         self
     }
 
     /// Sets a configuration admin user (there can only be one)
     /// Default: `None`
-    pub fn with_config_admin(mut self, username: &str, password: &str) -> Self {
+    pub fn with_config_admin(mut self, username: impl ToString, password: impl ToString) -> Self {
         self.env_vars
             .insert("LDAP_CONFIG_ADMIN_ENABLED".to_owned(), "yes".to_owned());
-        self.env_vars
-            .insert("LDAP_CONFIG_ADMIN_USERNAME".to_owned(), username.to_owned());
-        self.env_vars
-            .insert("LDAP_CONFIG_ADMIN_PASSWORD".to_owned(), password.to_owned());
+        self.env_vars.insert(
+            "LDAP_CONFIG_ADMIN_USERNAME".to_owned(),
+            username.to_string(),
+        );
+        self.env_vars.insert(
+            "LDAP_CONFIG_ADMIN_PASSWORD".to_owned(),
+            password.to_string(),
+        );
         self
     }
 
@@ -113,10 +117,10 @@ impl OpenLDAP {
             format!("{} {}", log_purge.0, log_purge.1),
         );
         self.env_vars
-            .insert("LDAP_ACCESSLOG_LOGOLD".to_owned(), log_old.to_owned());
+            .insert("LDAP_ACCESSLOG_LOGOLD".to_owned(), log_old.to_string());
         self.env_vars.insert(
             "LDAP_ACCESSLOG_LOGOLDATTR".to_owned(),
-            log_old_attribute.to_owned(),
+            log_old_attribute.to_string(),
         );
         self
     }
@@ -124,16 +128,20 @@ impl OpenLDAP {
     /// Activates the access log and sets the admin user up (there can only be one)
     /// Configuring how [`OpenLDAP`] logs can be done via [`OpenLDAP::with_accesslog_settings`]
     /// Default: `None`
-    pub fn with_accesslog_admin(mut self, username: &str, password: &str) -> Self {
+    pub fn with_accesslog_admin(
+        mut self,
+        username: impl ToString,
+        password: impl ToString,
+    ) -> Self {
         self.env_vars
             .insert("LDAP_ENABLE_ACCESSLOG".to_owned(), "yes".to_owned());
         self.env_vars.insert(
             "LDAP_ACCESSLOG_ADMIN_USERNAME".to_owned(),
-            username.to_owned(),
+            username.to_string(),
         );
         self.env_vars.insert(
             "LDAP_ACCESSLOG_ADMIN_PASSWORD".to_owned(),
-            password.to_owned(),
+            password.to_string(),
         );
         self
     }
@@ -142,10 +150,10 @@ impl OpenLDAP {
     /// Default: `[]`
     ///
     /// Alternatively, users can be added via [`OpenLDAP::with_users`].
-    pub fn with_user(mut self, username: &str, password: &str) -> Self {
+    pub fn with_user(mut self, username: impl ToString, password: impl ToString) -> Self {
         self.users.push(User {
-            username: username.to_owned(),
-            password: password.to_owned(),
+            username: username.to_string(),
+            password: password.to_string(),
         });
         self
     }
@@ -154,14 +162,14 @@ impl OpenLDAP {
     /// Default: `[]`
     ///
     /// Alternatively, users can be added via [`OpenLDAP::with_user`].
-    pub fn with_users<Username: Into<String> + Clone, Password: Into<String> + Clone>(
+    pub fn with_users<Username: ToString, Password: ToString>(
         mut self,
-        user_password: &[(Username, Password)],
+        user_password: impl IntoIterator<Item = (Username, Password)>,
     ) -> Self {
-        for (username, password) in user_password {
+        for (username, password) in user_password.into_iter() {
             self.users.push(User {
-                username: username.clone().into(),
-                password: password.clone().into(),
+                username: username.to_string(),
+                password: password.to_string(),
             })
         }
         self
@@ -169,28 +177,31 @@ impl OpenLDAP {
 
     /// Sets the users' dc
     /// Default: `"users"`
-    pub fn with_users_dc(mut self, user_dc: &str) -> Self {
+    pub fn with_users_dc(mut self, user_dc: impl ToString) -> Self {
         self.env_vars
-            .insert("LDAP_USER_DC".to_owned(), user_dc.to_owned());
+            .insert("LDAP_USER_DC".to_owned(), user_dc.to_string());
         self
     }
 
     /// Sets the users' group
     /// Default: `"readers"`
-    pub fn with_users_group(mut self, users_group: &str) -> Self {
+    pub fn with_users_group(mut self, users_group: impl ToString) -> Self {
         self.env_vars
-            .insert("LDAP_GROUP".to_owned(), users_group.to_owned());
+            .insert("LDAP_GROUP".to_owned(), users_group.to_string());
         self
     }
 
     /// Extra schemas to add, among [`OpenLDAP`]'s distributed schemas.
     /// Default: `["cosine", "inetorgperson", "nis"]`
-    pub fn with_extra_schemas<S: Into<String> + Clone>(mut self, extra_schemas: &[S]) -> Self {
+    pub fn with_extra_schemas<S: ToString>(
+        mut self,
+        extra_schemas: impl IntoIterator<Item = S>,
+    ) -> Self {
         self.env_vars
             .insert("LDAP_ADD_SCHEMAS".to_owned(), "yes".to_owned());
         let extra_schemas = extra_schemas
-            .iter()
-            .map(|s| s.clone().into())
+            .into_iter()
+            .map(|s| s.to_string())
             .collect::<Vec<String>>()
             .join(", ");
         self.env_vars
@@ -295,20 +306,23 @@ impl AccesslogSettings {
     }
     /// When and how often old access log entries should be purged. Format "dd+hh:mm".
     /// Default: `("07+00:00", "01+00:00")`.
-    pub fn with_log_purge(mut self, (when_log_purge, how_often_log_purge): (&str, &str)) -> Self {
-        self.log_purge = (when_log_purge.to_owned(), how_often_log_purge.to_owned());
+    pub fn with_log_purge(
+        mut self,
+        (when_log_purge, how_often_log_purge): (impl ToString, impl ToString),
+    ) -> Self {
+        self.log_purge = (when_log_purge.to_string(), how_often_log_purge.to_string());
         self
     }
     /// An LDAP filter that determines which entries should be logged.
     /// Default: `"(objectClass=*)"`
-    pub fn with_log_old(mut self, log_old: &str) -> Self {
-        self.log_old = log_old.to_owned();
+    pub fn with_log_old(mut self, log_old: impl ToString) -> Self {
+        self.log_old = log_old.to_string();
         self
     }
     /// Specifies an attribute that should be logged.
     /// Default: `"objectClass"`.
-    pub fn with_log_old_attribute(mut self, log_old_attribute: &str) -> Self {
-        self.log_old_attribute = log_old_attribute.to_owned();
+    pub fn with_log_old_attribute(mut self, log_old_attribute: impl ToString) -> Self {
+        self.log_old_attribute = log_old_attribute.to_string();
         self
     }
 }
