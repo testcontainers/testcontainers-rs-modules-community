@@ -13,13 +13,13 @@ const TAG: &str = "7.16.1";
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Elasticsearch`]: https://elastic.co/
-pub const ELASTICSEARCH_API_PORT:ContainerPort = ContainerPort::Tcp(9200);
+pub const ELASTICSEARCH_API_PORT: ContainerPort = ContainerPort::Tcp(9200);
 /// Port that the [`Elasticsearch`] container has internally.
 /// Used **for nodes to communicate between each other** and handles cluster updates naster elections, nodes leaving/joining, ...
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Elasticsearch`]: https://elastic.co/
-pub const ELASTICSEARCH_INTER_NODE_PORT:ContainerPort = ContainerPort::Tcp(9300);
+pub const ELASTICSEARCH_INTER_NODE_PORT: ContainerPort = ContainerPort::Tcp(9300);
 
 #[derive(Debug, Default, Clone)]
 pub struct ElasticSearch {
@@ -46,7 +46,7 @@ impl Image for ElasticSearch {
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
-        &[ELASTICSEARCH_API_PORT,ELASTICSEARCH_INTER_NODE_PORT]
+        &[ELASTICSEARCH_API_PORT, ELASTICSEARCH_INTER_NODE_PORT]
     }
 }
 

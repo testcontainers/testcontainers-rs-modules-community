@@ -11,7 +11,7 @@ const DEFAULT_IMAGE_TAG: &str = "23-slim-faststart";
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Oracle Database Free`]: https://www.oracle.com/database/free/
-pub const FREE_PORT:ContainerPort = ContainerPort::Tcp(1521);
+pub const FREE_PORT: ContainerPort = ContainerPort::Tcp(1521);
 
 /// Module to work with [`Oracle Database Free`] inside of tests.
 /// The default image is [`gvenzl/oracle-free:23-slim-faststart`] (unofficial).

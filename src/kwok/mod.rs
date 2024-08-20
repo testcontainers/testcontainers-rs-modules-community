@@ -10,7 +10,7 @@ const DEFAULT_WAIT: u64 = 3000;
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Kwok Cluster`]: https://kwok.sigs.k8s.io/
-pub const KWOK_CLUSTER_PORT:ContainerPort = ContainerPort::Tcp(8080);
+pub const KWOK_CLUSTER_PORT: ContainerPort = ContainerPort::Tcp(8080);
 
 /// This module provides [`Kwok Cluster`] (Kubernetes WithOut Kubelet).
 ///
