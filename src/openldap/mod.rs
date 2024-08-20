@@ -157,14 +157,14 @@ impl OpenLDAP {
     /// Default: `[]`
     ///
     /// Alternatively, users can be added via [`OpenLDAP::with_user`].
-    pub fn with_users<Username: AsRef<str>, Password: AsRef<str>>(
+    pub fn with_users<Username: Into<String> + Clone, Password: Into<String> + Clone>(
         mut self,
         user_password: &[(Username, Password)],
     ) -> Self {
         for (username, password) in user_password {
             self.users.push(User {
-                username: username.as_ref().to_owned(),
-                password: password.as_ref().to_owned(),
+                username: username.clone().into(),
+                password: password.clone().into(),
             })
         }
         self
@@ -188,13 +188,13 @@ impl OpenLDAP {
 
     /// Extra schemas to add, among [`OpenLDAP`]'s distributed schemas.
     /// Default: `["cosine", "inetorgperson", "nis"]`
-    pub fn with_extra_schemas<S: AsRef<str>>(mut self, extra_schemas: &[S]) -> Self {
+    pub fn with_extra_schemas<S: Into<String> + Clone>(mut self, extra_schemas: &[S]) -> Self {
         self.env_vars
             .insert("LDAP_ADD_SCHEMAS".to_owned(), "yes".to_owned());
         let extra_schemas = extra_schemas
             .iter()
-            .map(|s| s.as_ref().to_owned())
-            .collect::<Vec<_>>()
+            .map(|s| s.clone().into())
+            .collect::<Vec<String>>()
             .join(", ");
         self.env_vars
             .insert("LDAP_EXTRA_SCHEMAS".to_owned(), extra_schemas);
