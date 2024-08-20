@@ -16,7 +16,7 @@ pub const KAFKA_PORT: u16 = 9093;
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Zookeeper`]: https://zookeeper.apache.org/
-pub const ZOOKEEPER_PORT: u16 = 2181;
+pub const ZOOKEEPER_PORT: ContainerPort = ContainerPort::Tcp(2181);
 
 #[derive(Debug, Clone)]
 pub struct Kafka {
@@ -29,7 +29,7 @@ impl Default for Kafka {
 
         env_vars.insert(
             "KAFKA_ZOOKEEPER_CONNECT".to_owned(),
-            format!("localhost:{ZOOKEEPER_PORT}"),
+            format!("localhost:{}", ZOOKEEPER_PORT.as_u16()),
         );
         env_vars.insert(
             "KAFKA_LISTENERS".to_owned(),
@@ -89,6 +89,7 @@ zookeeper-server-start zookeeper.properties &
 . /etc/confluent/docker/bash-config &&
 /etc/confluent/docker/configure &&
 /etc/confluent/docker/launch"#,
+                ZOOKEEPER_PORT = ZOOKEEPER_PORT.as_u16()
             ),
         ]
     }
