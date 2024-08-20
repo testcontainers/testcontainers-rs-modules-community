@@ -8,6 +8,10 @@ use testcontainers::{
 const NAME: &str = "surrealdb/surrealdb";
 const TAG: &str = "v1.1.1";
 
+/// Port that the [`SurrealDB`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`SurrealDB`]: https://surrealdb.com/
 pub const SURREALDB_PORT: ContainerPort = ContainerPort::Tcp(8000);
 
 /// Module to work with [`SurrealDB`] inside of tests.
@@ -130,6 +134,7 @@ mod tests {
         opt::auth::Root,
         Surreal,
     };
+    use testcontainers::ImageExt;
     use testcontainers::runners::AsyncRunner;
 
     use super::*;
