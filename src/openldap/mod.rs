@@ -1,5 +1,6 @@
 use std::{borrow::Cow, collections::HashMap};
 
+use parse_display::{Display, FromStr};
 use testcontainers::{
     core::{ContainerPort, WaitFor},
     Image,
@@ -96,14 +97,10 @@ impl OpenLDAP {
     ) -> Self {
         self.env_vars
             .insert("LDAP_ENABLE_ACCESSLOG".to_owned(), "yes".to_owned());
-        let log_operations = match log_operations {
-            AccesslogLogOperations::Writes => "writes".to_owned(),
-            AccesslogLogOperations::Reads => "Reads".to_owned(),
-            AccesslogLogOperations::Session => "Session".to_owned(),
-            AccesslogLogOperations::All => "All".to_owned(),
-        };
-        self.env_vars
-            .insert("LDAP_ACCESSLOG_LOGOPS".to_owned(), log_operations);
+        self.env_vars.insert(
+            "LDAP_ACCESSLOG_LOGOPS".to_owned(),
+            log_operations.to_string(),
+        );
         if log_success {
             self.env_vars
                 .insert("LDAP_ACCESSLOG_LOGSUCCESS".to_owned(), "TRUE".to_owned());
@@ -264,7 +261,8 @@ pub enum PasswordHash {
 }
 
 /// Specifies which types of operations to log
-#[derive(Default, Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Display, FromStr, Default, Debug, Clone, Copy, Eq, PartialEq)]
+#[display(style = "lowercase")]
 pub enum AccesslogLogOperations {
     #[default]
     Writes,

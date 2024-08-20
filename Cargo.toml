@@ -40,7 +40,7 @@ nats = []
 neo4j = []
 oracle = []
 orientdb = []
-openldap = []
+openldap = ["dep:parse-display"]
 parity = []
 postgres = []
 rabbitmq = []
@@ -54,6 +54,7 @@ cockroach_db = []
 kwok = []
 
 [dependencies]
+parse-display = { version = "0.10.0", optional = true, default-features = false, features = [] }
 testcontainers = { version = "0.21.0" }
 
 
