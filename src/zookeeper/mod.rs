@@ -5,6 +5,35 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "bitnami/zookeeper";
 const TAG: &str = "3.9.0";
 
+/// # [Apache ZooKeeper] image for [testcontainers](https://crates.io/crates/testcontainers).
+///
+/// This image is based on the [`bitnami/zookeeper` docker image].
+/// By default, anonymous logins are allowed.
+/// See the [Zookeeper documentation] for additional options.
+///
+/// # Example
+///
+/// ```
+/// use testcontainers_modules::{zookeeper, testcontainers::runners::AsyncRunner};
+/// # tokio::runtime::Runtime::new().unwrap().block_on(async {
+/// let node = zookeeper::Zookeeper::default().start().await?;
+/// let zk_url = format!("{}:{}",node.get_host().await?,node.get_host_port_ipv4(2181).await?);
+/// let client = zookeeper_client::Client::connect(&zk_url)
+///             .await
+///             .expect("connect to Zookeeper");
+///
+/// let path = "/test";
+/// let (_, stat_watcher) = client
+///     .check_and_watch_stat(path)
+///     .await
+///     .expect("stat watcher created");
+/// # })
+/// ```
+///
+///
+/// [Apache ZooKeeper]: https://zookeeper.apache.org/
+/// [`bitnami/zookeeper` docker image]: https://hub.docker.com/r/bitnami/openldap
+/// [Zookeeper documentation]: https://zookeeper.apache.org/documentation.html
 #[derive(Debug, Default, Clone)]
 pub struct Zookeeper {
     _priv: (),
