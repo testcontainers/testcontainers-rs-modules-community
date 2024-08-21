@@ -20,7 +20,7 @@ const TAG: &str = "3.9.0";
 /// let zk_url = format!(
 ///     "{}:{}",
 ///     node.get_host().await.unwrap(),
-///     node.get_host_port_ipv4(2181).await.unwrap()
+///     node.get_host_port_ipv4(2181).await.unwrap(),
 /// );
 /// let client = zookeeper_client::Client::connect(&zk_url)
 ///     .await

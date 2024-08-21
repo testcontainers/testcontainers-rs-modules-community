@@ -13,7 +13,7 @@ const TAG: &str = "11.3";
 ///
 /// # Example
 /// ```
-/// use testcontainers_modules::{testcontainers::runners::SyncRunner, mariadb};
+/// use testcontainers_modules::{mariadb, testcontainers::runners::SyncRunner};
 ///
 /// let mariadb_instance = mariadb::Mariadb::default().start().unwrap();
 /// let mariadb_url = format!(
