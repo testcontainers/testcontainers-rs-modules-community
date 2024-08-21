@@ -27,19 +27,24 @@ pub const RANCHER_WEBHOOK_PORT: ContainerPort = ContainerPort::Tcp(8443);
 /// # Example
 /// ```
 /// use std::env::temp_dir;
+///
 /// use testcontainers_modules::{
-///     testcontainers::{ImageExt, runners::SyncRunner},
-///     k3s::{K3s, KUBE_SECURE_PORT}
+///     k3s::{K3s, KUBE_SECURE_PORT},
+///     testcontainers::{runners::SyncRunner, ImageExt},
 /// };
 ///
-/// let k3s_instance = K3s::default().with_conf_mount(&temp_dir())
-///            .with_privileged(true)
-///            .with_userns_mode("host")
-///            .start()
-///            .unwrap();
+/// let k3s_instance = K3s::default()
+///     .with_conf_mount(&temp_dir())
+///     .with_privileged(true)
+///     .with_userns_mode("host")
+///     .start()
+///     .unwrap();
 ///
 /// let kube_port = k3s_instance.get_host_port_ipv4(KUBE_SECURE_PORT);
-/// let kube_conf = k3s_instance.image().read_kube_config().expect("Cannot read kube conf");
+/// let kube_conf = k3s_instance
+///     .image()
+///     .read_kube_config()
+///     .expect("Cannot read kube conf");
 /// // use kube_port and kube_conf to connect and control k3s cluster
 /// ```
 ///

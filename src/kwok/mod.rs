@@ -19,7 +19,7 @@ const DEFAULT_WAIT: u64 = 3000;
 /// Testcontainers support setting environment variables with the method [`testcontainers::ImageExt::with_env_var`].
 ///
 /// ```
-/// use testcontainers_modules::{testcontainers::ImageExt, kwok::KwokCluster};
+/// use testcontainers_modules::{kwok::KwokCluster, testcontainers::ImageExt};
 ///
 /// let container_request = KwokCluster::default().with_env_var("KWOK_PROMETHEUS_PORT", "9090");
 /// ```
