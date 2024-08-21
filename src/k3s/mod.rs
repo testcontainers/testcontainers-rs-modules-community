@@ -13,14 +13,26 @@ use testcontainers::{
 
 const NAME: &str = "rancher/k3s";
 const TAG: &str = "v1.28.8-k3s1";
+/// Port that the [`traefik`] part of the container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`traefik`]: https://doc.traefik.io/traefik/
 pub const TRAEFIK_HTTP: ContainerPort = ContainerPort::Tcp(80);
+/// Port that the [`Kubernetes`] part of the container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Kubernetes`]: https://kubernetes.io/
 pub const KUBE_SECURE_PORT: ContainerPort = ContainerPort::Tcp(6443);
+/// Port that the [`Rancher`] part of the container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Rancher`]: https://rancher.io/
 pub const RANCHER_WEBHOOK_PORT: ContainerPort = ContainerPort::Tcp(8443);
 
 /// Module to work with [`K3s`] inside of tests.
 ///
 /// Starts an instance of K3s, a single-node server fully-functional Kubernetes cluster
-/// so you are able interact with the cluster using standard [`Kubernetes API`] exposed at [`KUBE_SECURE_PORT`] port
+/// so you are able to interact with the cluster using standard [`Kubernetes API`] exposed at [`KUBE_SECURE_PORT`] port
 ///
 /// This module is based on the official [`K3s docker image`].
 ///
