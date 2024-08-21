@@ -134,7 +134,7 @@ mod tests {
         opt::auth::Root,
         Surreal,
     };
-    use testcontainers::{runners::AsyncRunner, ImageExt};
+    use testcontainers::runners::AsyncRunner;
 
     use super::*;
 
