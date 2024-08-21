@@ -14,13 +14,17 @@ const TAG: &str = "3.9.0";
 /// # Example
 ///
 /// ```
-/// use testcontainers_modules::{zookeeper, testcontainers::runners::AsyncRunner};
+/// use testcontainers_modules::{testcontainers::runners::AsyncRunner, zookeeper};
 /// # tokio::runtime::Runtime::new().unwrap().block_on(async {
-/// let node = zookeeper::Zookeeper::default().start().await?;
-/// let zk_url = format!("{}:{}",node.get_host().await?,node.get_host_port_ipv4(2181).await?);
+/// let node = zookeeper::Zookeeper::default().start().await.unwrap();
+/// let zk_url = format!(
+///     "{}:{}",
+///     node.get_host().await.unwrap(),
+///     node.get_host_port_ipv4(2181).await.unwrap()
+/// );
 /// let client = zookeeper_client::Client::connect(&zk_url)
-///             .await
-///             .expect("connect to Zookeeper");
+///     .await
+///     .expect("connect to Zookeeper");
 ///
 /// let path = "/test";
 /// let (_, stat_watcher) = client
