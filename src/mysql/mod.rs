@@ -13,7 +13,7 @@ const TAG: &str = "8.1";
 ///
 /// # Example
 /// ```
-/// use testcontainers_modules::{testcontainers::runners::SyncRunner, mysql};
+/// use testcontainers_modules::{mysql, testcontainers::runners::SyncRunner};
 ///
 /// let mysql_instance = mysql::Mysql::default().start().unwrap();
 /// let mysql_url = format!(

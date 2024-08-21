@@ -29,20 +29,22 @@ pub const SURREALDB_PORT: ContainerPort = ContainerPort::Tcp(8000);
 /// let surrealdb_instance = surrealdb::SurrealDb::default().start().unwrap();
 ///
 /// let connection_string = format!(
-///    "127.0.0.1:{}",
-///    surrealdb_instance.get_host_port_ipv4(surrealdb::SURREALDB_PORT).unwrap(),
+///     "127.0.0.1:{}",
+///     surrealdb_instance
+///         .get_host_port_ipv4(surrealdb::SURREALDB_PORT)
+///         .unwrap(),
 /// );
 ///
 /// # let runtime = tokio::runtime::Runtime::new().unwrap();
 /// # runtime.block_on(async {
 /// let db: Surreal<Client> = Surreal::init();
-/// db.connect::<Ws>(connection_string).await.expect("Failed to connect to SurrealDB");
+/// db.connect::<Ws>(connection_string)
+///     .await
+///     .expect("Failed to connect to SurrealDB");
 /// # });
-///
 /// ```
 /// [`SurrealDB`]: https://surrealdb.com/
 /// [`SurrealDB docker image`]: https://hub.docker.com/r/surrealdb/surrealdb
-///
 #[derive(Debug, Clone)]
 pub struct SurrealDb {
     env_vars: HashMap<String, String>,

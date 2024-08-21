@@ -22,7 +22,7 @@ const TAG: &str = "9.5.0-slim";
 ///
 /// // use HTTP client to interact with the solr API
 /// ```
-///
+/// 
 /// [`Solr`]: https://solr.apache.org/
 /// [`Solr docker image`]: https://hub.docker.com/_/solr
 /// [`Solr reference guide`]: https://solr.apache.org/guide/solr/latest/

@@ -40,6 +40,7 @@ nats = []
 neo4j = []
 oracle = []
 orientdb = []
+openldap = ["dep:parse-display"]
 parity = []
 postgres = []
 rabbitmq = []
@@ -53,6 +54,8 @@ cockroach_db = []
 kwok = []
 
 [dependencies]
+# TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
+parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
 testcontainers = { version = "0.21.0" }
 
 
@@ -66,6 +69,7 @@ aws-types = "1.0.1"
 bollard = "0.17.0"
 futures = "0.3"
 lapin = "2.3.1"
+ldap3 = "0.11.5"
 meilisearch-sdk = "0.26.1"
 mongodb = "3.0.1"
 mysql = "25.0.0"
@@ -120,3 +124,7 @@ required-features = ["surrealdb"]
 [[example]]
 name = "mongo"
 required-features = ["mongo"]
+
+[[example]]
+name = "openldap"
+required-features = ["openldap"]
