@@ -225,23 +225,15 @@ impl OpenLDAP {
     /// Set hash to be used in generation of user passwords.
     /// Default: [`PasswordHash::SSHA`].
     pub fn with_ldap_password_hash(mut self, password_hash: PasswordHash) -> Self {
-        self.env_vars.insert(
-            "LDAP_PASSWORD_HASH".to_owned(),
-            match password_hash {
-                PasswordHash::SSHA => "{SSHA}".to_owned(),
-                PasswordHash::SHA => "{SHA}".to_owned(),
-                PasswordHash::SMD5 => "{SMD5}".to_owned(),
-                PasswordHash::MD5 => "{MD5}".to_owned(),
-                PasswordHash::CRYPT => "{CRYPT}".to_owned(),
-                PasswordHash::CLEARTEXT => "{CLEARTEXT}".to_owned(),
-            },
-        );
+        self.env_vars
+            .insert("LDAP_PASSWORD_HASH".to_owned(), password_hash.to_string());
         self
     }
 }
 
 /// hash to be used in generation of user passwords.
-#[derive(Default, Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Display, FromStr, Default, Debug, Clone, Copy, Eq, PartialEq)]
+#[display("{{{}}}")] // it's escaped curly braces => `SSHA` gets displayed as `{SSHA}`
 pub enum PasswordHash {
     #[default]
     /// [`PasswordHash::SHA`], but with a salt.
