@@ -34,8 +34,8 @@ impl Default for Kafka {
         env_vars.insert(
             "KAFKA_LISTENERS".to_owned(),
             format!(
-                "PLAINTEXT://0.0.0.0:{KAFKA_PORT},BROKER://0.0.0.0:9092",
-                KAFKA_PORT = KAFKA_PORT.as_u16()
+                "PLAINTEXT://0.0.0.0:{port},BROKER://0.0.0.0:9092",
+                port = KAFKA_PORT.as_u16(),
             ),
         );
         env_vars.insert(
@@ -48,7 +48,10 @@ impl Default for Kafka {
         );
         env_vars.insert(
             "KAFKA_ADVERTISED_LISTENERS".to_owned(),
-            format!("PLAINTEXT://localhost:{KAFKA_PORT},BROKER://localhost:9092",),
+            format!(
+                "PLAINTEXT://localhost:{port},BROKER://localhost:9092",
+                port = KAFKA_PORT.as_u16(),
+            ),
         );
         env_vars.insert("KAFKA_BROKER_ID".to_owned(), "1".to_owned());
         env_vars.insert(
