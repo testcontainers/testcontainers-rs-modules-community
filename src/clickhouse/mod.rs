@@ -8,7 +8,11 @@ use testcontainers::{
 const DEFAULT_IMAGE_NAME: &str = "clickhouse/clickhouse-server";
 const DEFAULT_IMAGE_TAG: &str = "23.3.8.21-alpine";
 
-const CLICKHOUSE_PORT: ContainerPort = ContainerPort::Tcp(8123);
+/// Port that the [`ClickHouse`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`ClickHouse`]: https://clickhouse.com/
+pub const CLICKHOUSE_PORT: ContainerPort = ContainerPort::Tcp(8123);
 
 /// Module to work with [`ClickHouse`] inside of tests.
 ///

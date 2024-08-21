@@ -7,7 +7,11 @@ use testcontainers::{
 
 const NAME: &str = "getmeili/meilisearch";
 const TAG: &str = "v1.8.3";
-const MEILISEARCH_PORT: ContainerPort = ContainerPort::Tcp(7700);
+/// Port that the [`Meilisearch`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Meilisearch`]: https://www.meilisearch.com
+pub const MEILISEARCH_PORT: ContainerPort = ContainerPort::Tcp(7700);
 
 /// Module to work with [`Meilisearch`] inside of tests.
 ///
