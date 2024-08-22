@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
