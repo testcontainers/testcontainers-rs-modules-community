@@ -7,35 +7,17 @@ use testcontainers::{
 
 const NAME: &str = "confluentinc/cp-kafka";
 const TAG: &str = "6.1.1";
-
 /// Port that the [`Kafka`] part of the container has internally
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Kafka`]: https://kafka.apache.org/
-pub const KAFKA_PORT: ContainerPort = ContainerPort::Tcp(9093);
+pub const KAFKA_PORT: u16 = 9093;
 /// Port that the [`Zookeeper`] part of the container has internally
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Zookeeper`]: https://zookeeper.apache.org/
-const ZOOKEEPER_PORT: ContainerPort = ContainerPort::Tcp(2181);
+pub const ZOOKEEPER_PORT: ContainerPort = ContainerPort::Tcp(2181);
 
-/// Module to work with [`Apache Kafka`] broker based on [Confluent] image
-///
-/// Starts an instance of Apache Kafka broker which uses [`Apache Zookeeper`]
-/// to track the status of nodes in the Kafka cluster and maintain a list of
-/// Kafka topics and messages.
-///
-/// # Example
-/// ```
-/// use testcontainers_modules::{kafka, testcontainers::runners::SyncRunner};
-/// let kafka_node = kafka::Kafka::default().start().unwrap();
-/// // connect to kafka server to send/receive messages
-/// ```
-///
-/// [`Apache Kafka`]: https://kafka.apache.org/
-/// [`Apache Zookeeper`]: https://zookeeper.apache.org/
-/// [Confluent]: https://www.confluent.io/
-///
 #[derive(Debug, Clone)]
 pub struct Kafka {
     env_vars: HashMap<String, String>,
@@ -51,10 +33,7 @@ impl Default for Kafka {
         );
         env_vars.insert(
             "KAFKA_LISTENERS".to_owned(),
-            format!(
-                "PLAINTEXT://0.0.0.0:{},BROKER://0.0.0.0:9092",
-                KAFKA_PORT.as_u16()
-            ),
+            format!("PLAINTEXT://0.0.0.0:{KAFKA_PORT},BROKER://0.0.0.0:9092"),
         );
         env_vars.insert(
             "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP".to_owned(),
@@ -66,10 +45,7 @@ impl Default for Kafka {
         );
         env_vars.insert(
             "KAFKA_ADVERTISED_LISTENERS".to_owned(),
-            format!(
-                "PLAINTEXT://localhost:{},BROKER://localhost:9092",
-                KAFKA_PORT.as_u16()
-            ),
+            format!("PLAINTEXT://localhost:{KAFKA_PORT},BROKER://localhost:9092",),
         );
         env_vars.insert("KAFKA_BROKER_ID".to_owned(), "1".to_owned());
         env_vars.insert(
@@ -106,20 +82,20 @@ impl Image for Kafka {
             "-c".to_owned(),
             format!(
                 r#"
-echo 'clientPort={}' > zookeeper.properties;
+echo 'clientPort={ZOOKEEPER_PORT}' > zookeeper.properties;
 echo 'dataDir=/var/lib/zookeeper/data' >> zookeeper.properties;
 echo 'dataLogDir=/var/lib/zookeeper/log' >> zookeeper.properties;
 zookeeper-server-start zookeeper.properties &
 . /etc/confluent/docker/bash-config &&
 /etc/confluent/docker/configure &&
 /etc/confluent/docker/launch"#,
-                ZOOKEEPER_PORT.as_u16()
+                ZOOKEEPER_PORT = ZOOKEEPER_PORT.as_u16()
             ),
         ]
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
-        &[KAFKA_PORT]
+        &[ContainerPort::Tcp(KAFKA_PORT)]
     }
 
     fn exec_after_start(
@@ -139,7 +115,7 @@ zookeeper-server-start zookeeper.properties &
             "--add-config".to_string(),
             format!(
                 "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
-                cs.host_port_ipv4(KAFKA_PORT)?
+                cs.host_port_ipv4(ContainerPort::Tcp(KAFKA_PORT))?
             ),
         ];
         let ready_conditions = vec![WaitFor::message_on_stdout(
