@@ -11,12 +11,18 @@ const TAG: &str = "v1.96.0";
 ///
 /// # Example
 /// ```
-/// use testcontainers_modules::{victoria_metrics, testcontainers::runners::SyncRunner};
+/// use testcontainers_modules::{testcontainers::runners::SyncRunner, victoria_metrics};
 ///
 /// let victoria_metrics_instance = victoria_metrics::VictoriaMetrics.start().unwrap();
 ///
-/// let import_url = format!("http://127.0.0.1:{}/api/v1/import", victoria_metrics_instance.get_host_port_ipv4(8428).unwrap());
-/// let export_url = format!("http://127.0.0.1:{}/api/v1/export", victoria_metrics_instance.get_host_port_ipv4(8428).unwrap());
+/// let import_url = format!(
+///     "http://127.0.0.1:{}/api/v1/import",
+///     victoria_metrics_instance.get_host_port_ipv4(8428).unwrap()
+/// );
+/// let export_url = format!(
+///     "http://127.0.0.1:{}/api/v1/export",
+///     victoria_metrics_instance.get_host_port_ipv4(8428).unwrap()
+/// );
 ///
 /// // operate on the import and export URLs..
 /// ```
