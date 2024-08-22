@@ -1,5 +1,10 @@
 use testcontainers::{core::WaitFor, Image};
 
+
+/// Port that the [`Apache Solr`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Apache Solr`]: https://solr.apache.org/
 pub const SOLR_PORT: u16 = 8983;
 
 const NAME: &str = "solr";
