@@ -48,7 +48,7 @@ pub struct OpenLDAP {
     users: Vec<User>,
 }
 #[derive(Debug, Clone)]
-pub struct User {
+struct User {
     username: String,
     password: String,
 }
@@ -269,10 +269,14 @@ pub enum PasswordHash {
 #[derive(Display, FromStr, Default, Debug, Clone, Copy, Eq, PartialEq)]
 #[display(style = "lowercase")]
 pub enum AccesslogLogOperations {
+    /// Logs only writes
     #[default]
     Writes,
+    /// Logs only reads
     Reads,
+    /// Logs only sessions
     Session,
+    /// Logs everything
     All,
 }
 
