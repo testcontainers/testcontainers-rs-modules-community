@@ -1,6 +1,5 @@
 use testcontainers::{core::WaitFor, Image};
 
-
 /// Port that the [`Apache Solr`] container has internally
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
