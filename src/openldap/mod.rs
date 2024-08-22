@@ -27,13 +27,15 @@ const OPENLDAP_PORT: ContainerPort = ContainerPort::Tcp(1389);
 ///     openldap_instance.get_host_port_ipv4(1389).unwrap(),
 /// );
 /// let mut conn = ldap3::LdapConn::new(&connection_string).unwrap();
-/// let ldap3::SearchResult(rs,_) = conn.search(
-///              "ou=users,dc=example,dc=org",
-///              ldap3::Scope::Subtree,
-///              "(cn=ma*)",
-///              vec!["cn"]
-///          ).unwrap();
-/// let results:Vec<_>=rs.into_iter().map(ldap3::SearchEntry::construct).collect();
+/// let ldap3::SearchResult(rs, _) = conn
+///     .search(
+///         "ou=users,dc=example,dc=org",
+///         ldap3::Scope::Subtree,
+///         "(cn=ma*)",
+///         vec!["cn"],
+///     )
+///     .unwrap();
+/// let results: Vec<_> = rs.into_iter().map(ldap3::SearchEntry::construct).collect();
 /// assert_eq!(results.len(), 0);
 /// ```
 ///
@@ -46,7 +48,7 @@ pub struct OpenLDAP {
     users: Vec<User>,
 }
 #[derive(Debug, Clone)]
-pub struct User {
+struct User {
     username: String,
     password: String,
 }
@@ -267,10 +269,14 @@ pub enum PasswordHash {
 #[derive(Display, FromStr, Default, Debug, Clone, Copy, Eq, PartialEq)]
 #[display(style = "lowercase")]
 pub enum AccesslogLogOperations {
+    /// Logs only writes
     #[default]
     Writes,
+    /// Logs only reads
     Reads,
+    /// Logs only sessions
     Session,
+    /// Logs everything
     All,
 }
 
