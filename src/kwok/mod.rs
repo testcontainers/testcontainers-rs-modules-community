@@ -6,8 +6,13 @@ use testcontainers::{
 const NAME: &str = "registry.k8s.io/kwok/cluster";
 const TAG: &str = "v0.5.2-k8s.v1.29.2";
 const DEFAULT_WAIT: u64 = 3000;
+/// Port that the [`Kwok Cluster`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Kwok Cluster`]: https://kwok.sigs.k8s.io/
+pub const KWOK_CLUSTER_PORT: ContainerPort = ContainerPort::Tcp(8080);
 
-/// This module provides [Kwok Cluster](https://kwok.sigs.k8s.io/) (Kubernetes WithOut Kubelet).
+/// This module provides [`Kwok Cluster`] (Kubernetes WithOut Kubelet).
 ///
 /// Currently pinned to [version `v0.5.2-k8s.v1.29.2`](https://github.com/kubernetes-sigs/kwok/releases/tag/v0.5.2)
 ///
@@ -19,12 +24,14 @@ const DEFAULT_WAIT: u64 = 3000;
 /// Testcontainers support setting environment variables with the method [`testcontainers::ImageExt::with_env_var`].
 ///
 /// ```
-/// use testcontainers_modules::{testcontainers::ImageExt, kwok::KwokCluster};
+/// use testcontainers_modules::{kwok::KwokCluster, testcontainers::ImageExt};
 ///
 /// let container_request = KwokCluster::default().with_env_var("KWOK_PROMETHEUS_PORT", "9090");
 /// ```
 ///
 /// No environment variables are required.
+///
+/// [`Kwok Cluster`]: https://kwok.sigs.k8s.io/
 #[derive(Debug, Default, Clone)]
 pub struct KwokCluster;
 
@@ -45,7 +52,7 @@ impl Image for KwokCluster {
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
-        &[ContainerPort::Tcp(8080)]
+        &[KWOK_CLUSTER_PORT]
     }
 }
 

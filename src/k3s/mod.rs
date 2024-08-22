@@ -13,33 +13,50 @@ use testcontainers::{
 
 const NAME: &str = "rancher/k3s";
 const TAG: &str = "v1.28.8-k3s1";
+/// Port that the [`traefik`] part of the container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`traefik`]: https://doc.traefik.io/traefik/
 pub const TRAEFIK_HTTP: ContainerPort = ContainerPort::Tcp(80);
+/// Port that the [`Kubernetes`] part of the container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Kubernetes`]: https://kubernetes.io/
 pub const KUBE_SECURE_PORT: ContainerPort = ContainerPort::Tcp(6443);
+/// Port that the [`Rancher`] part of the container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Rancher`]: https://rancher.io/
 pub const RANCHER_WEBHOOK_PORT: ContainerPort = ContainerPort::Tcp(8443);
 
 /// Module to work with [`K3s`] inside of tests.
 ///
 /// Starts an instance of K3s, a single-node server fully-functional Kubernetes cluster
-/// so you are able interact with the cluster using standard [`Kubernetes API`] exposed at [`KUBE_SECURE_PORT`] port
+/// so you are able to interact with the cluster using standard [`Kubernetes API`] exposed at [`KUBE_SECURE_PORT`] port
 ///
 /// This module is based on the official [`K3s docker image`].
 ///
 /// # Example
 /// ```
 /// use std::env::temp_dir;
+///
 /// use testcontainers_modules::{
-///     testcontainers::{ImageExt, runners::SyncRunner},
-///     k3s::{K3s, KUBE_SECURE_PORT}
+///     k3s::{K3s, KUBE_SECURE_PORT},
+///     testcontainers::{runners::SyncRunner, ImageExt},
 /// };
 ///
-/// let k3s_instance = K3s::default().with_conf_mount(&temp_dir())
-///            .with_privileged(true)
-///            .with_userns_mode("host")
-///            .start()
-///            .unwrap();
+/// let k3s_instance = K3s::default()
+///     .with_conf_mount(&temp_dir())
+///     .with_privileged(true)
+///     .with_userns_mode("host")
+///     .start()
+///     .unwrap();
 ///
 /// let kube_port = k3s_instance.get_host_port_ipv4(KUBE_SECURE_PORT);
-/// let kube_conf = k3s_instance.image().read_kube_config().expect("Cannot read kube conf");
+/// let kube_conf = k3s_instance
+///     .image()
+///     .read_kube_config()
+///     .expect("Cannot read kube conf");
 /// // use kube_port and kube_conf to connect and control k3s cluster
 /// ```
 ///

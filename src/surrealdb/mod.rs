@@ -8,6 +8,10 @@ use testcontainers::{
 const NAME: &str = "surrealdb/surrealdb";
 const TAG: &str = "v1.1.1";
 
+/// Port that the [`SurrealDB`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`SurrealDB`]: https://surrealdb.com/
 pub const SURREALDB_PORT: ContainerPort = ContainerPort::Tcp(8000);
 
 /// Module to work with [`SurrealDB`] inside of tests.
@@ -25,20 +29,22 @@ pub const SURREALDB_PORT: ContainerPort = ContainerPort::Tcp(8000);
 /// let surrealdb_instance = surrealdb::SurrealDb::default().start().unwrap();
 ///
 /// let connection_string = format!(
-///    "127.0.0.1:{}",
-///    surrealdb_instance.get_host_port_ipv4(surrealdb::SURREALDB_PORT).unwrap(),
+///     "127.0.0.1:{}",
+///     surrealdb_instance
+///         .get_host_port_ipv4(surrealdb::SURREALDB_PORT)
+///         .unwrap(),
 /// );
 ///
 /// # let runtime = tokio::runtime::Runtime::new().unwrap();
 /// # runtime.block_on(async {
 /// let db: Surreal<Client> = Surreal::init();
-/// db.connect::<Ws>(connection_string).await.expect("Failed to connect to SurrealDB");
+/// db.connect::<Ws>(connection_string)
+///     .await
+///     .expect("Failed to connect to SurrealDB");
 /// # });
-///
 /// ```
 /// [`SurrealDB`]: https://surrealdb.com/
 /// [`SurrealDB docker image`]: https://hub.docker.com/r/surrealdb/surrealdb
-///
 #[derive(Debug, Clone)]
 pub struct SurrealDb {
     env_vars: HashMap<String, String>,
@@ -130,7 +136,7 @@ mod tests {
         opt::auth::Root,
         Surreal,
     };
-    use testcontainers::runners::AsyncRunner;
+    use testcontainers::{runners::AsyncRunner, ImageExt};
 
     use super::*;
 

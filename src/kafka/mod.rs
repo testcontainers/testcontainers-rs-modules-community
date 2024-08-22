@@ -7,9 +7,16 @@ use testcontainers::{
 
 const NAME: &str = "confluentinc/cp-kafka";
 const TAG: &str = "6.1.1";
-
-pub const KAFKA_PORT: u16 = 9093;
-const ZOOKEEPER_PORT: u16 = 2181;
+/// Port that the [`Kafka`] part of the container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Kafka`]: https://kafka.apache.org/
+pub const KAFKA_PORT: ContainerPort = ContainerPort::Tcp(9093);
+/// Port that the [`Zookeeper`] part of the container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Zookeeper`]: https://zookeeper.apache.org/
+pub const ZOOKEEPER_PORT: ContainerPort = ContainerPort::Tcp(2181);
 
 #[derive(Debug, Clone)]
 pub struct Kafka {
@@ -22,11 +29,14 @@ impl Default for Kafka {
 
         env_vars.insert(
             "KAFKA_ZOOKEEPER_CONNECT".to_owned(),
-            format!("localhost:{ZOOKEEPER_PORT}"),
+            format!("localhost:{}", ZOOKEEPER_PORT.as_u16()),
         );
         env_vars.insert(
             "KAFKA_LISTENERS".to_owned(),
-            format!("PLAINTEXT://0.0.0.0:{KAFKA_PORT},BROKER://0.0.0.0:9092"),
+            format!(
+                "PLAINTEXT://0.0.0.0:{port},BROKER://0.0.0.0:9092",
+                port = KAFKA_PORT.as_u16(),
+            ),
         );
         env_vars.insert(
             "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP".to_owned(),
@@ -38,7 +48,10 @@ impl Default for Kafka {
         );
         env_vars.insert(
             "KAFKA_ADVERTISED_LISTENERS".to_owned(),
-            format!("PLAINTEXT://localhost:{KAFKA_PORT},BROKER://localhost:9092",),
+            format!(
+                "PLAINTEXT://localhost:{port},BROKER://localhost:9092",
+                port = KAFKA_PORT.as_u16(),
+            ),
         );
         env_vars.insert("KAFKA_BROKER_ID".to_owned(), "1".to_owned());
         env_vars.insert(
@@ -82,12 +95,13 @@ zookeeper-server-start zookeeper.properties &
 . /etc/confluent/docker/bash-config &&
 /etc/confluent/docker/configure &&
 /etc/confluent/docker/launch"#,
+                ZOOKEEPER_PORT = ZOOKEEPER_PORT.as_u16()
             ),
         ]
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
-        &[ContainerPort::Tcp(KAFKA_PORT)]
+        &[KAFKA_PORT]
     }
 
     fn exec_after_start(
@@ -107,7 +121,7 @@ zookeeper-server-start zookeeper.properties &
             "--add-config".to_string(),
             format!(
                 "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
-                cs.host_port_ipv4(ContainerPort::Tcp(KAFKA_PORT))?
+                cs.host_port_ipv4(KAFKA_PORT)?
             ),
         ];
         let ready_conditions = vec![WaitFor::message_on_stdout(

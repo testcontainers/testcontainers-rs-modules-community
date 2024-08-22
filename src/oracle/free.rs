@@ -7,6 +7,11 @@ use testcontainers::{
 
 const DEFAULT_IMAGE_NAME: &str = "gvenzl/oracle-free";
 const DEFAULT_IMAGE_TAG: &str = "23-slim-faststart";
+/// Port that the [`Oracle Database Free`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Oracle Database Free`]: https://www.oracle.com/database/free/
+pub const FREE_PORT: ContainerPort = ContainerPort::Tcp(1521);
 
 /// Module to work with [`Oracle Database Free`] inside of tests.
 /// The default image is [`gvenzl/oracle-free:23-slim-faststart`] (unofficial).
@@ -64,7 +69,7 @@ impl Image for Oracle {
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
-        &[ContainerPort::Tcp(1521)]
+        &[FREE_PORT]
     }
 }
 

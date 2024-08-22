@@ -12,7 +12,10 @@ const TAG: &str = "5.0";
 /// # Example
 /// ```
 /// use redis::Commands;
-/// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{Redis, REDIS_PORT}};
+/// use testcontainers_modules::{
+///     redis::{Redis, REDIS_PORT},
+///     testcontainers::runners::SyncRunner,
+/// };
 ///
 /// let redis_instance = Redis::default().start().unwrap();
 /// let host_ip = redis_instance.get_host().unwrap();
