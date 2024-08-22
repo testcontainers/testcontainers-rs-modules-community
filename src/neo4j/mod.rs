@@ -14,8 +14,7 @@ use testcontainers::{
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum Neo4jLabsPlugin {
-    /// # APOC (Awesome Procedures on Cypher) **Extended**
-    /// contains additional procedures and functions, which is available when you self-host the database and add the apoc-extended jar.
+    /// APOC (Awesome Procedures on Cypher) **Extended** contains additional procedures and functions, which is available when you self-host the database and add the apoc-extended jar.
     /// See [`Neo4jLabsPlugin::ApocCore`] for the officially supported variant.
     /// As of `5.0` APOC has been split into separate repositories, one being the main, officially supported, `APOC Core` and `APOC Extended` Library.
     ///
@@ -25,8 +24,7 @@ pub enum Neo4jLabsPlugin {
     /// [Cypher query language]: https://neo4j.com/docs/cypher-manual/current/introduction/
     /// [the APOC Extended documentation]: https://neo4j.com/docs/apoc/current/
     Apoc,
-    /// # APOC (Awesome Procedures on Cypher) **Core**
-    /// Battle hardened procedures and functions that don’t have external dependencies or require configuration.
+    /// APOC (Awesome Procedures on Cypher) **Core** are battle hardened procedures and functions that don’t have external dependencies or require configuration.
     /// This is also the based of the functionality available in Neo4j AuraDB which lists the available APOC surface in their docs..
     /// See [`Neo4jLabsPlugin::Apoc`] for the variant maintained by the community.
     /// As of `5.0` APOC has been split into separate repositories, one being the main, officially supported, `APOC Core` and `APOC Extended` Library.
