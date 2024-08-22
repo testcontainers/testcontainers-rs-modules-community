@@ -28,8 +28,8 @@ pub const GANACHE_CLI_PORT: ContainerPort = ContainerPort::Tcp(8545);
 ///     .unwrap();
 /// let url = format!(
 ///     "http://{host_ip}:{host_port}",
-///     host_ip = meilisearch_instance.get_host().unwrap(),
-///     host_port = meilisearch_instance.get_host_port_ipv4(7700).unwrap()
+///     host_ip = instance.get_host().unwrap(),
+///     host_port = instance.get_host_port_ipv4(GANACHE_CLI_PORT).unwrap()
 /// );
 /// // do something with the started GanacheCli instance..
 /// ```
@@ -110,12 +110,12 @@ impl Image for GanacheCli {
 mod tests {
     use testcontainers::runners::SyncRunner;
 
-    use crate::trufflesuite_ganachecli;
+    use super::*;
 
     #[test]
     fn trufflesuite_ganachecli_listaccounts() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = trufflesuite_ganachecli::GanacheCli::default().start()?;
+        let node = GanacheCli::default().start()?;
         let host_ip = node.get_host()?;
         let host_port = node.get_host_port_ipv4(GANACHE_CLI_PORT)?;
 
