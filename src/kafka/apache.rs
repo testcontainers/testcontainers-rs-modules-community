@@ -6,7 +6,7 @@ use testcontainers::{
 
 const KAFKA_NATIVE_IMAGE_NAME: &str = "apache/kafka-native";
 const KAFKA_IMAGE_NAME: &str = "apache/kafka";
-const TAG: &str = "latest";
+const TAG: &str = "3.8.0";
 
 /// Port that [`Apache Kafka`] uses internally.
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
