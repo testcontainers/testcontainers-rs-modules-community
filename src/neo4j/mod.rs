@@ -14,12 +14,54 @@ use testcontainers::{
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum Neo4jLabsPlugin {
+    /// # APOC (Awesome Procedures on Cypher) **Extended**
+    /// contains additional procedures and functions, which is available when you self-host the database and add the apoc-extended jar.
+    /// See [`Neo4jLabsPlugin::ApocCore`] for the officially supported variant.
+    /// As of `5.0` APOC has been split into separate repositories, one being the main, officially supported, `APOC Core` and `APOC Extended` Library.
+    ///
+    /// The APOC plugin provides provides access to user-defined procedures and functions which extend the use of the Cypher query language into areas such as data integration, graph algorithms, and data conversion..
+    /// Please see [the APOC Extended documentation] for furhter details
+    ///
+    /// [Cypher query language]: https://neo4j.com/docs/cypher-manual/current/introduction/
+    /// [the APOC Extended documentation]: https://neo4j.com/docs/apoc/current/
     Apoc,
+    /// # APOC (Awesome Procedures on Cypher) **Core**
+    /// Battle hardened procedures and functions that don’t have external dependencies or require configuration.
+    /// This is also the based of the functionality available in Neo4j AuraDB which lists the available APOC surface in their docs..
+    /// See [`Neo4jLabsPlugin::Apoc`] for the variant maintained by the community.
+    /// As of `5.0` APOC has been split into separate repositories, one being the main, officially supported, `APOC Core` and `APOC Extended` Library.
+    ///
+    /// The APOC plugin provides provides access to user-defined procedures and functions which extend the use of the [Cypher query language] into areas such as data integration, graph algorithms, and data conversion..
+    /// Please see [the APOC Core documentation] for furhter details
+    ///
+    /// [Cypher query language]: https://neo4j.com/docs/cypher-manual/current/introduction/
+    /// [the APOC Core documentation]: https://neo4j.com/docs/aura/platform/apoc/
     ApocCore,
+    /// Bloom is a graph exploration application for visually interacting with graph data.
+    /// Please see [their documentation](https://neo4j.com/docs/bloom-user-guide/current/) for furhter details
     Bloom,
+    /// Allows integration of Kafka and other streaming solutions with Neo4j.
+    /// Either to ingest data into the graph from other sources.
+    /// Or to send update events (change data capture - CDC) to the event log for later consumption.
+    /// Please see [their documentation](https://neo4j.com/docs/kafka-streams/) for furhter details
+    ///
+    /// <div class="warning">
+    ///
+    /// The Kafka Connect Neo4j Connector is the recommended method to integrate Kafka with Neo4j, as Neo4j Streams is no longer under active development and will not be supported after version 4.4 of Neo4j.
+    /// The most recent version of the Kafka Connect Neo4j Connector [can be found here](https://neo4j.com/docs/kafka).
+    ///
+    /// </div>
     Streams,
+    /// Graph Data Science (GDS) library provides efficiently implemented, parallel versions of common graph algorithms, exposed as Cypher procedures. Additionally, GDS includes machine learning pipelines to train predictive supervised models to solve graph problems, such as predicting missing relationships..
+    /// Please see [their documentation](https://neo4j.com/docs/graph-data-science/current/) for furhter details
     GraphDataScience,
+    /// neosemantics (n10s) is a plugin that enables the use of RDF and its associated vocabularies like (OWL,RDFS,SKOS and others) in Neo4j.
+    /// [RDF is a W3C standard model](https://www.w3.org/RDF/) for data interchange.
+    /// You can use n10s to build integrations with RDF-generating / RDF-consuming components.
+    /// You can also use it to validate your graph against constraints expressed in [SHACL](https://www.w3.org/TR/shacl/) or to run basic inferencing.
+    /// Please see [their documentation](https://neo4j.com/labs/neosemantics/) for furhter details
     NeoSemantics,
+    // Allows specifying other plugins
     Custom(String),
 }
 
