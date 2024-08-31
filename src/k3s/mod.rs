@@ -172,15 +172,19 @@ mod tests {
 
     use k8s_openapi::api::core::v1::Pod;
     use kube::{
-        api::ListParams,
+        api::{Api, DeleteParams, ListParams, Patch, PatchParams, PostParams, ResourceExt},
         config::{KubeConfigOptions, Kubeconfig},
-        Api, Config, ResourceExt,
+        runtime::wait::{await_condition, conditions::is_pod_running},
+        Config,
     };
     use rustls::crypto::CryptoProvider;
+    use serde_json::json;
+    use serial_test::serial;
     use testcontainers::{runners::AsyncRunner, ContainerAsync, ImageExt};
 
     use super::*;
 
+    #[serial]
     #[tokio::test]
     async fn k3s_pods() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let conf_dir = temp_dir();
@@ -221,6 +225,88 @@ mod tests {
                 .any(|pod_name| pod_name.starts_with("local-path-provisioner")),
             "local-path-provisioner pod not found - found pods {pod_names:?}"
         );
+        Ok(())
+    }
+
+    // Based on: https://github.com/kube-rs/kube/blob/main/examples/pod_api.rs
+    #[serial]
+    #[tokio::test]
+    async fn pod_api() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let conf_dir = temp_dir();
+        let k3s = K3s::default()
+            .with_conf_mount(&conf_dir)
+            .with_privileged(true)
+            .with_userns_mode("host");
+
+        let k3s_container = k3s.start().await?;
+
+        let client = get_kube_client(&k3s_container).await?;
+
+        // Manage pods
+        let pods: Api<Pod> = Api::default_namespaced(client);
+
+        // Create Pod blog
+        let p: Pod = serde_json::from_value(json!({
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": { "name": "busybox" },
+            "spec": {
+                "containers": [{
+                  "name": "busybox",
+                  "image": "busybox:1.36.1-musl"
+                }],
+            }
+        }))?;
+
+        let post_params = PostParams::default();
+        match pods.create(&post_params, &p).await {
+            Ok(o) => {
+                let name = o.name_any();
+                assert_eq!(p.name_any(), name);
+            }
+            Err(kube::Error::Api(ae)) => assert_eq!(ae.code, 409), // if you skipped delete, for instance
+            Err(e) => return Err(e.into()),                        // any other case is probably bad
+        }
+
+        // Watch it phase for a few seconds
+        let establish = await_condition(pods.clone(), "busybox", is_pod_running());
+        let _ = tokio::time::timeout(std::time::Duration::from_secs(15), establish).await?;
+
+        // Verify we can get it
+        let p1cpy = pods.get("busybox").await?;
+        if let Some(spec) = &p1cpy.spec {
+            assert_eq!(spec.containers[0].name, "busybox");
+        }
+
+        // Replace its spec
+        let patch = json!({
+            "metadata": {
+                "resourceVersion": p1cpy.resource_version(),
+            },
+            "spec": {
+                "activeDeadlineSeconds": 5
+            }
+        });
+
+        let patch_params = PatchParams::default();
+        let p_patched = pods
+            .patch("busybox", &patch_params, &Patch::Merge(&patch))
+            .await?;
+        assert_eq!(p_patched.spec.unwrap().active_deadline_seconds, Some(5));
+
+        let lp = ListParams::default().fields(&format!("metadata.name={}", "busybox")); // only want results for our pod
+        for p in pods.list(&lp).await? {
+            println!("Found Pod: {}", p.name_any());
+        }
+
+        // Delete it
+        let delete_params = DeleteParams::default();
+        pods.delete("busybox", &delete_params)
+            .await?
+            .map_left(|pdel| {
+                assert_eq!(pdel.name_any(), "busybox");
+            });
+
         Ok(())
     }
 
