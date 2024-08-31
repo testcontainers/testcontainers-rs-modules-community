@@ -13,7 +13,9 @@ const TAG: &str = "v1.96.0";
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, victoria_metrics};
 ///
-/// let victoria_metrics_instance = victoria_metrics::VictoriaMetrics::default().start().unwrap();
+/// let victoria_metrics_instance = victoria_metrics::VictoriaMetrics::default()
+///     .start()
+///     .unwrap();
 ///
 /// let import_url = format!(
 ///     "http://127.0.0.1:{}/api/v1/import",

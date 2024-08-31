@@ -11,7 +11,9 @@ const TAG: &str = "2";
 /// ```
 /// use testcontainers_modules::{cncf_distribution, testcontainers::runners::SyncRunner};
 ///
-/// let registry = cncf_distribution::CncfDistribution::default().start().unwrap();
+/// let registry = cncf_distribution::CncfDistribution::default()
+///     .start()
+///     .unwrap();
 ///
 /// let image_name = "test";
 /// let image_tag = format!(
