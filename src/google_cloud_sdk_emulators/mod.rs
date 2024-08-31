@@ -9,10 +9,30 @@ const NAME: &str = "google/cloud-sdk";
 const TAG: &str = "362.0.0-emulators";
 
 const HOST: &str = "0.0.0.0";
+/// Port that the [`Bigtable`] emulator container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Bigtable`]: https://cloud.google.com/bigtable
 pub const BIGTABLE_PORT: u16 = 8086;
+/// Port that the [`Datastore`] emulator container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Datastore`]: https://cloud.google.com/datastore
 pub const DATASTORE_PORT: u16 = 8081;
+/// Port that the [`Firestore`] emulator container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Firestore`]: https://cloud.google.com/firestore
 pub const FIRESTORE_PORT: u16 = 8080;
+/// Port that the [`Pub/Sub`] emulator container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Pub/Sub`]: https://cloud.google.com/pubsub
 pub const PUBSUB_PORT: u16 = 8085;
+/// Port that the [`Spanner`] emulator container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Spanner`]: https://cloud.google.com/spanner
 pub const SPANNER_PORT: u16 = 9010;
 
 #[derive(Debug, Clone)]

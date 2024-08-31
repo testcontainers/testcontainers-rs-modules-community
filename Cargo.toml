@@ -1,6 +1,6 @@
 [package]
 name = "testcontainers-modules"
-version = "0.9.0"
+version = "0.10.0"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
@@ -30,7 +30,7 @@ k3s = []
 kafka = []
 localstack = []
 mariadb = []
-meilisearch = ["http_wait"]
+meilisearch = ["http_wait", "dep:parse-display"]
 minio = []
 mongo = []
 mosquitto = []
@@ -56,7 +56,7 @@ kwok = []
 [dependencies]
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
 parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
-testcontainers = { version = "0.21.0" }
+testcontainers = { version = "0.22.0" }
 
 
 [dev-dependencies]
@@ -91,7 +91,7 @@ serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 surrealdb = { version = "1.2.0" }
 tar = "0.4.40"
-testcontainers = { version = "0.21.0", features = ["blocking"] }
+testcontainers = { version = "0.22.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = [
