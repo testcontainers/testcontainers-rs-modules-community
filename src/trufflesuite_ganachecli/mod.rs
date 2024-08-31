@@ -22,7 +22,7 @@ pub const GANACHE_CLI_PORT: ContainerPort = ContainerPort::Tcp(8545);
 /// # Example
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, trufflesuite_ganachecli};
-/// use testcontainers_modules::trufflesuite_ganachecli::GANACHE_CLI_PORT
+/// use testcontainers_modules::trufflesuite_ganachecli::GANACHE_CLI_PORT;
 ///
 /// let instance = trufflesuite_ganachecli::GanacheCli::default()
 ///     .start()
