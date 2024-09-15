@@ -26,6 +26,10 @@ pub mod consul;
 #[cfg_attr(docsrs, doc(cfg(feature = "dynamodb")))]
 /// **DynamoDB** (NoSQL database) testcontainer
 pub mod dynamodb_local;
+#[cfg(feature = "databend")]
+#[cfg_attr(docsrs, doc(cfg(feature = "databend")))]
+/// **Databend** (analytics database) testcontainer
+pub mod databend;
 #[cfg(feature = "elastic_search")]
 #[cfg_attr(docsrs, doc(cfg(feature = "elastic_search")))]
 /// **Elasticsearch** (distributed search engine) testcontainer
