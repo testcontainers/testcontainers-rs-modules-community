@@ -1,5 +1,6 @@
 use std::{borrow::Cow, collections::HashMap};
 
+use parse_display::{Display, FromStr};
 use testcontainers::{
     core::{wait::HttpWaitStrategy, ContainerPort, WaitFor},
     Image,
@@ -39,19 +40,38 @@ pub struct Meilisearch {
     env_vars: HashMap<String, String>,
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+/// Sets the environment of the [`Meilisearch`] instance.
+#[derive(Display, FromStr, Default, Debug, Clone, Copy, Eq, PartialEq)]
+#[display(style = "lowercase")]
 pub enum Environment {
+    /// This environment is meant for production deployments:
+    /// - Requires authentication via [Meilisearch::with_master_key]
+    /// - Disables the dashboard avalible at [MEILISEARCH_PORT]
     Production,
+    /// This environment is meant for development:
+    /// - Enables access without authentication
+    /// - Enables the dashboard avalible at [MEILISEARCH_PORT]
+    #[default]
     Development,
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+/// Sets the log level of the [`Meilisearch`] instance.
+#[derive(Display, FromStr, Default, Debug, Clone, Copy, Eq, PartialEq)]
+#[display(style = "UPPERCASE")]
 pub enum LogLevel {
+    /// Log everithing with `Error` severity
     Error,
+    /// Log everithing with `Warn` severity or higher
     Warn,
+    /// Log everithing with `Info` severity or higher
+    /// Is the default
+    #[default]
     Info,
+    /// Log everithing with `Debug` severity or higher
     Debug,
+    /// Log everithing
     Trace,
+    /// Don't log anything
     Off,
 }
 
@@ -87,11 +107,8 @@ impl Meilisearch {
     ///
     /// See the [official docs for this option](https://www.meilisearch.com/docs/learn/configuration/instance_options#environment)
     pub fn with_environment(mut self, environment: Environment) -> Self {
-        let env = match environment {
-            Environment::Production => "production".to_owned(),
-            Environment::Development => "development".to_owned(),
-        };
-        self.env_vars.insert("MEILI_ENV".to_owned(), env);
+        self.env_vars
+            .insert("MEILI_ENV".to_owned(), environment.to_string());
         self
     }
 
@@ -100,15 +117,8 @@ impl Meilisearch {
     ///
     /// See the [official docs for this option](https://www.meilisearch.com/docs/learn/configuration/instance_options#disable-analytics)
     pub fn with_log_level(mut self, level: LogLevel) -> Self {
-        let level = match level {
-            LogLevel::Error => "ERROR".to_owned(),
-            LogLevel::Warn => "WARN".to_owned(),
-            LogLevel::Info => "INFO".to_owned(),
-            LogLevel::Debug => "DEBUG".to_owned(),
-            LogLevel::Trace => "TRACE".to_owned(),
-            LogLevel::Off => "OFF".to_owned(),
-        };
-        self.env_vars.insert("MEILI_LOG_LEVEL".to_owned(), level);
+        self.env_vars
+            .insert("MEILI_LOG_LEVEL".to_owned(), level.to_string());
         self
     }
 }
