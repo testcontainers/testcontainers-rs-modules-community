@@ -3,7 +3,7 @@ use std::{borrow::Cow, collections::HashMap};
 use parse_display::{Display, FromStr};
 use testcontainers::{
     core::{ContainerPort, WaitFor},
-    Image,
+    CopyDataSource, CopyToContainer, Image,
 };
 
 const NAME: &str = "bitnami/openldap";
@@ -46,6 +46,7 @@ const OPENLDAP_PORT: ContainerPort = ContainerPort::Tcp(1389);
 pub struct OpenLDAP {
     env_vars: HashMap<String, String>,
     users: Vec<User>,
+    copy_to_sources: Vec<CopyToContainer>,
 }
 #[derive(Debug, Clone)]
 struct User {
@@ -231,6 +232,18 @@ impl OpenLDAP {
             .insert("LDAP_PASSWORD_HASH".to_owned(), password_hash.to_string());
         self
     }
+
+    /// Sets a custom ldif file (content) which should be used.
+    /// Default: `[]`
+    pub fn with_ldif_file(mut self, source: impl Into<CopyDataSource>) -> Self {
+        let n = self.copy_to_sources.len() + 1;
+
+        let container_ldif_path = format!("/ldifs/custom{n}.ldif");
+
+        self.copy_to_sources
+            .push(CopyToContainer::new(source, container_ldif_path));
+        self
+    }
 }
 
 /// hash to be used in generation of user passwords.
@@ -350,6 +363,7 @@ impl Default for OpenLDAP {
         Self {
             users: vec![],
             env_vars: HashMap::new(),
+            copy_to_sources: vec![],
         }
     }
 }
@@ -395,6 +409,12 @@ impl Image for OpenLDAP {
 
     fn expose_ports(&self) -> &[ContainerPort] {
         &[OPENLDAP_PORT]
+    }
+
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        self.copy_to_sources
+            .iter()
+            .collect::<Vec<&CopyToContainer>>()
     }
 }
 
@@ -523,6 +543,59 @@ mod tests {
         let access = read_access_log(&mut ldap, "(reqType=search)", &["*"]).await?;
         assert_eq!(access.len(), 1, "access log contains 1xread_users");
 
+        ldap.unbind().await?;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn ldap_with_ldif() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let ldif = r#"
+version: 1
+
+# Entry 1: dc=example,dc=org
+dn: dc=example,dc=org
+objectClass: top
+objectClass: domain
+dc: example
+
+# Entry 2: ou=users,dc=frauscher,dc=test
+dn: ou=users,dc=example,dc=org
+objectclass: organizationalUnit
+objectclass: top
+ou: users
+
+# Entry 3: cn=maximiliane,dc=example,dc=org
+dn: cn=maximiliane,ou=users,dc=example,dc=org
+cn: maximiliane
+gidnumber: 501
+givenname: Florian
+homedirectory: /home/users/maximiliane
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: Maximiliane
+uid: maximiliane
+uidnumber: 1001
+userpassword: {SSHA}1vtVpqX6Y77jAVs/1uTd/rHS8YRYEh/9
+"#;
+
+        let _ = pretty_env_logger::try_init();
+        let openldap_image = OpenLDAP::default().with_ldif_file(ldif.to_string().into_bytes());
+
+        let node = openldap_image.start().await?;
+
+        let connection_string = format!(
+            "ldap://{}:{}",
+            node.get_host().await?,
+            node.get_host_port_ipv4(OPENLDAP_PORT).await?,
+        );
+        let (conn, mut ldap) = LdapConnAsync::new(&connection_string).await?;
+        ldap3::drive!(conn);
+        ldap.simple_bind("cn=maximiliane,ou=users,dc=example,dc=org", "pwd1")
+            .await?
+            .success()?;
+        let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
+        assert_eq!(users.len(), 1); // cn=maximiliane
         ldap.unbind().await?;
         Ok(())
     }

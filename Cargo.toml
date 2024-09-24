@@ -111,6 +111,9 @@ clickhouse = "0.11.6"
 vaultrs = "0.7.2"
 openssl-sys = { version = "0.9.103", features = ["vendored"] }
 
+[patch.crates-io]
+testcontainers = { git = "https://github.com/guenhter/testcontainers-rs.git", branch = "release-0.23.0" }
+
 [[example]]
 name = "postgres"
 required-features = ["postgres"]
