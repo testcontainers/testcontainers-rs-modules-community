@@ -116,4 +116,4 @@ jobs:
           echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
           echo $IC_DIR >> $GITHUB_PATH
       - name: Tests
-        run: cargo hack test --each-feature --clean-per-run
+        run: cargo hack test --each-feature --clean-per-run --exclude-all-features

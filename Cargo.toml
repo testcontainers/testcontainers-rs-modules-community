@@ -60,7 +60,7 @@ testcontainers = { version = "0.22.0" }
 
 
 [dev-dependencies]
-async-nats = "0.35.0"
+async-nats = "0.36.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
@@ -78,7 +78,7 @@ oracle = "0.6.0"
 postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
 rdkafka = "0.36.0"
-redis = { version = "0.26.0", features = ["json"] }
+redis = { version = "0.27.2", features = ["json"] }
 reqwest = { version = "0.12.5", features = [
     "blocking",
     "json",
