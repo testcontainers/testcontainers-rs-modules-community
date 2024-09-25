@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, CopyToContainer, Image};
+use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "mysql";
 const TAG: &str = "8.1";
@@ -27,7 +27,7 @@ const TAG: &str = "8.1";
 /// [`MySQL docker image`]: https://hub.docker.com/_/mysql
 #[derive(Debug, Default, Clone)]
 pub struct Mysql {
-    init_sqls: Vec<CopyToContainer>,
+    copy_to_sources: Vec<CopyToContainer>,
 }
 
 impl Image for Mysql {
@@ -55,17 +55,17 @@ impl Image for Mysql {
         ]
     }
     fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
-        &self.init_sqls
+        &self.copy_to_sources
     }
 }
 impl crate::InitSql for Mysql {
-    fn with_init_sql(mut self, init_sql: impl ToString) -> Self {
-        let init_vec = init_sql.to_string().into_bytes();
+    fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
         let target = format!(
             "/docker-entrypoint-initdb.d/init_{i}.sql",
-            i = self.init_sqls.len()
+            i = self.copy_to_sources.len()
         );
-        self.init_sqls.push(CopyToContainer::new(init_vec, target));
+        self.copy_to_sources
+            .push(CopyToContainer::new(init_sql.into(), target));
         self
     }
 }
@@ -84,7 +84,11 @@ mod tests {
     fn mysql_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
         use crate::InitSql;
         let node = crate::mysql::Mysql::default()
-            .with_init_sql("CREATE TABLE foo (bar varchar(255));")
+            .with_init_sql(
+                "CREATE TABLE foo (bar varchar(255));"
+                    .to_string()
+                    .into_bytes(),
+            )
             .start()?;
 
         let connection_string = &format!(
@@ -94,10 +98,10 @@ mod tests {
         );
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
 
-        let rows = conn.query("INSERT INTO foo(bar) VALUES ('blub')").unwrap();
+        let rows: Vec<String> = conn.query("INSERT INTO foo(bar) VALUES ('blub')").unwrap();
         assert_eq!(rows.len(), 0);
 
-        let rows = conn.query("SELECT bar FROM foo").unwrap();
+        let rows: Vec<String> = conn.query("SELECT bar FROM foo").unwrap();
         assert_eq!(rows.len(), 1);
         Ok(())
     }

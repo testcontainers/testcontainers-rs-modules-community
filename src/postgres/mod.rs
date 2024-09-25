@@ -1,9 +1,6 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{
-    core::{Mount, WaitFor},
-    CopyToContainer, Image,
-};
+use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "postgres";
 const TAG: &str = "11-alpine";
@@ -33,7 +30,7 @@ const TAG: &str = "11-alpine";
 #[derive(Debug, Clone)]
 pub struct Postgres {
     env_vars: HashMap<String, String>,
-    init_sqls: Vec<CopyToContainer>,
+    copy_to_sources: Vec<CopyToContainer>,
 }
 
 impl Postgres {
@@ -67,13 +64,13 @@ impl Postgres {
     }
 }
 impl crate::InitSql for Postgres {
-    fn with_init_sql(mut self, init_sql: impl ToString) -> Self {
-        let init_vec = init_sql.to_string().into_bytes();
+    fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
         let target = format!(
             "/docker-entrypoint-initdb.d/init_{i}.sql",
-            i = self.init_sqls.len()
+            i = self.copy_to_sources.len()
         );
-        self.init_sqls.push(CopyToContainer::new(init_vec, target));
+        self.copy_to_sources
+            .push(CopyToContainer::new(init_sql.into(), target));
         self
     }
 }
@@ -87,7 +84,7 @@ impl Default for Postgres {
 
         Self {
             env_vars,
-            init_sqls: Vec::new(),
+            copy_to_sources: Vec::new(),
         }
     }
 }
@@ -114,7 +111,7 @@ impl Image for Postgres {
         &self.env_vars
     }
     fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
-        &self.init_sqls
+        &self.copy_to_sources
     }
 }
 
@@ -170,7 +167,11 @@ mod tests {
     fn postgres_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
         use crate::InitSql;
         let node = Postgres::default()
-            .with_init_sql("CREATE TABLE foo (bar varchar(255));")
+            .with_init_sql(
+                "CREATE TABLE foo (bar varchar(255));"
+                    .to_string()
+                    .into_bytes(),
+            )
             .start()?;
 
         let connection_string = &format!(
