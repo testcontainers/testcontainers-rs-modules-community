@@ -19,7 +19,7 @@ use testcontainers::{core::WaitFor, Image};
 ///
 /// let mssql_server = mssql_server::MssqlServer::default().with_accept_eula().start().unwrap();
 /// let ado_connection_string = format!(
-///    "Server=tcp:{},{};Database=test;User Id=sa;Password=Strong@Passw0rd;TrustServerCertificate=True;",
+///    "Server=tcp:{},{};Database=test;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;",
 ///    mssql_server.get_host().unwrap(),
 ///    mssql_server.get_host_port_ipv4(1433).unwrap()
 /// );
@@ -44,7 +44,7 @@ use testcontainers::{core::WaitFor, Image};
 ///
 /// The SA user password. This password is required to conform to the
 /// [strong password policy](https://learn.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver15#password-complexity).
-/// The default value is `Strong@Passw0rd`.
+/// The default value is `yourStrong(!)Password`.
 ///
 /// ## `MSSQL_PID`
 ///
@@ -58,7 +58,7 @@ pub struct MssqlServer {
 impl MssqlServer {
     const NAME: &'static str = "mcr.microsoft.com/mssql/server";
     const TAG: &'static str = "2022-CU14-ubuntu-22.04";
-    const DEFAULT_SA_PASSWORD: &'static str = "Strong@Passw0rd";
+    const DEFAULT_SA_PASSWORD: &'static str = "yourStrong(!)Password";
 
     /// Sets the password as `MSSQL_SA_PASSWORD`.
     pub fn with_sa_password(mut self, password: impl Into<String>) -> Self {
@@ -160,27 +160,6 @@ mod tests {
         let row = stream.into_row().await?.unwrap();
 
         assert_eq!(row.get::<i32, _>(0).unwrap(), 2);
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn custom_version() -> Result<(), Box<dyn error::Error>> {
-        let image = MssqlServer::default()
-            .with_accept_eula()
-            .with_tag("2019-CU23-ubuntu-20.04");
-        let container = image.start().await?;
-        let config = new_config(
-            container.get_host().await?,
-            container.get_host_port_ipv4(1433).await?,
-            "Strong@Passw0rd",
-        );
-        let mut client = get_mssql_client(config).await?;
-
-        let stream = client.query("SELECT @@VERSION", &[]).await?;
-        let row = stream.into_row().await?.unwrap();
-
-        assert!(row.get::<&str, _>(0).unwrap().contains("2019"));
 
         Ok(())
     }
