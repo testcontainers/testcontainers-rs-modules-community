@@ -4,7 +4,8 @@ const NAME: &str = "amazon/dynamodb-local";
 const TAG: &str = "2.0.0";
 const DEFAULT_WAIT: u64 = 3000;
 
-#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
 #[derive(Default, Debug, Clone)]
 pub struct DynamoDb {
     /// (remove if there is another variable)

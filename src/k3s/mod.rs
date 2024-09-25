@@ -70,14 +70,16 @@ pub struct K3s {
     cmd: K3sCmd,
 }
 
-#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
 pub struct K3sCmd {
     snapshotter: String,
 }
 
 impl K3sCmd {
-    #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    #[allow(missing_docs)]
     pub fn with_snapshotter(self, snapshotter: impl Into<String>) -> Self {
         Self {
             snapshotter: snapshotter.into(),
@@ -132,7 +134,8 @@ impl Image for K3s {
 }
 
 impl K3s {
-    #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    #[allow(missing_docs)]
     pub fn with_conf_mount(mut self, conf_mount_path: impl AsRef<Path>) -> Self {
         self.env_vars
             .insert(String::from("K3S_KUBECONFIG_MODE"), String::from("644"));
@@ -145,7 +148,8 @@ impl K3s {
         }
     }
 
-    #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    #[allow(missing_docs)]
     pub fn read_kube_config(&self) -> io::Result<String> {
         let k3s_conf_file_path = self
             .conf_mount

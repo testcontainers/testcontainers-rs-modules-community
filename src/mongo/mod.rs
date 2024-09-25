@@ -6,7 +6,8 @@ use testcontainers::{
 const NAME: &str = "mongo";
 const TAG: &str = "5.0.6";
 
-#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
 #[derive(Default, Debug, Clone)]
 enum InstanceKind {
     #[default]
@@ -14,21 +15,23 @@ enum InstanceKind {
     ReplSet,
 }
 
-
-#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
 #[derive(Default, Debug, Clone)]
 pub struct Mongo {
     kind: InstanceKind,
 }
 
 impl Mongo {
-    #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    #[allow(missing_docs)]
     pub fn new() -> Self {
         Self {
             kind: InstanceKind::Standalone,
         }
     }
-    #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    #[allow(missing_docs)]
     pub fn repl_set() -> Self {
         Self {
             kind: InstanceKind::ReplSet,

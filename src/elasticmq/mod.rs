@@ -3,7 +3,8 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "softwaremill/elasticmq";
 const TAG: &str = "1.5.2";
 
-#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
 #[derive(Debug, Default, Clone)]
 pub struct ElasticMq {
     /// (remove if there is another variable)
