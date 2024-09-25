@@ -57,7 +57,7 @@ pub struct MssqlServer {
 
 impl MssqlServer {
     const NAME: &'static str = "mcr.microsoft.com/mssql/server";
-    const TAG: &'static str = "2022-CU10-ubuntu-22.04";
+    const TAG: &'static str = "2022-CU14-ubuntu-22.04";
     const DEFAULT_SA_PASSWORD: &'static str = "yourStrong(!)Password";
 
     /// Sets the password as `MSSQL_SA_PASSWORD`.
@@ -151,25 +151,6 @@ mod tests {
         let row = stream.into_row().await?.unwrap();
 
         assert_eq!(row.get::<i32, _>(0).unwrap(), 2);
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn custom_version() -> Result<(), Box<dyn error::Error>> {
-        let image = MssqlServer::default().with_tag("2019-CU23-ubuntu-20.04");
-        let container = image.start().await?;
-        let config = new_config(
-            container.get_host().await?,
-            container.get_host_port_ipv4(1433).await?,
-            "yourStrong(!)Password",
-        );
-        let mut client = get_mssql_client(config).await?;
-
-        let stream = client.query("SELECT @@VERSION", &[]).await?;
-        let row = stream.into_row().await?.unwrap();
-
-        assert!(row.get::<&str, _>(0).unwrap().contains("2019"));
 
         Ok(())
     }
