@@ -29,6 +29,35 @@ const TAG: &str = "8.1";
 pub struct Mysql {
     copy_to_sources: Vec<CopyToContainer>,
 }
+impl Mysql {
+    /// Registers sql to be executed automatically when the container starts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use testcontainers_modules::mysql::Mysql;
+    /// let mysql_image = Mysql::default().with_init_sql(
+    ///     "CREATE TABLE foo (bar varchar(255));"
+    ///         .to_string()
+    ///         .into_bytes(),
+    /// );
+    /// ```
+    ///
+    /// ```rust,ignore
+    /// # use testcontainers_modules::mysql::Mysql;
+    /// let mysql_image = Mysql::default()
+    ///                                .with_init_sql(include_str!("path_to_init.sql").to_string().into_bytes());
+    /// ```
+    pub fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.copy_to_sources.len()
+        );
+        self.copy_to_sources
+            .push(CopyToContainer::new(init_sql.into(), target));
+        self
+    }
+}
 
 impl Image for Mysql {
     fn name(&self) -> &str {
@@ -58,17 +87,6 @@ impl Image for Mysql {
         &self.copy_to_sources
     }
 }
-impl crate::InitSql for Mysql {
-    fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
-        let target = format!(
-            "/docker-entrypoint-initdb.d/init_{i}.sql",
-            i = self.copy_to_sources.len()
-        );
-        self.copy_to_sources
-            .push(CopyToContainer::new(init_sql.into(), target));
-        self
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -82,7 +100,6 @@ mod tests {
 
     #[test]
     fn mysql_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        use crate::InitSql;
         let node = crate::mysql::Mysql::default()
             .with_init_sql(
                 "CREATE TABLE foo (bar varchar(255));"

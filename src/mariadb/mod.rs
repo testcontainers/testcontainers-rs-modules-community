@@ -30,6 +30,36 @@ pub struct Mariadb {
     copy_to_sources: Vec<CopyToContainer>,
 }
 
+impl Mariadb {
+    /// Registers sql to be executed automatically when the container starts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use testcontainers_modules::mariadb::Mariadb;
+    /// let mariadb_image = Mariadb::default().with_init_sql(
+    ///     "CREATE EXTENSION IF NOT EXISTS hstore;"
+    ///         .to_string()
+    ///         .into_bytes(),
+    /// );
+    /// ```
+    ///
+    /// ```rust,ignore
+    /// # use testcontainers_modules::mariadb::Mariadb;
+    /// let mariadb_image = Mariadb::default()
+    ///                                .with_init_sql(include_str!("path_to_init.sql").to_string().into_bytes());
+    /// ```
+    pub fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.copy_to_sources.len()
+        );
+        self.copy_to_sources
+            .push(CopyToContainer::new(init_sql.into(), target));
+        self
+    }
+}
+
 impl Image for Mariadb {
     fn name(&self) -> &str {
         NAME
@@ -58,17 +88,7 @@ impl Image for Mariadb {
         &self.copy_to_sources
     }
 }
-impl crate::InitSql for Mariadb {
-    fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
-        let target = format!(
-            "/docker-entrypoint-initdb.d/init_{i}.sql",
-            i = self.copy_to_sources.len()
-        );
-        self.copy_to_sources
-            .push(CopyToContainer::new(init_sql.into(), target));
-        self
-    }
-}
+
 #[cfg(test)]
 mod tests {
     use mysql::prelude::Queryable;
@@ -81,7 +101,6 @@ mod tests {
 
     #[test]
     fn mariadb_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        use crate::InitSql;
         let node = MariadbImage::default()
             .with_init_sql(
                 "CREATE TABLE foo (bar varchar(255));"

@@ -62,9 +62,26 @@ impl Postgres {
             .insert("POSTGRES_PASSWORD".to_owned(), password.to_owned());
         self
     }
-}
-impl crate::InitSql for Postgres {
-    fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
+
+    /// Registers sql to be executed automatically when the container starts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use testcontainers_modules::postgres::Postgres;
+    /// let postgres_image = Postgres::default().with_init_sql(
+    ///     "CREATE EXTENSION IF NOT EXISTS hstore;"
+    ///         .to_string()
+    ///         .into_bytes(),
+    /// );
+    /// ```
+    ///
+    /// ```rust,ignore
+    /// # use testcontainers_modules::postgres::Postgres;
+    /// let postgres_image = Postgres::default()
+    ///                                .with_init_sql(include_str!("path_to_init.sql").to_string().into_bytes());
+    /// ```
+    pub fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
         let target = format!(
             "/docker-entrypoint-initdb.d/init_{i}.sql",
             i = self.copy_to_sources.len()
@@ -74,7 +91,6 @@ impl crate::InitSql for Postgres {
         self
     }
 }
-
 impl Default for Postgres {
     fn default() -> Self {
         let mut env_vars = HashMap::new();
@@ -165,7 +181,6 @@ mod tests {
 
     #[test]
     fn postgres_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        use crate::InitSql;
         let node = Postgres::default()
             .with_init_sql(
                 "CREATE TABLE foo (bar varchar(255));"
