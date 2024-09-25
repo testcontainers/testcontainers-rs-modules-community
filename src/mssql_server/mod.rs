@@ -118,7 +118,7 @@ impl Image for MssqlServer {
 mod tests {
     use std::error;
 
-    use testcontainers::{runners::AsyncRunner, ImageExt};
+    use testcontainers::runners::AsyncRunner;
     use tiberius::{AuthMethod, Client, Config};
     use tokio::net::TcpStream;
     use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
@@ -131,7 +131,7 @@ mod tests {
         let config = new_config(
             container.get_host().await?,
             container.get_host_port_ipv4(1433).await?,
-            "Strong@Passw0rd",
+            MssqlServer::DEFAULT_SA_PASSWORD,
         );
         let mut client = get_mssql_client(config).await?;
 
@@ -152,7 +152,7 @@ mod tests {
         let config = new_config(
             container.get_host().await?,
             container.get_host_port_ipv4(1433).await?,
-            MssqlServer::DEFAULT_SA_PASSWORD,
+            "yourStrongPassword123!",
         );
         let mut client = get_mssql_client(config).await?;
 
