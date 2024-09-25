@@ -40,6 +40,9 @@ const TAG: &str = "3.9.0";
 /// [Zookeeper documentation]: https://zookeeper.apache.org/documentation.html
 #[derive(Debug, Default, Clone)]
 pub struct Zookeeper {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 
