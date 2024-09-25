@@ -57,7 +57,7 @@ kwok = []
 [dependencies]
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
 parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
-testcontainers = { version = "0.22.0" }
+testcontainers = { version = "0.23.0" }
 
 
 [dev-dependencies]
@@ -92,7 +92,7 @@ serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 surrealdb = { version = "1.2.0" }
 tar = "0.4.40"
-testcontainers = { version = "0.22.0", features = ["blocking"] }
+testcontainers = { version = "0.23.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = [
