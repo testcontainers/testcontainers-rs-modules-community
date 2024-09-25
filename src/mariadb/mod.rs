@@ -38,7 +38,7 @@ impl Mariadb {
     /// ```
     /// # use testcontainers_modules::mariadb::Mariadb;
     /// let mariadb_image = Mariadb::default().with_init_sql(
-    ///     "CREATE EXTENSION IF NOT EXISTS hstore;"
+    ///     "CREATE TABLE foo (bar varchar(255));"
     ///         .to_string()
     ///         .into_bytes(),
     /// );
