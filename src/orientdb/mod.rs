@@ -6,7 +6,7 @@ const NAME: &str = "orientdb";
 const TAG: &str = "3.2.19";
 
 #[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Default, Clone)]
 pub struct OrientDb {
     /// (remove if there is another variable)

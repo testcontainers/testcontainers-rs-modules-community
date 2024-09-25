@@ -14,7 +14,7 @@ pub struct Nats {
 }
 
 #[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Default, Debug, Clone)]
 pub struct NatsServerCmd {
     user: Option<String>,
@@ -22,14 +22,14 @@ pub struct NatsServerCmd {
 }
 
 impl NatsServerCmd {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn with_user(mut self, user: &str) -> Self {
         self.user = Some(user.to_owned());
         self
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn with_password(mut self, password: &str) -> Self {
         self.pass = Some(password.to_owned());

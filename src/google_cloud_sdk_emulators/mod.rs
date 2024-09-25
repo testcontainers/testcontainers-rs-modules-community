@@ -36,7 +36,7 @@ pub const PUBSUB_PORT: u16 = 8085;
 pub const SPANNER_PORT: u16 = 9010;
 
 #[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
 pub struct CloudSdkCmd {
     pub host: String,
@@ -45,7 +45,7 @@ pub struct CloudSdkCmd {
 }
 
 #[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Emulator {
     Bigtable,
@@ -86,7 +86,7 @@ impl IntoIterator for &CloudSdkCmd {
 }
 
 #[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
 pub struct CloudSdk {
     exposed_ports: Vec<ContainerPort>,
@@ -130,7 +130,7 @@ impl CloudSdk {
         }
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn bigtable() -> Self {
         Self::new(
@@ -140,7 +140,7 @@ impl CloudSdk {
         )
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn firestore() -> Self {
         Self::new(
@@ -150,7 +150,7 @@ impl CloudSdk {
         )
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn datastore(project: impl Into<String>) -> Self {
         let project = project.into();
@@ -161,7 +161,7 @@ impl CloudSdk {
         )
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn pubsub() -> Self {
         Self::new(
@@ -171,7 +171,7 @@ impl CloudSdk {
         )
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn spanner() -> Self {
         Self::new(

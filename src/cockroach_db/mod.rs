@@ -28,14 +28,14 @@ pub struct CockroachDb {
 }
 
 impl CockroachDb {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn new(cmd: CockroachDbCmd) -> Self {
         CockroachDb { cmd }
     }
 }
 
-// not having docs here is currently allowed to address the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy)]
 pub enum CockroachDbCmd {
