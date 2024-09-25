@@ -8,6 +8,9 @@ const TAG: &str = "v2.5.0";
 #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
 #[derive(Debug, Default, Clone)]
 pub struct ParityEthereum {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 

@@ -6,7 +6,12 @@ const DEFAULT_WAIT: u64 = 3000;
 
 #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
 #[derive(Default, Debug, Clone)]
-pub struct DynamoDb;
+pub struct DynamoDb {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for DynamoDb {
     fn name(&self) -> &str {
@@ -47,7 +52,7 @@ mod tests {
     #[tokio::test]
     async fn dynamodb_local_create_table() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = DynamoDb.start().await?;
+        let node = DynamoDb::default().start().await?;
         let host = node.get_host().await?;
         let host_port = node.get_host_port_ipv4(8000.tcp()).await?;
 

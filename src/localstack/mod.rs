@@ -26,6 +26,9 @@ const DEFAULT_WAIT: u64 = 3000;
 /// No environment variables are required.
 #[derive(Default, Debug, Clone)]
 pub struct LocalStack {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 

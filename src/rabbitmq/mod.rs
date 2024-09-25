@@ -14,7 +14,7 @@ const TAG: &str = "3.8.22-management";
 /// ```
 /// use testcontainers_modules::{rabbitmq, testcontainers::runners::SyncRunner};
 ///
-/// let rabbitmq_instance = rabbitmq::RabbitMq.start().unwrap();
+/// let rabbitmq_instance = rabbitmq::RabbitMq::default().start().unwrap();
 ///
 /// let amqp_url = format!(
 ///     "amqp://{}:{}",
@@ -30,7 +30,12 @@ const TAG: &str = "3.8.22-management";
 /// [`RabbitMQ Management HTTP API`]: https://www.rabbitmq.com/management.html#http-api
 /// [`RabbitMQ docker image`]: https://hub.docker.com/_/rabbitmq
 #[derive(Debug, Default, Clone)]
-pub struct RabbitMq;
+pub struct RabbitMq {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for RabbitMq {
     fn name(&self) -> &str {
@@ -68,7 +73,7 @@ mod tests {
     async fn rabbitmq_produce_and_consume_messages(
     ) -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let rabbit_node = rabbitmq::RabbitMq.start().await?;
+        let rabbit_node = rabbitmq::RabbitMq::default().start().await?;
 
         let amqp_url = format!(
             "amqp://{}:{}",
