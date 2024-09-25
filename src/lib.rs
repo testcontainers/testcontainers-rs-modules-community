@@ -1,7 +1,6 @@
-#![deny(
-    missing_docs,
-    reason = "lets document our code for other/future developers"
-)]
+// let's document our code for other/future developers
+#![deny(missing_docs)]
+
 #![cfg_attr(docsrs, deny(rustdoc::broken_intra_doc_links))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
