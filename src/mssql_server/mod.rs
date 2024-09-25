@@ -57,7 +57,7 @@ pub struct MssqlServer {
 
 impl MssqlServer {
     const NAME: &'static str = "mcr.microsoft.com/mssql/server";
-    const TAG: &'static str = "2022-CU10-ubuntu-22.04";
+    const TAG: &'static str = "2022-CU14-ubuntu-22.04";
     const DEFAULT_SA_PASSWORD: &'static str = "Strong@Passw0rd";
 
     /// Sets the password as `MSSQL_SA_PASSWORD`.
