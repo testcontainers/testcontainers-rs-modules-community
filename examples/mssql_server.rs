@@ -13,7 +13,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     config.port(container.get_host_port_ipv4(1433).await?);
     config.authentication(tiberius::AuthMethod::sql_server(
         "sa",
-        "yourStrong(!)Password",
+        "Strong@Passw0rd",
     ));
     config.trust_cert();
 
