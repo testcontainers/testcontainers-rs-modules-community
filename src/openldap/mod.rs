@@ -401,7 +401,7 @@ impl Image for OpenLDAP {
 #[cfg(test)]
 mod tests {
     use ldap3::{Ldap, LdapConnAsync, LdapError, Scope, SearchEntry};
-    use testcontainers::{runners::AsyncRunner, ImageExt};
+    use testcontainers::runners::AsyncRunner;
 
     use super::*;
 

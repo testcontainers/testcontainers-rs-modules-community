@@ -42,6 +42,9 @@ pub const FREE_PORT: ContainerPort = ContainerPort::Tcp(1521);
 /// [`gvenzl/oracle-free:23-slim-faststart`]: https://hub.docker.com/r/gvenzl/oracle-free
 #[derive(Debug, Default, Clone)]
 pub struct Oracle {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 

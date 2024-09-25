@@ -23,6 +23,9 @@ pub const ELASTICSEARCH_INTER_NODE_PORT: ContainerPort = ContainerPort::Tcp(9300
 
 #[derive(Debug, Default, Clone)]
 pub struct ElasticSearch {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 
