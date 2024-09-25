@@ -33,7 +33,7 @@ use testcontainers::{core::WaitFor, Image};
 /// Following environment variables are required.
 /// A image provided by this module has default values for them.
 ///
-/// ## `ACCEPT_EULA`
+/// ## EULA Acceptance
 ///
 /// Due to licensing restrictions you are required to explicitly accept an End User License Agreement (EULA) for the MS SQL Server container image.
 /// This is facilitated through the explicit call of `with_accept_eula` function.
