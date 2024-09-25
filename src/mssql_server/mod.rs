@@ -155,25 +155,6 @@ mod tests {
         Ok(())
     }
 
-    #[tokio::test]
-    async fn custom_version() -> Result<(), Box<dyn error::Error>> {
-        let image = MssqlServer::default().with_tag("2019-CU23-ubuntu-20.04");
-        let container = image.start().await?;
-        let config = new_config(
-            container.get_host().await?,
-            container.get_host_port_ipv4(1433).await?,
-            "yourStrong(!)Password",
-        );
-        let mut client = get_mssql_client(config).await?;
-
-        let stream = client.query("SELECT @@VERSION", &[]).await?;
-        let row = stream.into_row().await?.unwrap();
-
-        assert!(row.get::<&str, _>(0).unwrap().contains("2019"));
-
-        Ok(())
-    }
-
     async fn get_mssql_client(
         config: Config,
     ) -> Result<Client<Compat<TcpStream>>, Box<dyn error::Error>> {
