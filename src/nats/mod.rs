@@ -13,6 +13,7 @@ pub struct Nats {
     cmd: NatsServerCmd,
 }
 
+#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
 #[derive(Default, Debug, Clone)]
 pub struct NatsServerCmd {
     user: Option<String>,
@@ -20,11 +21,13 @@ pub struct NatsServerCmd {
 }
 
 impl NatsServerCmd {
+    #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
     pub fn with_user(mut self, user: &str) -> Self {
         self.user = Some(user.to_owned());
         self
     }
 
+    #[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
     pub fn with_password(mut self, password: &str) -> Self {
         self.pass = Some(password.to_owned());
         self

@@ -26,6 +26,7 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "eclipse-mosquitto";
 const TAG: &str = "2.0.18";
 
+#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
 #[derive(Debug, Default, Clone)]
 pub struct Mosquitto {
     _priv: (),

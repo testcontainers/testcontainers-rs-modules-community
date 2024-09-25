@@ -18,6 +18,7 @@ pub const KAFKA_PORT: ContainerPort = ContainerPort::Tcp(9093);
 /// [`Zookeeper`]: https://zookeeper.apache.org/
 pub const ZOOKEEPER_PORT: ContainerPort = ContainerPort::Tcp(2181);
 
+#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
 #[derive(Debug, Clone)]
 pub struct Kafka {
     env_vars: HashMap<String, String>,

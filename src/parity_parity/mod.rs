@@ -5,6 +5,7 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "parity/parity";
 const TAG: &str = "v2.5.0";
 
+#[allow(missing_docs, reason = "not having docs here is currently allowed to adress the missing docs problem one place at a time. If you would like to help us, documenting one of these places helps other devs tremendously")]
 #[derive(Debug, Default, Clone)]
 pub struct ParityEthereum {
     _priv: (),
