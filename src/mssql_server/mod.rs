@@ -58,7 +58,7 @@ pub struct MssqlServer {
 impl MssqlServer {
     const NAME: &'static str = "mcr.microsoft.com/mssql/server";
     const TAG: &'static str = "2022-CU14-ubuntu-22.04";
-    const DEFAULT_SA_PASSWORD: &'static str = "yourStrong(!)Password";
+    pub const DEFAULT_SA_PASSWORD: &'static str = "yourStrong(!)Password";
 
     /// Sets the password as `MSSQL_SA_PASSWORD`.
     pub fn with_sa_password(mut self, password: impl Into<String>) -> Self {
@@ -152,7 +152,7 @@ mod tests {
         let config = new_config(
             container.get_host().await?,
             container.get_host_port_ipv4(1433).await?,
-            "yourStrongPassword123!",
+            MssqlServer::DEFAULT_SA_PASSWORD,
         );
         let mut client = get_mssql_client(config).await?;
 
