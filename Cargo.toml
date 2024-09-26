@@ -1,6 +1,6 @@
 [package]
 name = "testcontainers-modules"
-version = "0.11.0"
+version = "0.11.1"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
