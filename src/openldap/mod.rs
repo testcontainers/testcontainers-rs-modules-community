@@ -3,12 +3,13 @@ use std::{borrow::Cow, collections::HashMap};
 use parse_display::{Display, FromStr};
 use testcontainers::{
     core::{ContainerPort, WaitFor},
-    Image,
+    CopyDataSource, CopyToContainer, Image,
 };
 
 const NAME: &str = "bitnami/openldap";
 const TAG: &str = "2.6.8";
 const OPENLDAP_PORT: ContainerPort = ContainerPort::Tcp(1389);
+const OPENLDAPS_PORT: ContainerPort = ContainerPort::Tcp(1636);
 
 /// Module to work with [`OpenLDAP`] inside of tests.
 ///
@@ -46,6 +47,7 @@ const OPENLDAP_PORT: ContainerPort = ContainerPort::Tcp(1389);
 pub struct OpenLDAP {
     env_vars: HashMap<String, String>,
     users: Vec<User>,
+    copy_to_sources: Vec<CopyToContainer>,
 }
 #[derive(Debug, Clone)]
 struct User {
@@ -231,6 +233,53 @@ impl OpenLDAP {
             .insert("LDAP_PASSWORD_HASH".to_owned(), password_hash.to_string());
         self
     }
+
+    /// Sets a custom ldif file (content) which should be used.
+    /// Default: `[]`
+    pub fn with_ldif_file(mut self, source: impl Into<CopyDataSource>) -> Self {
+        let n = self.copy_to_sources.len() + 1;
+
+        let container_ldif_path = format!("/ldifs/custom{n}.ldif");
+
+        self.copy_to_sources
+            .push(CopyToContainer::new(source, container_ldif_path));
+        self
+    }
+
+    /// Set all necessary certificate artifacts to build up a secure communication.
+    /// Default: `[]`
+    pub fn with_tls(
+        mut self,
+        cert: impl Into<CopyDataSource>,
+        key: impl Into<CopyDataSource>,
+    ) -> Self {
+        self.copy_to_sources
+            .push(CopyToContainer::new(cert, "/certs/cert.crt"));
+        self.copy_to_sources
+            .push(CopyToContainer::new(key, "/certs/key.key"));
+
+        self.env_vars.insert(
+            "LDAP_TLS_CERT_FILE".to_owned(),
+            "/certs/cert.crt".to_owned(),
+        );
+        self.env_vars
+            .insert("LDAP_TLS_KEY_FILE".to_owned(), "/certs/key.key".to_owned());
+
+        self.env_vars
+            .insert("LDAP_ENABLE_TLS".to_owned(), "yes".to_owned());
+
+        self
+    }
+
+    /// Sets the root certificate used for signing the tls certificate.
+    /// Default: `[]`
+    pub fn with_cert_ca(mut self, ca: impl Into<CopyDataSource>) -> Self {
+        self.copy_to_sources
+            .push(CopyToContainer::new(ca, "/certs/ca.crt"));
+        self.env_vars
+            .insert("LDAP_TLS_CA_FILE".to_owned(), "/certs/ca.crt".to_owned());
+        self
+    }
 }
 
 /// hash to be used in generation of user passwords.
@@ -350,6 +399,7 @@ impl Default for OpenLDAP {
         Self {
             users: vec![],
             env_vars: HashMap::new(),
+            copy_to_sources: vec![],
         }
     }
 }
@@ -394,7 +444,13 @@ impl Image for OpenLDAP {
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
-        &[OPENLDAP_PORT]
+        &[OPENLDAP_PORT, OPENLDAPS_PORT]
+    }
+
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        self.copy_to_sources
+            .iter()
+            .collect::<Vec<&CopyToContainer>>()
     }
 }
 
@@ -523,6 +579,169 @@ mod tests {
         let access = read_access_log(&mut ldap, "(reqType=search)", &["*"]).await?;
         assert_eq!(access.len(), 1, "access log contains 1xread_users");
 
+        ldap.unbind().await?;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn ldap_with_ldif() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
+        let ldif = r#"
+version: 1
+
+# Entry 1: dc=example,dc=org
+dn: dc=example,dc=org
+objectClass: top
+objectClass: domain
+dc: example
+
+# Entry 2: ou=users,dc=frauscher,dc=test
+dn: ou=users,dc=example,dc=org
+objectclass: organizationalUnit
+objectclass: top
+ou: users
+
+# Entry 3: cn=maximiliane,dc=example,dc=org
+dn: cn=maximiliane,ou=users,dc=example,dc=org
+cn: maximiliane
+gidnumber: 501
+givenname: Florian
+homedirectory: /home/users/maximiliane
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: Maximiliane
+uid: maximiliane
+uidnumber: 1001
+userpassword: {SSHA}1vtVpqX6Y77jAVs/1uTd/rHS8YRYEh/9
+"#;
+
+        let openldap_image = OpenLDAP::default().with_ldif_file(ldif.to_string().into_bytes());
+
+        let node = openldap_image.start().await?;
+
+        let connection_string = format!(
+            "ldap://{}:{}",
+            node.get_host().await?,
+            node.get_host_port_ipv4(OPENLDAP_PORT).await?,
+        );
+        let (conn, mut ldap) = LdapConnAsync::new(&connection_string).await?;
+        ldap3::drive!(conn);
+        ldap.simple_bind("cn=maximiliane,ou=users,dc=example,dc=org", "pwd1")
+            .await?
+            .success()?;
+        let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
+        assert_eq!(users.len(), 1); // cn=maximiliane
+        ldap.unbind().await?;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn ldap_secure() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
+
+        let root_ca = r#"-----BEGIN CERTIFICATE-----
+MIIDazCCAlOgAwIBAgIUacPFMoNlemFtn974hn0x4c+ssGowDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQVQxDTALBgNVBAoMBFRlc3QxFjAUBgNVBAsMDVRlc3Rj
+b250YWluZXIxDzANBgNVBAMMBnJvb3RDQTAeFw0yNDA5MjUxODI0MDFaFw00NDA5
+MjAxODI0MDFaMEUxCzAJBgNVBAYTAkFUMQ0wCwYDVQQKDARUZXN0MRYwFAYDVQQL
+DA1UZXN0Y29udGFpbmVyMQ8wDQYDVQQDDAZyb290Q0EwggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQC4+4uW9PE5HQGWtn4/P1wPm11z/UevNGveDEUvwcDz
+oEZlfRLTihoVfc7EZGUF8/6TS2rkp1qz2yrDDP4o7a7l0Om22vCshsWlhhqQ1mON
+tiXnOWXqKjon6NZatvYnQVvUwm8BuSi4HR4xNM8N9BF81rhFj3tbam3lylJign/3
+sFsxUg2C3mAaDoolTFslBPPnKHW2EmSw04kgC6XhWGXqpAbWbL5h2rlOE/WoLTkl
+f+EpILsCyEApNbVLXh+B9+IrJvNqX6yuFL7zzJhefOa1L1sAG0bNc9nAwuwyDcDu
+OzxULkv0JGK2Dob6NL74NSB96kPLbZi/FRIHwhBgmUlPAgMBAAGjUzBRMB0GA1Ud
+DgQWBBQ2Bcju3oNHso17GQFoKd5/46OsnjAfBgNVHSMEGDAWgBQ2Bcju3oNHso17
+GQFoKd5/46OsnjAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAP
+za/O0NzyLZjjOoBsDKyJzvgHv/Ls8yBRSmwAbJoXqT1F4F39px5ZVOdmruXeJsG1
+PIaLb2/4oPoSgqLfiPUMAJelTjD/CVpfFthiorCgYPSIIhkjgc6jdhCez67gotFE
+nBITxIRg47yAmCA+0+/YtTnul1deB9r2cuXeHVTPfUVphDsKSGVLJS0TK1iIL/PZ
+k/bSZzdk/i80spmFS3W/fLHPWFUbio1r0CBpbibQNl19x8uHz+J7L1kmW7gofyd9
+w4a3nYIMqapx5KGgGqI3lyc/ePet2JhUabbu7rQx6oEHJaaco3qip2t6pS0WtDcG
+B5tEQNlAfsx/Rfi4JUNi
+-----END CERTIFICATE-----
+"#;
+        let key = r#"-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDB8KR+QtENXXI0
++BWZ/rD2nDfRi7v6dDLpD1yuVLFbBgVMDisf8CoqZP67x9lW5sRz/CXLjY+If1Vi
+xFxcwURzVBWmrMBLbEgDnsyX0GhgCdZTJM3eBTXwCN77bH/xSkZ6Dg1AV/i/ltAI
+TvMlE5Azrd/0IePWEQYtQYUQMlJHcxrDex3sKZ/oM6ohMl1sbkNDV+Ncatl7bIel
+RDyHE1SgExFFL2qWg2CeHJHPliq/0osp1cU99SCtaalxwisnih0GMswIf++1s+r6
+/CGRI+5xXOd1wtPwcjFxdVnSuhbFxniz9fPaPXw0NoVBksRcJNri2RHDZpW7nK+D
+OMcvWtxxAgMBAAECggEANQPOQ4GKWgfwX1Btv0HjKBa+H3b+NNGs1Q7Q/ArEzKgR
+rJ+25C0nqZ0gET7pR5sfmsETp9gTo3GDatNYmDZwusIChSR2EGgSK4MuVFWxIoet
+4d6OtCFihDI4miwnsVLnfxf2QV+K7PyR86N5TepSIf5m2PqmqG7Q7HAbqrjGyybO
+te4IIYUox2OirICfNMdy6ROj3c+oEiXu5eEpxbl01WzSU7rO4fMdfc0O/cocg2rr
+njBXD0utCiUw0M6EaisYzAg5ughP02enmxGzGwBT+lr2AQHG3Mk++PICRxsiBIv0
+T0o6Q3mIR4YMNDt7dZVz8mjL7lx1iuczM5CUbRnhzQKBgQDxTubdOmTidd1WxRJ5
+4t19Ga604YVG8c97hZ7fpNL0fTY/JcxkEN02uhHgA9fmBhE2vRus82x+iLKjcNBY
+ZKzM2PaRsjK2g9UNi829Zii/VjZJX1QwipO0EQt0Rruf+QtWXL47UHKTxpRfLrFN
+zaXrVM15uq/pdhmovj+LQ4NplwKBgQDNv3JQVXBImy9/5h2xPwVlkjXzQdD0PTEs
+emnLRfnctyqAzmtgTsbS1tDhoCwm5TuI6MMbrtnojSQKRr68BDfhvnm4TBHWYrS1
+0BqY+P1XkJH4jmIQsRpS/ZnDlB50+aiAnuMahui0mUT71/upGS277Zqr+u7Gkt2b
+fFeWzu3bNwKBgFiU+FbZ6tLfJaOGsKOhzmDwHpwz9XL3rYzQnmPG49HwbQt9WqyZ
+LDu8zncHsie0rnkDrrcsnPVORRWOgk0QmAaS1uDhI5CwkHNqkNooOGkUwtToc8Vl
++Zaucx/6H0I4cBsB7KtlesoYqbrPLzM6fOAIv20iRRVUz1KMlFMRM5p9AoGBAJJr
+Tv/Kfbi974S2j6Tms4GAFrLBwOE/dvIvP4CwkMs48p9txs5n4WiEBWy73w/jDIY3
+FzppKZwsbVx+0hfdbKNTOS4lvH/0CKRmr7bzYt9g+/CF61Xzo0cyQK4Fh9M5JGg8
+KmRjY9G6TXRoVSkWyQw3YF5JmoloVRrk1zR0mKLrAoGBAKPJmagtBVmTvKdYFhs0
+X6au0mG5xN4HnkdvX1sGgeg+DgJ/dCa4LA3lZagUhDjupR0QgaaYVZhyFe6lDVck
+lOB14QZNoFr+xwiSDg4oM4/TQXualO/4nZxzUynbZNdNuvhQ8mRdeu5jqs363deP
+bCWwJaA6QQpNSitVrzg5XbRQ
+-----END PRIVATE KEY-----
+"#;
+        let cert = r#"-----BEGIN CERTIFICATE-----
+MIIDqzCCApOgAwIBAgIUJArHsm2jdPlyOXWC7TWdFxYD19kwDQYJKoZIhvcNAQEL
+BQAwRTELMAkGA1UEBhMCQVQxDTALBgNVBAoMBFRlc3QxFjAUBgNVBAsMDVRlc3Rj
+b250YWluZXIxDzANBgNVBAMMBnJvb3RDQTAeFw0yNDA5MjUxODI0MDJaFw00NDA5
+MjAxODI0MDJaME8xCzAJBgNVBAYTAkFUMQ0wCwYDVQQKDARUZXN0MRYwFAYDVQQL
+DA1UZXN0Y29udGFpbmVyMRkwFwYDVQQDDBBsZGFwLmV4YW1wbGUub3JnMIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwfCkfkLRDV1yNPgVmf6w9pw30Yu7
++nQy6Q9crlSxWwYFTA4rH/AqKmT+u8fZVubEc/wly42PiH9VYsRcXMFEc1QVpqzA
+S2xIA57Ml9BoYAnWUyTN3gU18Aje+2x/8UpGeg4NQFf4v5bQCE7zJROQM63f9CHj
+1hEGLUGFEDJSR3Maw3sd7Cmf6DOqITJdbG5DQ1fjXGrZe2yHpUQ8hxNUoBMRRS9q
+loNgnhyRz5Yqv9KLKdXFPfUgrWmpccIrJ4odBjLMCH/vtbPq+vwhkSPucVzndcLT
+8HIxcXVZ0roWxcZ4s/Xz2j18NDaFQZLEXCTa4tkRw2aVu5yvgzjHL1rccQIDAQAB
+o4GIMIGFMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAKBggrBgEFBQcDATAeBgNV
+HREEFzAVgglsb2NhbGhvc3SCCG9wZW5sZGFwMB0GA1UdDgQWBBTOko7NFMj7/fd/
+KGvfbYezhjmH8zAfBgNVHSMEGDAWgBQ2Bcju3oNHso17GQFoKd5/46OsnjANBgkq
+hkiG9w0BAQsFAAOCAQEAlud2ST43+Q2Sa+VHS8Tio1M76+AdNj1dmQHYsFN7Vm91
+cAEOFOO8y/oSqTZrIuxenFCIsMeAAVOEZ7BjcpzX50ncHAYDu2szpmTscvujNoSs
+1qvbfRC1aL8bky4XECct7Md1h7TTN/pY0E+6b1wI0gyHkCeuiaOfeq7I+lUogIzL
+SpuBTQvi59BdeLyTXImg8WCSKoLrZljdaEjCZdM51FWFvY2WdW1NE/ahniJpkGv5
+hcDj6qNPn8FHCLxzOs1HUucyncxbS9z6I91WaFWXWu0DH90lMA8gedyXZr6YOnkg
+H32P9zbIKaSiPxFg5JVRW5hpQWUI1dYr3CpKP4i98w==
+-----END CERTIFICATE-----
+"#;
+
+        let openldap_image = OpenLDAP::default()
+            .with_allow_anon_binding(false)
+            .with_user("maximiliane", "pwd1")
+            .with_tls(cert.to_string().into_bytes(), key.to_string().into_bytes())
+            .with_cert_ca(root_ca.to_string().into_bytes());
+        let node = openldap_image.start().await?;
+
+        let connection_string = format!(
+            "ldaps://{}:{}",
+            node.get_host().await?,
+            node.get_host_port_ipv4(OPENLDAPS_PORT).await?,
+        );
+
+        let mut builder = native_tls::TlsConnector::builder();
+        let root_ca = native_tls::Certificate::from_pem(root_ca.as_bytes())?;
+        let connector = builder.add_root_certificate(root_ca).build()?;
+
+        let settings = ldap3::LdapConnSettings::new().set_connector(connector);
+        let (conn, mut ldap) =
+            ldap3::LdapConnAsync::with_settings(settings, &connection_string).await?;
+
+        ldap3::drive!(conn);
+        ldap.simple_bind("cn=maximiliane,ou=users,dc=example,dc=org", "pwd1")
+            .await?
+            .success()?;
+        let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
+        assert_eq!(users.len(), 2); // cn=maximiliane and cn=readers
         ldap.unbind().await?;
         Ok(())
     }
