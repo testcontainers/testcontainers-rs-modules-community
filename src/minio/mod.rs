@@ -8,6 +8,8 @@ const TAG: &str = "RELEASE.2022-02-07T08-17-33Z";
 const DIR: &str = "/data";
 const CONSOLE_ADDRESS: &str = ":9001";
 
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
 pub struct MinIO {
     env_vars: HashMap<String, String>,
@@ -29,10 +31,18 @@ impl Default for MinIO {
     }
 }
 
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
 pub struct MinIOServerCmd {
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub dir: String,
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub certs_dir: Option<String>,
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub json_log: bool,
 }
 

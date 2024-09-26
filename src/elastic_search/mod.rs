@@ -21,6 +21,8 @@ pub const ELASTICSEARCH_API_PORT: ContainerPort = ContainerPort::Tcp(9200);
 /// [`Elasticsearch`]: https://elastic.co/
 pub const ELASTICSEARCH_INTER_NODE_PORT: ContainerPort = ContainerPort::Tcp(9300);
 
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Default, Clone)]
 pub struct ElasticSearch {
     /// (remove if there is another variable)
