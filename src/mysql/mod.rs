@@ -31,6 +31,7 @@ pub struct Mysql {
 }
 impl Mysql {
     /// Registers sql to be executed automatically when the container starts.
+    /// Can be called multiple times to add (not override) scripts.
     ///
     /// # Example
     ///

@@ -32,6 +32,7 @@ pub struct Mariadb {
 
 impl Mariadb {
     /// Registers sql to be executed automatically when the container starts.
+    /// Can be called multiple times to add (not override) scripts.
     ///
     /// # Example
     ///
