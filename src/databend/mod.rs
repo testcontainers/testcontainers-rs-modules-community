@@ -89,7 +89,7 @@ impl Image for Databend {
 
 #[cfg(test)]
 mod tests {
-    use databend_driver::{Client};
+    use databend_driver::Client;
 
     use crate::{databend::Databend as DatabendImage, testcontainers::runners::AsyncRunner};
 
