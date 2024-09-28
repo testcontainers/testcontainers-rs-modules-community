@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "mysql";
 const TAG: &str = "8.1";
@@ -27,7 +27,37 @@ const TAG: &str = "8.1";
 /// [`MySQL docker image`]: https://hub.docker.com/_/mysql
 #[derive(Debug, Default, Clone)]
 pub struct Mysql {
-    _priv: (),
+    copy_to_sources: Vec<CopyToContainer>,
+}
+impl Mysql {
+    /// Registers sql to be executed automatically when the container starts.
+    /// Can be called multiple times to add (not override) scripts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use testcontainers_modules::mysql::Mysql;
+    /// let mysql_image = Mysql::default().with_init_sql(
+    ///     "CREATE TABLE foo (bar varchar(255));"
+    ///         .to_string()
+    ///         .into_bytes(),
+    /// );
+    /// ```
+    ///
+    /// ```rust,ignore
+    /// # use testcontainers_modules::mysql::Mysql;
+    /// let mysql_image = Mysql::default()
+    ///                                .with_init_sql(include_str!("path_to_init.sql").to_string().into_bytes());
+    /// ```
+    pub fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.copy_to_sources.len()
+        );
+        self.copy_to_sources
+            .push(CopyToContainer::new(init_sql.into(), target));
+        self
+    }
 }
 
 impl Image for Mysql {
@@ -54,16 +84,45 @@ impl Image for Mysql {
             ("MYSQL_ALLOW_EMPTY_PASSWORD", "yes"),
         ]
     }
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        &self.copy_to_sources
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use mysql::prelude::Queryable;
+    use testcontainers::core::IntoContainerPort;
 
     use crate::{
         mysql::Mysql as MysqlImage,
         testcontainers::{runners::SyncRunner, ImageExt},
     };
+
+    #[test]
+    fn mysql_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = crate::mysql::Mysql::default()
+            .with_init_sql(
+                "CREATE TABLE foo (bar varchar(255));"
+                    .to_string()
+                    .into_bytes(),
+            )
+            .start()?;
+
+        let connection_string = &format!(
+            "mysql://root@{}:{}/test",
+            node.get_host()?,
+            node.get_host_port_ipv4(3306.tcp())?
+        );
+        let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
+
+        let rows: Vec<String> = conn.query("INSERT INTO foo(bar) VALUES ('blub')").unwrap();
+        assert_eq!(rows.len(), 0);
+
+        let rows: Vec<String> = conn.query("SELECT bar FROM foo").unwrap();
+        assert_eq!(rows.len(), 1);
+        Ok(())
+    }
 
     #[test]
     fn mysql_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {

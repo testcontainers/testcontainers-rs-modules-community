@@ -80,7 +80,7 @@ mod tests {
 
         // testing http endpoint
         // curl http://localhost:8123/ping and check if the response is "Ok."
-        let response = Client::new().get(&format!("{}/ping", url)).send().await?;
+        let response = Client::new().get(format!("{}/ping", url)).send().await?;
         assert_eq!(response.status(), 200);
 
         // create table

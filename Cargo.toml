@@ -1,6 +1,6 @@
 [package]
 name = "testcontainers-modules"
-version = "0.10.0"
+version = "0.11.1"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
@@ -18,6 +18,7 @@ default = []
 blocking = ["testcontainers/blocking"]
 watchdog = ["testcontainers/watchdog"]
 http_wait = ["testcontainers/http_wait"]
+properties-config = ["testcontainers/properties-config"]
 clickhouse = ["http_wait"]
 cncf_distribution = []
 consul = []
@@ -57,11 +58,11 @@ kwok = []
 [dependencies]
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
 parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
-testcontainers = { version = "0.22.0" }
+testcontainers = { version = "0.23.0" }
 
 
 [dev-dependencies]
-async-nats = "0.35.0"
+async-nats = "0.36.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
@@ -80,7 +81,7 @@ oracle = "0.6.0"
 postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
 rdkafka = "0.36.0"
-redis = { version = "0.26.0", features = ["json"] }
+redis = { version = "0.27.2", features = ["json"] }
 reqwest = { version = "0.12.5", features = [
     "blocking",
     "json",
@@ -93,7 +94,7 @@ serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 surrealdb = { version = "1.2.0" }
 tar = "0.4.40"
-testcontainers = { version = "0.22.0", features = ["blocking"] }
+testcontainers = { version = "0.23.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = [
@@ -110,6 +111,8 @@ kube = { version = "0.90.0", default-features = false, features = [
 k8s-openapi = { version = "0.21.1", features = ["v1_29"] }
 clickhouse = "0.11.6"
 vaultrs = "0.7.2"
+openssl-sys = { version = "0.9.103", features = ["vendored"] }
+native-tls = { version = "0.2.12", features = ["vendored"] }
 
 [[example]]
 name = "postgres"

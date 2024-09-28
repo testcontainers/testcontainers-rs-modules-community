@@ -15,7 +15,7 @@ const TAG: &str = "7.2.0-v8";
 /// use serde_json::json;
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, redis::{RedisStack, REDIS_PORT}};
 ///
-/// let redis_instance = RedisStack.start().unwrap();
+/// let redis_instance = RedisStack::default().start().unwrap();
 /// let host_ip = redis_instance.get_host().unwrap();
 /// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT).unwrap();
 ///
@@ -32,7 +32,12 @@ const TAG: &str = "7.2.0-v8";
 /// [`Redis reference guide`]: https://redis.io/docs/interact/
 /// [`REDIS_PORT`]: super::REDIS_PORT
 #[derive(Debug, Default, Clone)]
-pub struct RedisStack;
+pub struct RedisStack {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for RedisStack {
     fn name(&self) -> &str {
@@ -61,7 +66,7 @@ mod tests {
     #[test]
     fn redis_fetch_an_integer_in_json() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = RedisStack.start()?;
+        let node = RedisStack::default().start()?;
         let host_ip = node.get_host()?;
         let host_port = node.get_host_port_ipv4(REDIS_PORT)?;
         let url = format!("redis://{host_ip}:{host_port}");

@@ -3,8 +3,15 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "softwaremill/elasticmq";
 const TAG: &str = "1.5.2";
 
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Default, Clone)]
-pub struct ElasticMq;
+pub struct ElasticMq {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for ElasticMq {
     fn name(&self) -> &str {
@@ -31,7 +38,7 @@ mod tests {
 
     #[tokio::test]
     async fn sqs_list_queues() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let node = ElasticMq.start().await?;
+        let node = ElasticMq::default().start().await?;
         let host_ip = node.get_host().await?;
         let host_port = node.get_host_port_ipv4(9324).await?;
         let client = build_sqs_client(host_ip, host_port).await;

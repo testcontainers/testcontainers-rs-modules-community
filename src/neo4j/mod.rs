@@ -59,7 +59,7 @@ pub enum Neo4jLabsPlugin {
     /// You can also use it to validate your graph against constraints expressed in [SHACL](https://www.w3.org/TR/shacl/) or to run basic inferencing.
     /// Please see [their documentation](https://neo4j.com/labs/neosemantics/) for furhter details
     NeoSemantics,
-    // Allows specifying other plugins
+    /// Allows specifying other plugins
     Custom(String),
 }
 

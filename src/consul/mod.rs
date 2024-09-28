@@ -28,6 +28,8 @@ pub struct Consul {
 }
 
 impl Consul {
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+    #[allow(missing_docs)]
     pub fn with_local_config(self, config: String) -> Self {
         let mut env_vars = self.env_vars;
         env_vars.insert(CONSUL_LOCAL_CONFIG.to_owned(), config);

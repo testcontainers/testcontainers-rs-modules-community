@@ -6,29 +6,32 @@ use testcontainers::{
 const NAME: &str = "mongo";
 const TAG: &str = "5.0.6";
 
-#[derive(Debug, Clone)]
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+#[derive(Default, Debug, Clone)]
 enum InstanceKind {
+    #[default]
     Standalone,
     ReplSet,
 }
 
-impl Default for InstanceKind {
-    fn default() -> Self {
-        Self::Standalone
-    }
-}
-
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Default, Debug, Clone)]
 pub struct Mongo {
     kind: InstanceKind,
 }
 
 impl Mongo {
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+    #[allow(missing_docs)]
     pub fn new() -> Self {
         Self {
             kind: InstanceKind::Standalone,
         }
     }
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+    #[allow(missing_docs)]
     pub fn repl_set() -> Self {
         Self {
             kind: InstanceKind::ReplSet,

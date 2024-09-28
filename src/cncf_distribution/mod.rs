@@ -11,7 +11,9 @@ const TAG: &str = "2";
 /// ```
 /// use testcontainers_modules::{cncf_distribution, testcontainers::runners::SyncRunner};
 ///
-/// let registry = cncf_distribution::CncfDistribution.start().unwrap();
+/// let registry = cncf_distribution::CncfDistribution::default()
+///     .start()
+///     .unwrap();
 ///
 /// let image_name = "test";
 /// let image_tag = format!(
@@ -25,7 +27,12 @@ const TAG: &str = "2";
 ///
 /// [`CNCF Distribution`]: https://distribution.github.io/distribution/
 #[derive(Debug, Default, Clone)]
-pub struct CncfDistribution;
+pub struct CncfDistribution {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for CncfDistribution {
     fn name(&self) -> &str {
@@ -56,7 +63,9 @@ mod tests {
     #[tokio::test]
     async fn distribution_push_pull_image() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let distribution_node = cncf_distribution::CncfDistribution.start().await?;
+        let distribution_node = cncf_distribution::CncfDistribution::default()
+            .start()
+            .await?;
         let docker = bollard::Docker::connect_with_local_defaults().unwrap();
         let image_tag = format!(
             "localhost:{}/test:latest",
