@@ -95,7 +95,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_databend() {
-        let databend = DatabendImage::default().start().await.unwrap();;
+        let databend = DatabendImage::default().start().await.unwrap();
         let http_port = databend.get_host_port_ipv4(8000).await.unwrap();
         // "databend://user:password@localhost:8000/default?sslmode=disable
         let dsn = format!(
