@@ -89,14 +89,13 @@ impl Image for Databend {
 
 #[cfg(test)]
 mod tests {
-    use databend_driver::{Client, Connection};
-    use testcontainers::ImageExt;
+    use databend_driver::{Client};
 
     use crate::{databend::Databend as DatabendImage, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
     async fn test_databend() {
-        let databend = DatabendImage::default().start().unwrap();
+        let databend = DatabendImage::default().start()?;
         let http_port = databend.get_host_port_ipv4(8000).unwrap();
         // "databend://user:password@localhost:8000/default?sslmode=disable
         let dsn = format!(
