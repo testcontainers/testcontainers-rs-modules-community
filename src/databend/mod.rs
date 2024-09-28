@@ -1,4 +1,5 @@
 use std::{borrow::Cow, collections::BTreeMap};
+
 use testcontainers::{
     core::{wait::HttpWaitStrategy, ContainerPort, WaitFor},
     Image,
@@ -88,9 +89,10 @@ impl Image for Databend {
 
 #[cfg(test)]
 mod tests {
-    use crate::{databend::Databend as DatabendImage, testcontainers::runners::AsyncRunner};
     use databend_driver::{Client, Connection};
     use testcontainers::ImageExt;
+
+    use crate::{databend::Databend as DatabendImage, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
     async fn test_databend() {
