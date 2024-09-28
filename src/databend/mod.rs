@@ -29,7 +29,7 @@ pub const DATABEND_PORT: ContainerPort = ContainerPort::Tcp(8000);
 ///
 /// [`Databend`]: https://databend.rs/
 /// [`Databend docker image`]: https://hub.docker.com/r/datafuselabs/databend
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct Databend {
     env_vars: BTreeMap<String, String>,
 }
