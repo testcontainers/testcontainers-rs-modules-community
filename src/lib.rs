@@ -24,6 +24,10 @@ pub mod cockroach_db;
 #[cfg_attr(docsrs, doc(cfg(feature = "consul")))]
 /// **Consul** (identity-based networking) testcontainer
 pub mod consul;
+#[cfg(feature = "databend")]
+#[cfg_attr(docsrs, doc(cfg(feature = "databend")))]
+/// **Databend** (analytics database) testcontainer
+pub mod databend;
 #[cfg(feature = "dynamodb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "dynamodb")))]
 /// **DynamoDB** (NoSQL database) testcontainer
