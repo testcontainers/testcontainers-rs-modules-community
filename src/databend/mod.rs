@@ -1,5 +1,4 @@
 use std::{borrow::Cow, collections::BTreeMap};
-
 use testcontainers::{
     core::{wait::HttpWaitStrategy, ContainerPort, WaitFor},
     Image,
@@ -13,7 +12,6 @@ const DEFAULT_IMAGE_TAG: &str = "v1.2.615";
 ///
 /// [`Databend`]: https://databend.rs/
 pub const DATABEND_PORT: ContainerPort = ContainerPort::Tcp(8000);
-
 
 /// Module to work with [`Databend`] inside of tests.
 ///
@@ -34,6 +32,32 @@ pub const DATABEND_PORT: ContainerPort = ContainerPort::Tcp(8000);
 #[derive(Debug, Default, Clone)]
 pub struct Databend {
     env_vars: BTreeMap<String, String>,
+}
+
+impl Databend {
+    /// Sets the user for the Databend instance.
+    pub fn with_query_user(mut self, user: &str) -> Self {
+        self.env_vars
+            .insert("QUERY_DEFAULT_USER".to_owned(), user.to_owned());
+        self
+    }
+
+    /// Sets the password for the Databend instance.
+    pub fn with_query_password(mut self, password: &str) -> Self {
+        self.env_vars
+            .insert("QUERY_DEFAULT_PASSWORD".to_owned(), password.to_owned());
+        self
+    }
+}
+
+impl Default for Databend {
+    fn default() -> Self {
+        let mut env_vars = BTreeMap::new();
+        env_vars.insert("QUERY_DEFAULT_USER".to_owned(), "databend".to_owned());
+        env_vars.insert("QUERY_DEFAULT_PASSWORD".to_owned(), "databend".to_owned());
+
+        Self { env_vars }
+    }
 }
 
 impl Image for Databend {
@@ -64,20 +88,19 @@ impl Image for Databend {
 
 #[cfg(test)]
 mod tests {
+    use crate::{databend::Databend as DatabendImage, testcontainers::runners::AsyncRunner};
     use databend_driver::{Client, Connection};
     use testcontainers::ImageExt;
-    use crate::{databend::Databend as DatabendImage, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
     async fn test_databend() {
-        let databend = DatabendImage::default()
-            .with_env_var("QUERY_DEFAULT_USER","databend")
-            .with_env_var("QUERY_DEFAULT_PASSWORD","databend")
-            .start()
-            .unwrap();
+        let databend = DatabendImage::default().start().unwrap();
         let http_port = databend.get_host_port_ipv4(8000).unwrap();
         // "databend://user:password@localhost:8000/default?sslmode=disable
-        let dsn = format!("databend://databend:databend@localhost:{}/default?sslmode=disable", http_port);
+        let dsn = format!(
+            "databend://databend:databend@localhost:{}/default?sslmode=disable",
+            http_port
+        );
         let client = Client::new(dsn.to_string());
         let conn = client.get_conn().await.unwrap();
         let row = conn.query_row("select 'hello'").await.unwrap();
