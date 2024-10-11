@@ -62,7 +62,7 @@ testcontainers = { version = "0.23.0" }
 
 
 [dev-dependencies]
-async-nats = "0.36.0"
+async-nats = "0.37.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
