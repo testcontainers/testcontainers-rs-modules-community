@@ -54,6 +54,7 @@ victoria_metrics = []
 zookeeper = []
 cockroach_db = []
 kwok = []
+pulsar = []
 
 [dependencies]
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
@@ -113,6 +114,7 @@ clickhouse = "0.11.6"
 vaultrs = "0.7.2"
 openssl-sys = { version = "0.9.103", features = ["vendored"] }
 native-tls = { version = "0.2.12", features = ["vendored"] }
+pulsar = "6.3"
 
 [[example]]
 name = "postgres"
