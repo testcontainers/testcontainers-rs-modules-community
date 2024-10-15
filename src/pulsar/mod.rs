@@ -60,7 +60,10 @@ impl Pulsar {
     }
 
     /// Runs admin command after container start
-    pub fn with_admin_command(mut self, command: impl IntoIterator<Item = impl Into<String>>) -> Self {
+    pub fn with_admin_command(
+        mut self,
+        command: impl IntoIterator<Item = impl Into<String>>,
+    ) -> Self {
         let mut vec: Vec<String> = command.into_iter().map(Into::into).collect();
         vec.insert(0, "bin/pulsar-admin".to_string());
         self.admin_commands.push(vec);
