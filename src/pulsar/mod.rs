@@ -12,6 +12,7 @@ const PULSAR_PORT: ContainerPort = ContainerPort::Tcp(6650);
 const ADMIN_PORT: ContainerPort = ContainerPort::Tcp(8080);
 
 /// Module to work with [`Apache Pulsar`] inside of tests.
+/// **Requires protoc to be installed, otherwise will not build.**
 ///
 /// This module is based on the official [`Apache Pulsar docker image`].
 ///
