@@ -37,7 +37,7 @@ pub struct Pulsar {
 
 impl Default for Pulsar {
     /**
-     * Creates new standalone pulsar container, with `/pulsar/data` as temporary volume
+     * Creates new standalone pulsar container, with `/pulsar/data` as a temporary volume
      */
     fn default() -> Self {
         Self {
