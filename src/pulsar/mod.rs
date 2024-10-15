@@ -49,8 +49,11 @@ impl Default for Pulsar {
 }
 
 impl Pulsar {
-    /// Add configuration parameter to Pulsar `conf/standalone.conf`
-    pub fn with_config(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+    /// Add configuration parameter to Pulsar `conf/standalone.conf` through setting environment variable.
+    ///
+    /// Container will rewrite `conf/standalone.conf` file using these variables during startup
+    /// with help of `bin/apply-config-from-env.py` script
+    pub fn with_config_env(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
         self.env
             .insert(format!("PULSAR_PREFIX_{}", name.into()), value.into());
         self
@@ -212,7 +215,7 @@ mod tests {
         let pulsar = Pulsar::default()
             .with_tenant("test")
             .with_namespace("test/test-ns")
-            .with_config("allowAutoTopicCreation", "false")
+            .with_config_env("allowAutoTopicCreation", "false")
             .start()
             .await
             .unwrap();
