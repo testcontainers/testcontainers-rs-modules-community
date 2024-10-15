@@ -37,8 +37,7 @@ pub struct Pulsar {
 
 impl Default for Pulsar {
     /**
-     * Starts an in-memory instance in dev mode, with horrible token values.
-     * Obviously not to be emulated in production.
+     * Creates new standalone pulsar container, with `/pulsar/data` as temporary volume
      */
     fn default() -> Self {
         Self {
