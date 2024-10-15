@@ -28,18 +28,33 @@ pub struct CockroachDb {
 }
 
 impl CockroachDb {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Create a new instance of a CockroachDb image.
     pub fn new(cmd: CockroachDbCmd) -> Self {
         CockroachDb { cmd }
     }
 }
 
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-#[allow(missing_docs)]
+/// Specifies the command how CockroachDb should be started
 #[derive(Debug, Clone, Copy)]
 pub enum CockroachDbCmd {
-    StartSingleNode { insecure: bool },
+    /// Start a single CockroachDB node
+    StartSingleNode {
+        /// `insecure` being set indicates that the container is intended for ***non-production
+        /// testing only***. To run CockroachDB in production, use a secure cluster instead.
+        ///
+        /// Start a node with all security controls disabled.
+        /// There is no encryption, no authentication and internal security checks are also disabled.
+        /// This makes any client able to take over the entire cluster.
+        /// This flag is only intended for non-production testing.
+        ///
+        /// Beware that using this flag on a public network while exposing the port is likely to
+        /// cause the entire host container to become compromised.
+        ///
+        /// To simply accept non-TLS connections for SQL clients while keeping the cluster secure,
+        /// consider using `--accept-sql-without-tls` instead.
+        /// Also see: <https://go.crdb.dev/issue-v/53404/v24.2>
+        insecure: bool,
+    },
 }
 
 impl Default for CockroachDbCmd {
