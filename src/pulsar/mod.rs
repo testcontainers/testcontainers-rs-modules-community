@@ -49,30 +49,35 @@ impl Default for Pulsar {
 }
 
 impl Pulsar {
-    fn with_config(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+    /// Add configuration parameter to Pulsar `conf/standalone.conf`
+    pub fn with_config(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
         self.env
             .insert(format!("PULSAR_PREFIX_{}", name.into()), value.into());
         self
     }
 
-    fn with_admin_command(mut self, command: impl IntoIterator<Item = impl Into<String>>) -> Self {
+    /// Runs admin command after container start
+    pub fn with_admin_command(mut self, command: impl IntoIterator<Item = impl Into<String>>) -> Self {
         let mut vec: Vec<String> = command.into_iter().map(Into::into).collect();
         vec.insert(0, "bin/pulsar-admin".to_string());
         self.admin_commands.push(vec);
         self
     }
 
-    fn with_tenant(self, tenant: impl Into<String>) -> Self {
+    /// Creates tenant after container start
+    pub fn with_tenant(self, tenant: impl Into<String>) -> Self {
         let tenant = tenant.into();
         self.with_admin_command(["tenants", "create", &tenant])
     }
 
-    fn with_namespace(self, namespace: impl Into<String>) -> Self {
+    /// Creates namespace after container start
+    pub fn with_namespace(self, namespace: impl Into<String>) -> Self {
         let namespace = namespace.into();
         self.with_admin_command(["namespaces", "create", &namespace])
     }
 
-    fn with_topic(self, topic: impl Into<String>) -> Self {
+    /// Creates topic after container start
+    pub fn with_topic(self, topic: impl Into<String>) -> Self {
         let topic = topic.into();
         self.with_admin_command(["topics", "create", &topic])
     }
