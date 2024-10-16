@@ -120,6 +120,10 @@ pub mod parity_parity;
 #[cfg_attr(docsrs, doc(cfg(feature = "postgres")))]
 /// **Postgres** (relational database) testcontainer
 pub mod postgres;
+#[cfg(feature = "pulsar")]
+#[cfg_attr(docsrs, doc(cfg(feature = "pulsar")))]
+/// **Apache Pulsar** (Cloud-Native, Distributed Messaging and Streaming) testcontainer
+pub mod pulsar;
 #[cfg(feature = "rabbitmq")]
 #[cfg_attr(docsrs, doc(cfg(feature = "rabbitmq")))]
 /// **rabbitmq** (message broker) testcontainer
