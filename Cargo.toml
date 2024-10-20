@@ -26,6 +26,7 @@ dynamodb = []
 databend = ["http_wait"]
 elastic_search = []
 elasticmq = []
+gitea = ["http_wait", "dep:rcgen"]
 google_cloud_sdk_emulators = []
 hashicorp_vault = []
 k3s = []
@@ -58,7 +59,12 @@ pulsar = []
 
 [dependencies]
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
-parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
+parse-display = { version = "0.9.1", optional = true, default-features = false, features = [
+] }
+rcgen = { version = "0.13.1", features = [
+    "pem",
+    "ring",
+], default-features = false, optional = true }
 testcontainers = { version = "0.23.0" }
 
 
