@@ -20,6 +20,7 @@ watchdog = ["testcontainers/watchdog"]
 http_wait = ["testcontainers/http_wait"]
 properties-config = ["testcontainers/properties-config"]
 clickhouse = ["http_wait"]
+cratedb = []
 cncf_distribution = []
 consul = []
 dynamodb = []
@@ -60,6 +61,7 @@ pulsar = []
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
 parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
 testcontainers = { version = "0.23.0" }
+log = "0.4.22"
 
 
 [dev-dependencies]
