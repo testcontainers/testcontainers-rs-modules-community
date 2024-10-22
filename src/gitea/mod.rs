@@ -1,6 +1,7 @@
+use std::result::Result;
+
 /// Self-hosted git server with https/http/ssh access, uses [Gitea](https://docs.gitea.com/).
 use rcgen::{BasicConstraints, CertificateParams, IsCa, KeyPair};
-use std::result::Result;
 use testcontainers::{
     core::{
         wait::HttpWaitStrategy, CmdWaitFor, ContainerPort, ContainerState, ExecCommand, WaitFor,
@@ -675,10 +676,11 @@ impl GiteaTlsCert {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use reqwest::Certificate;
     use serde_json::Value;
     use testcontainers::{runners::AsyncRunner, ContainerAsync};
+
+    use super::*;
 
     const TEST_PUBLIC_KEY: &str =
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJRE5a67/cTbR6DpWqzBl6BTY0LE0Hg715ZI/FMK7iCH";
