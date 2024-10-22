@@ -1,6 +1,6 @@
+/// Self-hosted git server with https/http/ssh access, uses [Gitea](https://docs.gitea.com/).
 use std::result::Result;
 
-/// Self-hosted git server with https/http/ssh access, uses [Gitea](https://docs.gitea.com/).
 use rcgen::{BasicConstraints, CertificateParams, IsCa, KeyPair};
 use testcontainers::{
     core::{
