@@ -94,7 +94,7 @@ pub mod mssql_server;
 pub mod mysql;
 #[cfg(feature = "nats")]
 #[cfg_attr(docsrs, doc(cfg(feature = "nats")))]
-/// **Nats** (message orineted middleware) testcontainer
+/// **Nats** (message oriented middleware) testcontainer
 pub mod nats;
 #[cfg(feature = "neo4j")]
 #[cfg_attr(docsrs, doc(cfg(feature = "neo4j")))]
