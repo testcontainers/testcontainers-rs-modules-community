@@ -44,6 +44,10 @@ pub mod elastic_search;
 #[cfg_attr(docsrs, doc(cfg(feature = "elasticmq")))]
 /// **ElasticMQ** (message queue) testcontainer
 pub mod elasticmq;
+#[cfg(feature = "gitea")]
+#[cfg_attr(docsrs, doc(cfg(feature = "gitea")))]
+/// **Gitea** (self-hosted Git service) testcontainer
+pub mod gitea;
 #[cfg(feature = "google_cloud_sdk_emulators")]
 #[cfg_attr(docsrs, doc(cfg(feature = "google_cloud_sdk_emulators")))]
 /// **googles cloud sdk emulator** testcontainer
