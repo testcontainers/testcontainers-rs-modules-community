@@ -1,6 +1,6 @@
 [package]
 name = "testcontainers-modules"
-version = "0.11.3"
+version = "0.11.4"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
@@ -26,6 +26,7 @@ dynamodb = []
 databend = ["http_wait"]
 elastic_search = []
 elasticmq = []
+gitea = ["http_wait", "dep:rcgen"]
 google_cloud_sdk_emulators = []
 hashicorp_vault = []
 k3s = []
@@ -59,6 +60,7 @@ pulsar = []
 [dependencies]
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
 parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
+rcgen = { version = "0.13.1", features = ["pem", "ring"], default-features = false, optional = true }
 testcontainers = { version = "0.23.0" }
 
 
@@ -70,7 +72,7 @@ aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
 bollard = "0.17.0"
-databend-driver = "0.21.0"
+databend-driver = "0.22.2"
 futures = "0.3"
 lapin = "2.3.1"
 ldap3 = "0.11.5"
@@ -98,17 +100,11 @@ tar = "0.4.40"
 testcontainers = { version = "0.23.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
-tiberius = { version = "0.12.2", default-features = false, features = [
-    "tds73",
-    "rustls",
-] }
+tiberius = { version = "0.12.2", default-features = false, features = ["tds73", "rustls"] }
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 zookeeper-client = { version = "0.8.0" }
-kube = { version = "0.90.0", default-features = false, features = [
-    "client",
-    "rustls-tls",
-] }
+kube = { version = "0.90.0", default-features = false, features = ["client", "rustls-tls"] }
 k8s-openapi = { version = "0.21.1", features = ["v1_29"] }
 clickhouse = "0.11.6"
 vaultrs = "0.7.2"
