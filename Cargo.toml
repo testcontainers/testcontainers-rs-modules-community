@@ -95,7 +95,7 @@ retry = "2.0.0"
 rustls = { version = "0.23.2", features = ["ring"] }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
-surrealdb = { version = "1.2.0" }
+surrealdb = { version = "2.1.0" }
 tar = "0.4.40"
 testcontainers = { version = "0.23.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
