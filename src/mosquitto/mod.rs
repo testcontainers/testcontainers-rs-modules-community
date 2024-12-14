@@ -22,7 +22,6 @@ use testcontainers::{core::WaitFor, Image};
 ///
 /// [`Mosquitto`]: https://mosquitto.org/
 /// [`Mosquitto docker image`]: https://hub.docker.com/_/eclipse-mosquitto
-
 const NAME: &str = "eclipse-mosquitto";
 const TAG: &str = "2.0.18";
 
