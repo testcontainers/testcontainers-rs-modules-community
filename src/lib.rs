@@ -24,6 +24,10 @@ pub mod cockroach_db;
 #[cfg_attr(docsrs, doc(cfg(feature = "consul")))]
 /// **Consul** (identity-based networking) testcontainer
 pub mod consul;
+#[cfg(feature = "cratedb")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cratedb")))]
+/// **CrateDB** (distributed real-time analytics database) testcontainer
+pub mod cratedb;
 #[cfg(feature = "databend")]
 #[cfg_attr(docsrs, doc(cfg(feature = "databend")))]
 /// **Databend** (analytics database) testcontainer

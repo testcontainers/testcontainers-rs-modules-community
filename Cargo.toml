@@ -20,6 +20,7 @@ watchdog = ["testcontainers/watchdog"]
 http_wait = ["testcontainers/http_wait"]
 properties-config = ["testcontainers/properties-config"]
 clickhouse = ["http_wait"]
+cratedb = []
 cncf_distribution = []
 consul = []
 dynamodb = []
@@ -62,6 +63,7 @@ pulsar = []
 parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
 rcgen = { version = "0.13.1", features = ["pem", "ring"], default-features = false, optional = true }
 testcontainers = { version = "0.23.0" }
+log = "0.4.22"
 
 
 [dev-dependencies]
