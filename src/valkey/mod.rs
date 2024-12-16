@@ -62,7 +62,7 @@ impl Image for Valkey {
 
 #[cfg(test)]
 mod tests {
-    use crate::{valkey::Valkey, testcontainers::runners::SyncRunner};
+    use crate::{testcontainers::runners::SyncRunner, valkey::Valkey};
     use redis::Commands;
 
     #[test]

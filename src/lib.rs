@@ -148,14 +148,14 @@ pub mod surrealdb;
 #[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
 /// **Trufflesuite Ganache CLI** (etherium simulator) testcontainer
 pub mod trufflesuite_ganachecli;
-#[cfg(feature = "victoria_metrics")]
-#[cfg_attr(docsrs, doc(cfg(feature = "victoria_metrics")))]
-/// **VictoriaMetrics** (monitoring and time series metrics database) testcontainer
-pub mod victoria_metrics;
 #[cfg(feature = "valkey")]
 #[cfg_attr(docsrs, doc(cfg(feature = "valkey")))]
 /// **Valkey** (in memory nosql database) testcontainer
 pub mod valkey;
+#[cfg(feature = "victoria_metrics")]
+#[cfg_attr(docsrs, doc(cfg(feature = "victoria_metrics")))]
+/// **VictoriaMetrics** (monitoring and time series metrics database) testcontainer
+pub mod victoria_metrics;
 #[cfg(feature = "zookeeper")]
 #[cfg_attr(docsrs, doc(cfg(feature = "zookeeper")))]
 /// **Apache ZooKeeper** (locking and configuratin management) testcontainer
