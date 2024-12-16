@@ -21,12 +21,12 @@ const TAG: &str = "9.5.0-slim";
 ///
 /// let solr_instance = solr::Solr::default().start().unwrap();
 /// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT).unwrap();
-
+///
 /// let solr_url = format!("http://127.0.0.1:{}", host_port);
 ///
 /// // use HTTP client to interact with the solr API
 /// ```
-/// 
+///
 /// [`Solr`]: https://solr.apache.org/
 /// [`Solr docker image`]: https://hub.docker.com/_/solr
 /// [`Solr reference guide`]: https://solr.apache.org/guide/solr/latest/
