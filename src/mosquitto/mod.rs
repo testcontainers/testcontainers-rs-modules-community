@@ -2,6 +2,9 @@ use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
+const NAME: &str = "eclipse-mosquitto";
+const TAG: &str = "2.0.18";
+
 /// Module to work with [`Mosquitto`] inside of tests.
 ///
 /// Starts a MQTT broker without authentication.
@@ -22,12 +25,6 @@ use testcontainers::{core::WaitFor, Image};
 ///
 /// [`Mosquitto`]: https://mosquitto.org/
 /// [`Mosquitto docker image`]: https://hub.docker.com/_/eclipse-mosquitto
-
-const NAME: &str = "eclipse-mosquitto";
-const TAG: &str = "2.0.18";
-
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Default, Clone)]
 pub struct Mosquitto {
     /// (remove if there is another variable)
