@@ -1,4 +1,8 @@
+pub use pro::LocalStackPro;
 use testcontainers::{core::WaitFor, Image};
+
+/// LocalStack Pro
+pub mod pro;
 
 const NAME: &str = "localstack/localstack";
 const TAG: &str = "3.8";
