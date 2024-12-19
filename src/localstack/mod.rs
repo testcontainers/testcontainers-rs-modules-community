@@ -5,7 +5,7 @@ use testcontainers::{core::WaitFor, Image};
 pub mod pro;
 
 const NAME: &str = "localstack/localstack";
-const TAG: &str = "3.8";
+const TAG: &str = "3.0";
 const DEFAULT_WAIT: u64 = 3000;
 
 /// This module provides [LocalStack](https://www.localstack.cloud/) (Community Edition).
