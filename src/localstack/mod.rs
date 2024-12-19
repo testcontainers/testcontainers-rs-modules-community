@@ -5,12 +5,12 @@ use testcontainers::{core::WaitFor, Image};
 pub mod pro;
 
 const NAME: &str = "localstack/localstack";
-const TAG: &str = "3.8";
+const TAG: &str = "3.0";
 const DEFAULT_WAIT: u64 = 3000;
 
 /// This module provides [LocalStack](https://www.localstack.cloud/) (Community Edition).
 ///
-/// Currently pinned to [version `3.8`](https://hub.docker.com/layers/localstack/localstack/3.8/images/sha256-fc9a03f14f4668f5d874eadb77e5da5461ce735e2ce86b77b0056606c0677dba?context=explore)
+/// Currently pinned to [version `3.0`](https://hub.docker.com/layers/localstack/localstack/3.0/images/sha256-73698e485240939490134aadd7e429ac87ff068cd5ad09f5de8ccb76727c13e1?context=explore)
 ///
 /// # Configuration
 ///
