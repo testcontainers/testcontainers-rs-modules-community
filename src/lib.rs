@@ -66,7 +66,7 @@ pub mod kafka;
 pub mod kwok;
 #[cfg(feature = "localstack")]
 #[cfg_attr(docsrs, doc(cfg(feature = "localstack")))]
-/// **Apache Kafka** (data streaming) testcontainer
+/// **LocalStack** (local AWS emulation) testcontainer
 pub mod localstack;
 #[cfg(feature = "mariadb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mariadb")))]
