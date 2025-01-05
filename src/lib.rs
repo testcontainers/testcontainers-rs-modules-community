@@ -136,6 +136,10 @@ pub mod rabbitmq;
 #[cfg_attr(docsrs, doc(cfg(feature = "redis")))]
 /// **redis** (in memory nosql database) testcontainer
 pub mod redis;
+#[cfg(feature = "rqlite")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rqlite")))]
+/// **RQLite** (lightweight, user-friendly, distributed relational database) testcontainer
+pub mod rqlite;
 #[cfg(feature = "solr")]
 #[cfg_attr(docsrs, doc(cfg(feature = "solr")))]
 /// **Apache Solr** (distributed search engine) testcontainer
