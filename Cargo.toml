@@ -57,11 +57,16 @@ zookeeper = []
 cockroach_db = []
 kwok = []
 pulsar = []
+rqlite = ["http_wait"]
 
 [dependencies]
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
-parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
-rcgen = { version = "0.13.1", features = ["pem", "ring"], default-features = false, optional = true }
+parse-display = { version = "0.9.1", optional = true, default-features = false, features = [
+] }
+rcgen = { version = "0.13.1", features = [
+    "pem",
+    "ring",
+], default-features = false, optional = true }
 testcontainers = { version = "0.23.0" }
 
 
@@ -101,17 +106,24 @@ tar = "0.4.40"
 testcontainers = { version = "0.23.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
-tiberius = { version = "0.12.2", default-features = false, features = ["tds73", "rustls"] }
+tiberius = { version = "0.12.2", default-features = false, features = [
+    "tds73",
+    "rustls",
+] }
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 zookeeper-client = { version = "0.8.0" }
-kube = { version = "0.90.0", default-features = false, features = ["client", "rustls-tls"] }
+kube = { version = "0.90.0", default-features = false, features = [
+    "client",
+    "rustls-tls",
+] }
 k8s-openapi = { version = "0.21.1", features = ["v1_29"] }
 clickhouse = "0.11.6"
 vaultrs = "0.7.2"
 openssl-sys = { version = "0.9.103", features = ["vendored"] }
 native-tls = { version = "0.2.12", features = ["vendored"] }
 pulsar = "6.3"
+rqlite-rs = "0.5.0"
 
 [[example]]
 name = "postgres"
@@ -144,3 +156,7 @@ required-features = ["openldap"]
 [[example]]
 name = "nats"
 required-features = ["nats"]
+
+[[example]]
+name = "rqlite"
+required-features = ["rqlite"]
