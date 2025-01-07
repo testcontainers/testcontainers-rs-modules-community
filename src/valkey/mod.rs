@@ -1,5 +1,7 @@
-use testcontainers::core::{ContainerPort, WaitFor};
-use testcontainers::Image;
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "valkey/valkey";
 const TAG: &str = "8.0.1-alpine";
@@ -19,8 +21,8 @@ pub const VALKEY_PORT: ContainerPort = ContainerPort::Tcp(6379);
 /// ```
 /// use redis::Commands;
 /// use testcontainers_modules::{
-///     valkey::{Valkey, VALKEY_PORT},
 ///     testcontainers::runners::SyncRunner,
+///     valkey::{Valkey, VALKEY_PORT},
 /// };
 ///
 /// let valkey_instance = Valkey::default().start().unwrap();
@@ -62,8 +64,9 @@ impl Image for Valkey {
 
 #[cfg(test)]
 mod tests {
-    use crate::{testcontainers::runners::SyncRunner, valkey::Valkey};
     use redis::Commands;
+
+    use crate::{testcontainers::runners::SyncRunner, valkey::Valkey};
 
     #[test]
     fn valkey_fetch_an_integer() -> Result<(), Box<dyn std::error::Error + 'static>> {
