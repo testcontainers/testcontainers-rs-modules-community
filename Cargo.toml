@@ -139,3 +139,7 @@ required-features = ["mongo"]
 [[example]]
 name = "openldap"
 required-features = ["openldap"]
+
+[[example]]
+name = "nats"
+required-features = ["nats"]
