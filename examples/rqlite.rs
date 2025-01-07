@@ -1,6 +1,5 @@
 use testcontainers::runners::AsyncRunner;
-
-use crate::rqlite::RQLite;
+use testcontainers_modules::rqlite::RQLite;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
