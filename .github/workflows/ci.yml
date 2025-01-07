@@ -88,15 +88,12 @@ jobs:
         toolchain:
           - stable
           - nightly
+        partition:
+          - 1/4
+          - 2/4
+          - 3/4
+          - 4/4
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
       - name: Checkout sources
         uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
@@ -109,7 +106,7 @@ jobs:
           tool: cargo-hack
       - name: Install Protoc # for pulsar tests
         uses: arduino/setup-protoc@v3
-      - name: Install the latest Oracle instant client
+      - name: Install the latest Oracle instant client # for oracle tess
         run: |
           sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1
           curl -Lo basic.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip
@@ -119,4 +116,4 @@ jobs:
           echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
           echo $IC_DIR >> $GITHUB_PATH
       - name: Tests
-        run: cargo hack test --each-feature --clean-per-run --exclude-all-features
+        run: cargo hack test --each-feature --exclude-all-features --partition ${{ matrix.partition }}
