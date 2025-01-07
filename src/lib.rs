@@ -66,7 +66,7 @@ pub mod kafka;
 pub mod kwok;
 #[cfg(feature = "localstack")]
 #[cfg_attr(docsrs, doc(cfg(feature = "localstack")))]
-/// **Apache Kafka** (data streaming) testcontainer
+/// **LocalStack** (local AWS emulation) testcontainer
 pub mod localstack;
 #[cfg(feature = "mariadb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mariadb")))]
@@ -98,7 +98,7 @@ pub mod mssql_server;
 pub mod mysql;
 #[cfg(feature = "nats")]
 #[cfg_attr(docsrs, doc(cfg(feature = "nats")))]
-/// **Nats** (message orineted middleware) testcontainer
+/// **Nats** (message oriented middleware) testcontainer
 pub mod nats;
 #[cfg(feature = "neo4j")]
 #[cfg_attr(docsrs, doc(cfg(feature = "neo4j")))]

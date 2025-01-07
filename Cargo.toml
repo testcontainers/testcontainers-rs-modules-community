@@ -4,7 +4,7 @@ version = "0.11.4"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.81"
 repository = "https://github.com/testcontainers/testcontainers-rs-modules-community"
 keywords = ["docker", "testcontainers"]
 license = "MIT"
@@ -140,3 +140,7 @@ required-features = ["mongo"]
 [[example]]
 name = "openldap"
 required-features = ["openldap"]
+
+[[example]]
+name = "nats"
+required-features = ["nats"]
