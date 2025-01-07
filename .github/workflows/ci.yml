@@ -88,6 +88,11 @@ jobs:
         toolchain:
           - stable
           - nightly
+        partition:
+          - 1/4
+          - 2/4
+          - 3/4
+          - 4/4
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -118,4 +123,4 @@ jobs:
           echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
           echo $IC_DIR >> $GITHUB_PATH
       - name: Tests
-        run: cargo hack test --each-feature --clean-per-run --exclude-all-features
+        run: cargo hack test --each-feature --exclude-all-features --partition ${{ partition }}
