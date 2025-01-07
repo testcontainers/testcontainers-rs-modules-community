@@ -153,5 +153,9 @@ name = "openldap"
 required-features = ["openldap"]
 
 [[example]]
+name = "nats"
+required-features = ["nats"]
+
+[[example]]
 name = "rqlite"
 required-features = ["rqlite"]
