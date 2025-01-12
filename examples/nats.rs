@@ -1,11 +1,17 @@
 use async_nats::connect;
 use futures::StreamExt;
-use testcontainers_modules::{nats::Nats, testcontainers::runners::AsyncRunner};
+use testcontainers_modules::{
+    nats::{Nats, NatsServerCmd},
+    testcontainers::{runners::AsyncRunner, ImageExt},
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
+    // optional: customize command, here we enable jetstream
+    let nats_cmd = NatsServerCmd::default().with_jetstream();
+
     // startup the module
-    let node = Nats::default().start().await?;
+    let node = Nats::default().with_cmd(&nats_cmd).start().await?;
 
     // default docker username/password
     let default_username = "ruser";
