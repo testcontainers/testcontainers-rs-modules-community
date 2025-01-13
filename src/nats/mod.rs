@@ -38,8 +38,17 @@ impl NatsServerCmd {
         self
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Enable JetStream in the Nats server to use the built-in persistence
+    /// features of NATS.
+    ///
+    /// See: https://docs.nats.io/nats-concepts/jetstream
+    ///
+    /// Example:
+    /// ```rust,ignore
+    /// # use testcontainers_modules::nats::{Nats, NatsServerCmd};
+    /// let nats_cmd = NatsServerCmd::default().with_jetstream();
+    /// let node = Nats::default().with_cmd(&nats_cmd).start().await?;
+    /// ```
     pub fn with_jetstream(mut self) -> Self {
         self.jetstream = Some(true);
         self
