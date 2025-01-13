@@ -123,7 +123,7 @@ vaultrs = "0.7.2"
 openssl-sys = { version = "0.9.103", features = ["vendored"] }
 native-tls = { version = "0.2.12", features = ["vendored"] }
 pulsar = "6.3"
-rqlite-rs = "0.5.0"
+rqlite-rs = "0.6.0"
 
 [[example]]
 name = "postgres"
