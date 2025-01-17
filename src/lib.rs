@@ -8,6 +8,10 @@
 #![doc = include_str!("../README.md")]
 //! Please have a look at the documentation of the separate modules for examples on how to use the module.
 
+#[cfg(feature = "anvil")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anvil")))]
+/// **Anvil** (local blockchain emulator for EVM-compatible development) testcontainer
+pub mod anvil;
 #[cfg(feature = "clickhouse")]
 #[cfg_attr(docsrs, doc(cfg(feature = "clickhouse")))]
 /// **Clickhouse** (analytics database) testcontainer
@@ -150,7 +154,7 @@ pub mod solr;
 pub mod surrealdb;
 #[cfg(feature = "trufflesuite_ganachecli")]
 #[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
-/// **Trufflesuite Ganache CLI** (etherium simulator) testcontainer
+/// **Trufflesuite Ganache CLI** (ethereum simulator) testcontainer
 pub mod trufflesuite_ganachecli;
 #[cfg(feature = "valkey")]
 #[cfg_attr(docsrs, doc(cfg(feature = "valkey")))]
