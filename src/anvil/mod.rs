@@ -7,7 +7,7 @@ use testcontainers::{
 
 const NAME: &str = "ghcr.io/foundry-rs/foundry";
 /// Users can override the tag in their code with [`ImageExt::with_tag`](https://docs.rs/testcontainers/0.23.1/testcontainers/core/trait.ImageExt.html#tymethod.with_tag).
-const TAG: &str = "stable@sha256:daeeaaf4383ee0cbfc9f31f079a04ffb0123e49e5f67f2a20b5ce1ac1959a4d6";
+const TAG: &str = "latest@sha256:d44ade9e940d6a4ac420e6d07da3bcecccbeeaf7d662ed0a3791c7c9713c93bc";
 const PORT: ContainerPort = ContainerPort::Tcp(8545);
 
 /// # Community Testcontainers Implementation for [Foundry Anvil](https://book.getfoundry.sh/anvil/)
