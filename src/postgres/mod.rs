@@ -127,8 +127,13 @@ impl Image for Postgres {
     ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
         &self.env_vars
     }
+
     fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
         &self.copy_to_sources
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<std::borrow::Cow<'_, str>>> {
+        vec!["-c", "fsync=off"]
     }
 }
 
