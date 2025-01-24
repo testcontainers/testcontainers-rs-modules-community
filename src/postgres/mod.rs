@@ -31,6 +31,7 @@ const TAG: &str = "11-alpine";
 pub struct Postgres {
     env_vars: HashMap<String, String>,
     copy_to_sources: Vec<CopyToContainer>,
+    fsync_enabled: bool,
 }
 
 impl Postgres {
@@ -91,6 +92,12 @@ impl Postgres {
             .push(CopyToContainer::new(init_sql.into(), target));
         self
     }
+
+    /// Enables fsync for the Postgres instance.
+    pub fn with_fsync_enabled(mut self) -> Self {
+        self.fsync_enabled = true;
+        self
+    }
 }
 impl Default for Postgres {
     fn default() -> Self {
@@ -102,6 +109,7 @@ impl Default for Postgres {
         Self {
             env_vars,
             copy_to_sources: Vec::new(),
+            fsync_enabled: false,
         }
     }
 }
@@ -133,7 +141,11 @@ impl Image for Postgres {
     }
 
     fn cmd(&self) -> impl IntoIterator<Item = impl Into<std::borrow::Cow<'_, str>>> {
-        vec!["-c", "fsync=off"]
+        if !self.fsync_enabled {
+            vec!["-c", "fsync=off"]
+        } else {
+            vec![]
+        }
     }
 }
 
