@@ -6,7 +6,6 @@ use testcontainers::{
 };
 
 const NAME: &str = "ghcr.io/foundry-rs/foundry";
-/// Users can override the tag in their code with [`ImageExt::with_tag`](https://docs.rs/testcontainers/0.23.1/testcontainers/core/trait.ImageExt.html#tymethod.with_tag).
 const TAG: &str = "stable@sha256:daeeaaf4383ee0cbfc9f31f079a04ffb0123e49e5f67f2a20b5ce1ac1959a4d6";
 const PORT: ContainerPort = ContainerPort::Tcp(8545);
 
@@ -18,14 +17,35 @@ const PORT: ContainerPort = ContainerPort::Tcp(8545);
 ///
 /// The endpoint of the container is intended to be injected into your provider configuration, so that you can easily run tests against a local Anvil instance.
 /// See the `test_anvil_node_container` test for an example of how to use this.
+///
+/// To use the latest Foundry image, you can use the `latest()` method:
+///
+/// ```rust
+/// let node = AnvilNode::latest().start().await?;
+/// ```
+///
+/// Users can use a specific Foundry image in their code with [`ImageExt::with_tag`](https://docs.rs/testcontainers/0.23.1/testcontainers/core/trait.ImageExt.html#tymethod.with_tag).
+///
+/// ```rust
+/// let node = AnvilNode::with_tag("master").start().await?;
+/// ```
 #[derive(Debug, Clone, Default)]
 pub struct AnvilNode {
     chain_id: Option<u64>,
     fork_url: Option<String>,
     fork_block_number: Option<u64>,
+    tag: Option<String>,
 }
 
 impl AnvilNode {
+    /// Create a new AnvilNode with the latest Foundry image
+    pub fn latest() -> Self {
+        Self {
+            tag: Some("latest".to_string()),
+            ..Default::default()
+        }
+    }
+
     /// Specify the chain ID - this will be Ethereum Mainnet by default
     pub fn with_chain_id(mut self, chain_id: u64) -> Self {
         self.chain_id = Some(chain_id);
@@ -86,7 +106,7 @@ impl Image for AnvilNode {
     }
 
     fn tag(&self) -> &str {
-        TAG
+        self.tag.as_deref().unwrap_or(TAG)
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
