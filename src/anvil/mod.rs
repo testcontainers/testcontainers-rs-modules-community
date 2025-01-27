@@ -31,7 +31,7 @@ const PORT: ContainerPort = ContainerPort::Tcp(8545);
 /// ```rust
 /// use testcontainers_modules::{
 ///     anvil::AnvilNode, 
-///     testcontainers::{ImageExt, runners::AsyncRunner},
+///     testcontainers::{runners::AsyncRunner, ImageExt},
 /// };
 ///
 /// let node = AnvilNode::with_tag("master").start().await?;
