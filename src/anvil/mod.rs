@@ -30,7 +30,7 @@ const PORT: ContainerPort = ContainerPort::Tcp(8545);
 ///
 /// ```rust
 /// use testcontainers_modules::{
-///     anvil::AnvilNode, 
+///     anvil::AnvilNode,
 ///     testcontainers::{runners::AsyncRunner, ImageExt},
 /// };
 ///
