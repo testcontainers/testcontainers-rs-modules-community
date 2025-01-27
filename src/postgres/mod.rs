@@ -93,7 +93,7 @@ impl Postgres {
         self
     }
 
-    /// Enables fsync for the Postgres instance.
+    /// Enables [the fsync-setting](https://www.postgresql.org/docs/current/runtime-config-wal.html#GUC-FSYNC) for the Postgres instance.
     pub fn with_fsync_enabled(mut self) -> Self {
         self.fsync_enabled = true;
         self
