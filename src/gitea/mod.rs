@@ -754,6 +754,7 @@ mod tests {
         let ca = gitea.image().tls_ca().unwrap();
         let ca = Certificate::from_pem(ca.as_bytes()).unwrap();
         let client = reqwest::ClientBuilder::new()
+            .use_rustls_tls()
             .add_root_certificate(ca)
             .build()
             .unwrap();
