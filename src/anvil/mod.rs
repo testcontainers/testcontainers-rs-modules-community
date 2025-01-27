@@ -21,14 +21,19 @@ const PORT: ContainerPort = ContainerPort::Tcp(8545);
 /// To use the latest Foundry image, you can use the `latest()` method:
 ///
 /// ```rust
-/// use testcontainers_modules::anvil::AnvilNode;
+/// use testcontainers_modules::{anvil::AnvilNode, testcontainers::runners::AsyncRunner};
+///
 /// let node = AnvilNode::latest().start().await?;
 /// ```
 ///
 /// Users can use a specific Foundry image in their code with [`ImageExt::with_tag`](https://docs.rs/testcontainers/0.23.1/testcontainers/core/trait.ImageExt.html#tymethod.with_tag).
 ///
 /// ```rust
-/// use testcontainers_modules::{anvil::AnvilNode, testcontainers::ImageExt};
+/// use testcontainers_modules::{
+///     anvil::AnvilNode, 
+///     testcontainers::{ImageExt, runners::AsyncRunner}
+/// };
+///
 /// let node = AnvilNode::with_tag("master").start().await?;
 /// ```
 #[derive(Debug, Clone, Default)]
