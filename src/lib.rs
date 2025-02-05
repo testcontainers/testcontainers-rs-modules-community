@@ -32,6 +32,11 @@ pub mod consul;
 #[cfg_attr(docsrs, doc(cfg(feature = "databend")))]
 /// **Databend** (analytics database) testcontainer
 pub mod databend;
+#[cfg(feature = "dex")]
+#[cfg_attr(docsrs, doc(cfg(feature = "dex")))]
+/// **Dex** (OIDC provider) testcontainer
+pub mod dex;
+
 #[cfg(feature = "dynamodb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "dynamodb")))]
 /// **DynamoDB** (NoSQL database) testcontainer
