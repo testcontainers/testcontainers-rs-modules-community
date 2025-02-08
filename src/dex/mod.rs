@@ -132,7 +132,7 @@ impl Dex {
         };
 
         let config = serde_json::to_string(&config)
-            .expect("Pafing should only fail if structs were defined incorrectly.");
+            .expect("Parsing should only fail if structs were defined incorrectly.");
 
         ExecCommand::new(vec![
             "/bin/sh",

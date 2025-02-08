@@ -19,11 +19,12 @@ blocking = ["testcontainers/blocking"]
 watchdog = ["testcontainers/watchdog"]
 http_wait = ["testcontainers/http_wait"]
 properties-config = ["testcontainers/properties-config"]
+json = ["serde", "serde_json"]
 anvil = []
 clickhouse = ["http_wait"]
 cncf_distribution = []
 consul = []
-dex = ["http_wait"]
+dex = ["http_wait", "json"]
 dynamodb = []
 databend = ["http_wait"]
 elastic_search = []
@@ -69,6 +70,8 @@ rcgen = { version = "0.13.1", features = [
     "pem",
     "ring",
 ], default-features = false, optional = true }
+serde = { version = "1.0.217", features = ["derive"], optional = true }
+serde_json = { version = "1.0.138", optional = true }
 testcontainers = { version = "0.23.2" }
 
 
@@ -104,8 +107,8 @@ reqwest = { version = "0.12.5", features = [
 ], default-features = false }
 retry = "2.0.0"
 rustls = { version = "0.23.2", features = ["ring"] }
-serde = { version = "1.0.188", features = ["derive"] }
-serde_json = "1.0.107"
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = { version = "1.0.138" }
 surrealdb = { version = "1.2.0" }
 tar = "0.4.40"
 testcontainers = { version = "0.23.2", features = ["blocking"] }
