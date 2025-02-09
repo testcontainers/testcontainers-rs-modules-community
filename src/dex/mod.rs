@@ -118,7 +118,7 @@ impl Dex {
 impl Dex {
     fn generate_config(&self, host: &str, host_port: u16) -> ExecCommand {
         let config = config::Config {
-            issuer: String::from(format!("http://{}:{}", host, host_port)),
+            issuer: format!("http://{}:{}", host, host_port),
             enable_password_db: true,
             storage: config::Storage::sqlite(),
             web: config::Web::http(),
