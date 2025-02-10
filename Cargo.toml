@@ -19,10 +19,12 @@ blocking = ["testcontainers/blocking"]
 watchdog = ["testcontainers/watchdog"]
 http_wait = ["testcontainers/http_wait"]
 properties-config = ["testcontainers/properties-config"]
+json = ["serde", "serde_json"]
 anvil = []
 clickhouse = ["http_wait"]
 cncf_distribution = []
 consul = []
+dex = ["http_wait", "json"]
 dynamodb = []
 databend = ["http_wait"]
 elastic_search = []
@@ -68,7 +70,9 @@ rcgen = { version = "0.13.1", features = [
     "pem",
     "ring",
 ], default-features = false, optional = true }
-testcontainers = { version = "0.23.0" }
+serde = { version = "1.0.217", features = ["derive"], optional = true }
+serde_json = { version = "1.0.138", optional = true }
+testcontainers = { version = "0.23.2" }
 
 
 [dev-dependencies]
@@ -81,7 +85,7 @@ aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
-bollard = "0.17.0"
+bollard = "0.18.1"
 databend-driver = "0.22.2"
 futures = "0.3"
 lapin = "2.3.1"
@@ -103,11 +107,11 @@ reqwest = { version = "0.12.5", features = [
 ], default-features = false }
 retry = "2.0.0"
 rustls = { version = "0.23.2", features = ["ring"] }
-serde = { version = "1.0.188", features = ["derive"] }
-serde_json = "1.0.107"
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = { version = "1.0.138" }
 surrealdb = { version = "1.2.0" }
 tar = "0.4.40"
-testcontainers = { version = "0.23.0", features = ["blocking"] }
+testcontainers = { version = "0.23.2", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.2", default-features = false, features = [
