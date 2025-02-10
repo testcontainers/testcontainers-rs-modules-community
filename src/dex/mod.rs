@@ -160,8 +160,8 @@ impl Image for Dex {
     }
 
     fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
-        // Stolen from the Java implementation:
-        // https://github.com/Kehrlann/testcontainers-dex/tree/main/testcontainers-dex/src/main/java/wf/garnier/testcontainers/dexidp/DexContainer.java#L116
+        // Borrowed from the Java implementation:
+        // https://github.com/Kehrlann/testcontainers-dex/blob/00e58fb25c38fe26279e3c8d5fe1fbf9b23f04c0/testcontainers-dex/src/main/java/wf/garnier/testcontainers/dexidp/DexContainer.java#L85-L94
         let command = format!(
             r#"while [[ ! -f {CONFIG_FILE} ]]; do sleep 1; echo "Waiting for configuration file..."; done;
             dex serve {CONFIG_FILE}"#,
