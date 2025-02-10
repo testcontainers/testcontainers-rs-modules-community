@@ -37,6 +37,7 @@ pub struct Config {
     pub enable_password_db: bool,
     #[serde(rename = "staticPasswords")]
     pub static_passwords: Vec<User>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub oauth2: Option<OAuth2>,
 }
 
@@ -75,6 +76,7 @@ pub struct PrivateClient {
     /// Display name of the client
     pub name: String,
     /// Allowed redirect
+    #[serde(rename = "redirectURIs")]
     pub redirect_uris: Vec<String>,
     /// Cleartext secret that the client application authenticates against Dex with.
     pub secret: String,
