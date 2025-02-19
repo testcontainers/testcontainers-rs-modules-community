@@ -1,9 +1,9 @@
-use std::borrow::Cow;
-use std::collections::HashMap;
-use std::time::Duration;
-use testcontainers::core::wait::HttpWaitStrategy;
-use testcontainers::core::ContainerPort;
-use testcontainers::{core::WaitFor, Image};
+use std::{borrow::Cow, collections::HashMap, time::Duration};
+
+use testcontainers::{
+    core::{wait::HttpWaitStrategy, ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "semitechnologies/weaviate";
 
@@ -64,10 +64,12 @@ impl Image for Weaviate {
 
 #[cfg(test)]
 mod tests {
+    use std::error::Error;
+
+    use reqwest::blocking::Client;
+
     use super::*;
     use crate::testcontainers::runners::SyncRunner;
-    use reqwest::blocking::Client;
-    use std::error::Error;
 
     #[test]
     fn test_connect_simple() -> Result<(), Box<dyn Error>> {
