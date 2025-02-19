@@ -161,6 +161,12 @@ pub mod surrealdb;
 #[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
 /// **Trufflesuite Ganache CLI** (ethereum simulator) testcontainer
 pub mod trufflesuite_ganachecli;
+
+#[cfg(feature = "weaviate")]
+#[cfg_attr(docsrs, doc(cfg(feature = "weaviate")))]
+/// **Weaviate** (Vector database) testcontainer
+pub mod weaviate;
+
 #[cfg(feature = "valkey")]
 #[cfg_attr(docsrs, doc(cfg(feature = "valkey")))]
 /// **Valkey** (in memory nosql database) testcontainer

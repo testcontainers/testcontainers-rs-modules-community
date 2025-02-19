@@ -61,6 +61,7 @@ cockroach_db = []
 kwok = []
 pulsar = []
 rqlite = ["http_wait"]
+weaviate = ["http_wait"]
 
 [dependencies]
 # TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
