@@ -21,6 +21,7 @@ const PORTS: [ContainerPort; 2] = [ContainerPort::Tcp(HTTP_PORT), ContainerPort:
 #[derive(Default)]
 pub struct Weaviate {
     env_vars: HashMap<String, String>,
+    tag: Option<String>,
 }
 
 impl Weaviate {
@@ -32,6 +33,11 @@ impl Weaviate {
         self.env_vars.insert(key.into(), value.into());
         self
     }
+
+    /// Set the image tag to be used.
+    pub fn with_tag(mut self, tag: &str) {
+        self.tag = Some(tag.to_string())
+    }
 }
 
 impl Image for Weaviate {
@@ -40,7 +46,7 @@ impl Image for Weaviate {
     }
 
     fn tag(&self) -> &str {
-        TAG
+        self.tag.as_deref().unwrap_or(TAG)
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
