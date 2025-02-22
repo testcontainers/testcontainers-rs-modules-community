@@ -20,24 +20,7 @@ const PORTS: [ContainerPort; 2] = [ContainerPort::Tcp(HTTP_PORT), ContainerPort:
 /// [Docker image](https://hub.docker.com/r/semitechnologies/weaviate)
 #[derive(Default)]
 pub struct Weaviate {
-    env_vars: HashMap<String, String>,
-    tag: Option<String>,
-}
-
-impl Weaviate {
-    /// Configure an environment variable.
-    ///
-    /// See https://weaviate.io/developers/weaviate/config-refs/env-vars for
-    /// a complete overview.
-    pub fn with_env_var(mut self, key: &str, value: &str) -> Self {
-        self.env_vars.insert(key.into(), value.into());
-        self
-    }
-
-    /// Set the image tag to be used.
-    pub fn with_tag(mut self, tag: &str) {
-        self.tag = Some(tag.to_string())
-    }
+    _priv: (),
 }
 
 impl Image for Weaviate {
@@ -46,7 +29,7 @@ impl Image for Weaviate {
     }
 
     fn tag(&self) -> &str {
-        self.tag.as_deref().unwrap_or(TAG)
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -55,12 +38,6 @@ impl Image for Weaviate {
                 .with_poll_interval(Duration::from_millis(100))
                 .with_response_matcher(|resp| resp.status().is_success()),
         )]
-    }
-
-    fn env_vars(
-        &self,
-    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
-        &self.env_vars
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
