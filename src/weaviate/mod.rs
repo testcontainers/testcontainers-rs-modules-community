@@ -51,7 +51,7 @@ impl Image for Weaviate {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::http(
-            HttpWaitStrategy::new("/")
+            HttpWaitStrategy::new("/v1/.well-known/ready")
                 .with_poll_interval(Duration::from_millis(100))
                 .with_response_matcher(|resp| resp.status().is_success()),
         )]
