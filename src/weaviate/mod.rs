@@ -1,4 +1,4 @@
-use std::{borrow::Cow, collections::HashMap, time::Duration};
+use std::time::Duration;
 
 use testcontainers::{
     core::{wait::HttpWaitStrategy, ContainerPort, WaitFor},
