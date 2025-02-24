@@ -80,7 +80,7 @@ testcontainers = { version = "0.23.2" }
 alloy-network = "0.9.2"
 alloy-provider = "0.9.2"
 alloy-transport-http = "0.9.2"
-async-nats = "0.38.0"
+async-nats = "0.39.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
