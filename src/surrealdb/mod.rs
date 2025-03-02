@@ -65,10 +65,10 @@ impl SurrealDb {
         self
     }
 
-    /// Sets authentication for the SurrealDB instance.
-    pub fn with_authentication(mut self, authentication: bool) -> Self {
+    /// Sets unauthenticated flag for the SurrealDB instance.
+    pub fn with_unauthenticated(mut self) -> Self {
         self.env_vars
-            .insert("SURREAL_AUTH".to_owned(), authentication.to_string());
+            .insert("SURREAL_UNAUTHENTICATED".to_owned(), "true".to_string());
         self
     }
 
@@ -110,7 +110,7 @@ impl Image for SurrealDb {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stderr("Started web server on ")]
+        vec![WaitFor::message_on_stdout("Started web server on ")]
     }
 
     fn env_vars(
@@ -201,10 +201,7 @@ mod tests {
     #[tokio::test]
     async fn surrealdb_no_auth() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let node = SurrealDb::default()
-            .with_authentication(false)
-            .start()
-            .await?;
+        let node = SurrealDb::default().with_unauthenticated().start().await?;
         let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await?;
         let url = format!("127.0.0.1:{host_port}");
 
