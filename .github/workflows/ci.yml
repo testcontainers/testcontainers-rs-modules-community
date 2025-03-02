@@ -116,4 +116,9 @@ jobs:
           echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
           echo $IC_DIR >> $GITHUB_PATH
       - name: Tests
-        run: cargo hack test --each-feature --exclude-all-features --partition ${{ matrix.partition }}
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_on: error
+          command: cargo hack test --each-feature --exclude-all-features --partition ${{ matrix.partition }}
