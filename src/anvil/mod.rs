@@ -118,7 +118,6 @@ impl Image for AnvilNode {
 mod tests {
     use alloy_network::AnyNetwork;
     use alloy_provider::{Provider, RootProvider};
-    use alloy_transport_http::Http;
     use testcontainers::runners::AsyncRunner;
 
     use super::*;
@@ -130,7 +129,7 @@ mod tests {
         let node = AnvilNode::default().start().await.unwrap();
         let port = node.get_host_port_ipv4(PORT).await.unwrap();
 
-        let provider: RootProvider<Http<_>, AnyNetwork> =
+        let provider: RootProvider<AnyNetwork> =
             RootProvider::new_http(format!("http://localhost:{port}").parse().unwrap());
 
         let block_number = provider.get_block_number().await.unwrap();
