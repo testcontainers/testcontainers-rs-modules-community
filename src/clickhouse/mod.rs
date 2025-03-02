@@ -98,8 +98,7 @@ mod tests {
         let response = Client::new().post(url.clone()).body(query).send().await?;
         assert_eq!(response.status(), 200);
 
-        // testing tcp endpoint
-        let client = clickhouse::Client::default().with_url(format!("tcp://{host}:{port}"));
+        let client = clickhouse::Client::default().with_url(format!("http://{host}:{port}"));
         #[derive(Row, Deserialize)]
         struct MyRow {
             #[serde(rename = "a")] // we don't read the field, so it's a dead-code in tests
