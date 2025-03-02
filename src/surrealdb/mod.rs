@@ -6,7 +6,7 @@ use testcontainers::{
 };
 
 const NAME: &str = "surrealdb/surrealdb";
-const TAG: &str = "v1.1.1";
+const TAG: &str = "v2.2";
 
 /// Port that the [`SurrealDB`] container has internally
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
