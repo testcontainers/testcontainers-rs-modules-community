@@ -3,7 +3,7 @@ use std::{borrow::Cow, collections::HashMap};
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "minio/minio";
-const TAG: &str = "RELEASE.2022-02-07T08-17-33Z";
+const TAG: &str = "RELEASE.2025-02-28T09-55-16Z";
 
 const DIR: &str = "/data";
 const CONSOLE_ADDRESS: &str = ":9001";
@@ -86,7 +86,7 @@ impl Image for MinIO {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stdout("API:")]
+        vec![WaitFor::message_on_stderr("API:")]
     }
 
     fn env_vars(
