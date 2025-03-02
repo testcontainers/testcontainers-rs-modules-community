@@ -103,7 +103,7 @@ mod test {
                 name: CONTEXT_NAME.to_string(),
                 context: Option::from(kube::config::Context {
                     cluster: CLUSTER_NAME.to_string(),
-                    user: String::from(CLUSTER_USER),
+                    user: Some(String::from(CLUSTER_USER)),
                     ..Default::default()
                 }),
             }],
