@@ -77,6 +77,11 @@ testcontainers = { version = "0.23.2" }
 
 
 [dev-dependencies]
+# Work around feature incompatibility in Chrono and arrow-arith
+# https://github.com/apache/arrow-rs/issues/7196
+# TODO: Remove when we can update databend-driver
+chrono = "= 0.4.39"
+
 alloy-network = "0.9.2"
 alloy-provider = "0.9.2"
 alloy-transport-http = "0.9.2"
