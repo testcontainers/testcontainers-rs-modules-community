@@ -82,7 +82,7 @@ testcontainers = { version = "0.23.2" }
 chrono = "= 0.4.39"
 
 alloy-network = "0.11.1"
-alloy-provider = "0.11.1"
+alloy-provider = "0.12.4"
 alloy-transport-http = "0.11.1"
 async-nats = "0.39.0"
 aws-config = "1.0.1"
