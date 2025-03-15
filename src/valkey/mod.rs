@@ -1,10 +1,12 @@
+use std::{borrow::Cow, collections::BTreeMap};
+
 use testcontainers::{
     core::{ContainerPort, WaitFor},
-    Image,
+    CopyDataSource, CopyToContainer, Image,
 };
 
 const NAME: &str = "valkey/valkey";
-const TAG: &str = "8.0.1-alpine";
+const TAG: &str = "8.0.2-alpine";
 
 /// Default port (6379) on which Valkey is exposed
 pub const VALKEY_PORT: ContainerPort = ContainerPort::Tcp(6379);
@@ -42,10 +44,83 @@ pub const VALKEY_PORT: ContainerPort = ContainerPort::Tcp(6379);
 /// [`VALKEY_PORT`]: super::VALKEY_PORT
 #[derive(Debug, Default, Clone)]
 pub struct Valkey {
-    /// (remove if there is another variable)
-    /// Field is included to prevent this struct to be a unit struct.
-    /// This allows extending functionality (and thus further variables) without breaking changes
-    _priv: (),
+    env_vars: BTreeMap<String, String>,
+    tag: Option<String>,
+    copy_to_container: Vec<CopyToContainer>,
+}
+
+impl Valkey {
+    /// Create a new Valkey instance with the latest image.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::{
+    ///     testcontainers::runners::SyncRunner,
+    ///     valkey::{Valkey, VALKEY_PORT},
+    /// };
+    ///
+    /// let valkey_instance = Valkey::latest().start().unwrap();
+    /// ```
+    pub fn latest() -> Self {
+        Self {
+            tag: Some("latest".to_string()),
+            ..Default::default()
+        }
+    }
+
+    /// Add extra flags by passing additional start arguments.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::{
+    ///     testcontainers::runners::SyncRunner,
+    ///     valkey::{Valkey, VALKEY_PORT},
+    /// };
+    ///
+    /// let valkey_instance = Valkey::default()
+    ///     .with_valkey_extra_flags("--maxmemory 2mb")
+    ///     .start()
+    ///     .unwrap();
+    /// ```
+    pub fn with_valkey_extra_flags(self, valkey_extra_flags: &str) -> Self {
+        let mut env_vars = self.env_vars;
+        env_vars.insert(
+            "VALKEY_EXTRA_FLAGS".to_string(),
+            valkey_extra_flags.to_string(),
+        );
+        Self {
+            env_vars,
+            tag: self.tag,
+            copy_to_container: self.copy_to_container,
+        }
+    }
+
+    /// Add custom valkey configuration.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::{
+    ///     testcontainers::runners::SyncRunner,
+    ///     valkey::{Valkey, VALKEY_PORT},
+    /// };
+    ///
+    /// let valkey_instance = Valkey::default()
+    ///     .with_valkey_conf("maxmemory 2mb".to_string().into_bytes())
+    ///     .start()
+    ///     .unwrap();
+    /// ```
+    pub fn with_valkey_conf(self, valky_conf: impl Into<CopyDataSource>) -> Self {
+        let mut copy_to_container = self.copy_to_container;
+        copy_to_container.push(CopyToContainer::new(
+            valky_conf.into(),
+            "/usr/local/etc/valkey/valkey.conf",
+        ));
+        Self {
+            env_vars: self.env_vars,
+            tag: self.tag,
+            copy_to_container,
+        }
+    }
 }
 
 impl Image for Valkey {
@@ -54,34 +129,143 @@ impl Image for Valkey {
     }
 
     fn tag(&self) -> &str {
-        TAG
+        self.tag.as_deref().unwrap_or(TAG)
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("Ready to accept connections")]
     }
+
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
+    }
+
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        &self.copy_to_container
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        if !self.copy_to_container.is_empty() {
+            vec!["valkey-server", "/usr/local/etc/valkey/valkey.conf"]
+        } else {
+            Vec::new()
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use redis::Commands;
+    use std::collections::HashMap;
 
-    use crate::{testcontainers::runners::SyncRunner, valkey::Valkey};
+    use redis::Commands;
+    use testcontainers::Image;
+
+    use crate::{
+        testcontainers::runners::SyncRunner,
+        valkey::{Valkey, TAG, VALKEY_PORT},
+    };
 
     #[test]
     fn valkey_fetch_an_integer() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
         let node = Valkey::default().start()?;
-        let host_ip = node.get_host()?;
-        let host_port = node.get_host_port_ipv4(6379)?;
-        let url = format!("redis://{host_ip}:{host_port}");
 
+        let tag = node.image().tag.clone();
+        assert_eq!(None, tag);
+        let tag_from_method = node.image().tag();
+        assert_eq!(TAG, tag_from_method);
+        assert_eq!(0, node.image().copy_to_container.len());
+
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(VALKEY_PORT)?;
+        let url = format!("redis://{host_ip}:{host_port}");
         let client = redis::Client::open(url.as_ref()).unwrap();
         let mut con = client.get_connection().unwrap();
 
         con.set::<_, _, ()>("my_key", 42).unwrap();
         let result: i64 = con.get("my_key").unwrap();
         assert_eq!(42, result);
+        Ok(())
+    }
+
+    #[test]
+    fn valkey_latest() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
+        let node = Valkey::latest().start()?;
+
+        let tag = node.image().tag.clone();
+        assert_eq!(Some("latest".to_string()), tag);
+        let tag_from_method = node.image().tag();
+        assert_eq!("latest", tag_from_method);
+        assert_eq!(0, node.image().copy_to_container.len());
+
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(VALKEY_PORT)?;
+        let url = format!("redis://{host_ip}:{host_port}");
+        let client = redis::Client::open(url.as_ref()).unwrap();
+        let mut con = client.get_connection().unwrap();
+
+        con.set::<_, _, ()>("my_key", 42).unwrap();
+        let result: i64 = con.get("my_key").unwrap();
+        assert_eq!(42, result);
+        Ok(())
+    }
+
+    #[test]
+    fn valkey_extra_flags() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
+        let node = Valkey::default()
+            .with_valkey_extra_flags("--maxmemory 2mb")
+            .start()?;
+        let tag = node.image().tag.clone();
+        assert_eq!(None, tag);
+        let tag_from_method = node.image().tag();
+        assert_eq!(TAG, tag_from_method);
+        assert_eq!(0, node.image().copy_to_container.len());
+
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(VALKEY_PORT)?;
+        let url = format!("redis://{host_ip}:{host_port}");
+
+        let client = redis::Client::open(url.as_ref()).unwrap();
+        let mut con = client.get_connection().unwrap();
+        let max_memory: HashMap<String, isize> = redis::cmd("CONFIG")
+            .arg("GET")
+            .arg("maxmemory")
+            .query(&mut con)
+            .unwrap();
+        let max = *max_memory.get("maxmemory").unwrap();
+        assert_eq!(2097152, max);
+        Ok(())
+    }
+
+    #[test]
+    fn valkey_conf() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
+        let node = Valkey::default()
+            .with_valkey_conf("maxmemory 2mb".to_string().into_bytes())
+            .start()?;
+        let tag = node.image().tag.clone();
+        assert_eq!(None, tag);
+        let tag_from_method = node.image().tag();
+        assert_eq!(TAG, tag_from_method);
+        assert_eq!(1, node.image().copy_to_container.len());
+
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(VALKEY_PORT)?;
+        let url = format!("redis://{host_ip}:{host_port}");
+
+        let client = redis::Client::open(url.as_ref()).unwrap();
+        let mut con = client.get_connection().unwrap();
+        let max_memory: HashMap<String, isize> = redis::cmd("CONFIG")
+            .arg("GET")
+            .arg("maxmemory")
+            .query(&mut con)
+            .unwrap();
+        let max = *max_memory.get("maxmemory").unwrap();
+        assert_eq!(2097152, max);
         Ok(())
     }
 }
