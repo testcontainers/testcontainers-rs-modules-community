@@ -83,7 +83,7 @@ chrono = "= 0.4.39"
 
 alloy-network = "0.11.1"
 alloy-provider = "0.11.1"
-alloy-transport-http = "0.11.1"
+alloy-transport-http = "0.12.5"
 async-nats = "0.39.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
