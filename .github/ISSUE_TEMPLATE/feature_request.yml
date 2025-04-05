@@ -13,5 +13,5 @@ body:
     attributes:
       label: Image reference
       placeholder: >
-        The name of the module to which the request relates (i.e: `postgres`). 
+        The name of the module to which the request relates (i.e: `postgres`).
         Links to possible Docker images in case of a request to add a new module.
