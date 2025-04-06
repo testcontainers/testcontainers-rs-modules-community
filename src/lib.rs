@@ -36,6 +36,10 @@ pub mod databend;
 #[cfg_attr(docsrs, doc(cfg(feature = "dex")))]
 /// **Dex** (OIDC provider) testcontainer
 pub mod dex;
+#[cfg(feature = "zitadel")]
+#[cfg_attr(docsrs, doc(cfg(feature = "zitadel")))]
+/// **Zitadel** (identity and access management) testcontainer
+pub mod zitadel;
 
 #[cfg(feature = "dynamodb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "dynamodb")))]
