@@ -174,3 +174,7 @@ required-features = ["nats"]
 [[example]]
 name = "rqlite"
 required-features = ["rqlite"]
+
+[[example]]
+name = "zitadel"
+required-features = ["zitadel", "postgres"]
