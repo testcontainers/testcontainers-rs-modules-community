@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let creds = s3::config::Credentials::new("fake", "fake", None, None, "test");
 
     let config = aws_sdk_s3::config::Builder::default()
-        .behavior_version(BehaviorVersion::v2024_03_28())
+        .behavior_version(BehaviorVersion::v2025_01_17())
         .region(Region::new("us-east-1"))
         .credentials_provider(creds)
         .endpoint_url(endpoint_url)
