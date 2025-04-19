@@ -48,6 +48,7 @@ oracle = []
 orientdb = []
 openldap = ["dep:parse-display"]
 parity = []
+zitadel = ["http_wait"]
 postgres = []
 rabbitmq = []
 redis = []
@@ -173,3 +174,7 @@ required-features = ["nats"]
 [[example]]
 name = "rqlite"
 required-features = ["rqlite"]
+
+[[example]]
+name = "zitadel"
+required-features = ["zitadel", "postgres"]
