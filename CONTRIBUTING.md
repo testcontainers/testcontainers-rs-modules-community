@@ -11,7 +11,7 @@ First of all, thank you for contributing to testcontainers-rs-modules-community.
 
 ### Reporting bugs
 
-- Check if there is an [existing issue](https://github.com/testcontainers/testcontainers-rs-modules-community/issues) first. 
+- Check if there is an [existing issue](https://github.com/testcontainers/testcontainers-rs-modules-community/issues) first.
 - You may also want to check bugs in [testcontainers-rs library](https://github.com/testcontainers/testcontainers-rs/issues) when applicable
 - When in doubt whether you've found new issue/bug or not, consider discussing it with our community on Slack
 
@@ -38,8 +38,8 @@ First of all, thank you for contributing to testcontainers-rs-modules-community.
 
 Before adding a new module, it's recommended reviewing the
 [testcontainers-rs library](https://github.com/testcontainers/testcontainers-rs)
-along with existing modules that are built on top of it! In addition, pay attention to our project conventions : public APIs 
-are exposed through `mod.rs` files and conditionally compiled as Cargo features. 
+along with existing modules that are built on top of it! In addition, pay attention to our project conventions : public APIs
+are exposed through `mod.rs` files and conditionally compiled as Cargo features.
 
 - Ensure you have a proper feature configuration on `Cargo.toml` when adding a new module
 - Ensure you have declared pinned versions of Docker image tags for your module
@@ -56,7 +56,7 @@ are exposed through `mod.rs` files and conditionally compiled as Cargo features.
 ```bash
 cargo fmt --all -- --check
 cargo clippy --all-features
-cargo hack test --each-feature --clean-per-run 
+cargo hack test --each-feature --clean-per-run
 ```
 - Consider following [conventional commits](https://julien.ponge.org/blog/the-power-of-conventional-commits/) when adding commits (recommended)
 - Raise your PR 🔥
