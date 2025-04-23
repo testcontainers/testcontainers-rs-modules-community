@@ -6,7 +6,7 @@ use testcontainers::{
 };
 
 const DEFAULT_IMAGE_NAME: &str = "clickhouse/clickhouse-server";
-const DEFAULT_IMAGE_TAG: &str = "23.3.8.21-alpine";
+const DEFAULT_IMAGE_TAG: &str = "25.3-alpine";
 
 /// Port that the [`ClickHouse`] container has internally
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
@@ -66,12 +66,13 @@ mod tests {
     use clickhouse::Row;
     use reqwest::Client;
     use serde::Deserialize;
+    use testcontainers::ImageExt;
 
     use crate::{clickhouse::ClickHouse as ClickhouseImage, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
     async fn clickhouse_db() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let clickhouse = ClickhouseImage::default();
+        let clickhouse = ClickhouseImage::default().with_env_var("CLICKHOUSE_SKIP_USER_SETUP", "1");
         let node = clickhouse.start().await?;
 
         let host = node.get_host().await?;
