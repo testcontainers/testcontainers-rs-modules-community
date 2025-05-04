@@ -12,6 +12,12 @@
 #[cfg_attr(docsrs, doc(cfg(feature = "anvil")))]
 /// **Anvil** (local blockchain emulator for EVM-compatible development) testcontainer
 pub mod anvil;
+
+#[cfg(feature = "azurite")]
+#[cfg_attr(docsrs, doc(cfg(feature = "azurite")))]
+/// **Azurite** (azure storage emulator) testcontainer
+pub mod azurite;
+
 #[cfg(feature = "clickhouse")]
 #[cfg_attr(docsrs, doc(cfg(feature = "clickhouse")))]
 /// **Clickhouse** (analytics database) testcontainer
