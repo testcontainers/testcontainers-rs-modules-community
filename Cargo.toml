@@ -15,6 +15,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = []
+azurite = []
 blocking = ["testcontainers/blocking"]
 watchdog = ["testcontainers/watchdog"]
 http_wait = ["testcontainers/http_wait"]
@@ -138,6 +139,10 @@ openssl-sys = { version = "0.9.103", features = ["vendored"] }
 native-tls = { version = "0.2.12", features = ["vendored"] }
 pulsar = "6.3"
 rqlite-rs = "0.6"
+azure_core = "0.21.0"
+azure_storage_blobs = "0.21.0"
+azure_storage = "0.21.0"
+base64 = "0.22.1"
 
 [[example]]
 name = "postgres"
@@ -178,3 +183,7 @@ required-features = ["rqlite"]
 [[example]]
 name = "zitadel"
 required-features = ["zitadel", "postgres"]
+
+[[example]]
+name = "azurite"
+required-features = ["azurite"]
