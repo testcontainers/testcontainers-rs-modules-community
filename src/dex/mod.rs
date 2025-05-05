@@ -152,7 +152,7 @@ impl Image for Dex {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::Http(
+        vec![WaitFor::http(
             HttpWaitStrategy::new("/.well-known/openid-configuration")
                 .with_port(HTTP_PORT)
                 .with_expected_status_code(200u16),
