@@ -41,7 +41,6 @@ const AZURITE_ACCOUNTS: &str = "AZURITE_ACCOUNTS";
 /// [`Azurite docker image`]: https://hub.docker.com/r/microsoft/azure-storage-azurite
 #[derive(Debug, Clone)]
 pub struct Azurite {
-    tag: String,
     env_vars: BTreeMap<String, String>,
     loose: bool,
     skip_api_version_check: bool,
@@ -51,7 +50,6 @@ pub struct Azurite {
 impl Default for Azurite {
     fn default() -> Self {
         Self {
-            tag: TAG.to_string(),
             env_vars: BTreeMap::new(),
             loose: false,
             skip_api_version_check: false,
@@ -60,20 +58,6 @@ impl Default for Azurite {
     }
 }
 impl Azurite {
-    /// Create a new azurite instance with the latest image
-    pub fn latest() -> Self {
-        Self {
-            tag: "latest".to_string(),
-            ..Self::default()
-        }
-    }
-
-    /// Overrides the image tag.
-    /// Check https://mcr.microsoft.com/v2/azure-storage/azurite/tags/list to see available tags.
-    pub fn with_tag(self, tag: String) -> Self {
-        Self { tag, ..self }
-    }
-
     /// Sets the [Azurite accounts](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&bc=%2Fazure%2Fstorage%2Fblobs%2Fbreadcrumb%2Ftoc.json&tabs=visual-studio%2Ctable-storage#custom-storage-accounts-and-keys) to be used by the instance.
     ///
     /// - Uses `AZURITE_ACCOUNTS` key is used to store the accounts in the environment variables.
@@ -114,7 +98,7 @@ impl Image for Azurite {
     }
 
     fn tag(&self) -> &str {
-        &self.tag
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -176,22 +160,6 @@ mod tests {
     fn starts_with_sync_runner() -> Result<(), Box<dyn std::error::Error + 'static>> {
         use testcontainers::runners::SyncRunner;
         let azurite = Azurite::default();
-        azurite.start()?;
-        Ok(())
-    }
-
-    #[test]
-    fn starts_with_latest_tag() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        use testcontainers::runners::SyncRunner;
-        let azurite = Azurite::latest().with_tag("latest".to_string());
-        azurite.start()?;
-        Ok(())
-    }
-
-    #[test]
-    fn starts_with_tag() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        use testcontainers::runners::SyncRunner;
-        let azurite = Azurite::default().with_tag("latest".to_string());
         azurite.start()?;
         Ok(())
     }
