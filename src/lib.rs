@@ -181,7 +181,7 @@ pub mod valkey;
 pub mod victoria_metrics;
 #[cfg(feature = "zookeeper")]
 #[cfg_attr(docsrs, doc(cfg(feature = "zookeeper")))]
-/// **Apache ZooKeeper** (locking and configuratin management) testcontainer
+/// **Apache ZooKeeper** (locking and configuration management) testcontainer
 pub mod zookeeper;
 
 /// Re-exported version of `testcontainers` to avoid version conflicts
