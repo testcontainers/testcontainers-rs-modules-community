@@ -73,7 +73,7 @@ rcgen = { version = "0.13.1", features = [
 ], default-features = false, optional = true }
 serde = { version = "1.0.217", features = ["derive"], optional = true }
 serde_json = { version = "1.0.138", optional = true }
-testcontainers = { version = "0.23.2" }
+testcontainers = { version = "0.24.0" }
 
 
 [dev-dependencies]
