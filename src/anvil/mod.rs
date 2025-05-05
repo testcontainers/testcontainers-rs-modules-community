@@ -6,7 +6,7 @@ use testcontainers::{
 };
 
 const NAME: &str = "ghcr.io/foundry-rs/foundry";
-const TAG: &str = "stable@sha256:daeeaaf4383ee0cbfc9f31f079a04ffb0123e49e5f67f2a20b5ce1ac1959a4d6";
+const TAG: &str = "v1.1.0";
 const PORT: ContainerPort = ContainerPort::Tcp(8545);
 
 /// # Community Testcontainers Implementation for [Foundry Anvil](https://book.getfoundry.sh/anvil/)
