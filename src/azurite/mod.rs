@@ -39,7 +39,7 @@ const AZURITE_ACCOUNTS: &str = "AZURITE_ACCOUNTS";
 ///
 /// [`Azurite`]: https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&bc=%2Fazure%2Fstorage%2Fblobs%2Fbreadcrumb%2Ftoc.json&tabs=visual-studio%2Cblob-storage
 /// [`Azurite docker image`]: https://hub.docker.com/r/microsoft/azure-storage-azurite
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct Azurite {
     env_vars: BTreeMap<String, String>,
     loose: bool,
@@ -47,16 +47,6 @@ pub struct Azurite {
     disable_telemetry: bool,
 }
 
-impl Default for Azurite {
-    fn default() -> Self {
-        Self {
-            env_vars: BTreeMap::new(),
-            loose: false,
-            skip_api_version_check: false,
-            disable_telemetry: false,
-        }
-    }
-}
 impl Azurite {
     /// Sets the [Azurite accounts](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&bc=%2Fazure%2Fstorage%2Fblobs%2Fbreadcrumb%2Ftoc.json&tabs=visual-studio%2Ctable-storage#custom-storage-accounts-and-keys) to be used by the instance.
     ///
