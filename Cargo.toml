@@ -105,7 +105,7 @@ oracle = "0.6.0"
 postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
 rdkafka = "0.37.0"
-redis = { version = "0.29.0", features = ["json"] }
+redis = { version = "0.31.0", features = ["json"] }
 reqwest = { version = "0.12.5", features = [
     "blocking",
     "json",
