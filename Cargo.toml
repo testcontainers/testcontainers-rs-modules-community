@@ -1,6 +1,6 @@
 [package]
 name = "testcontainers-modules"
-version = "0.11.6"
+version = "0.12.0"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
@@ -15,6 +15,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = []
+azurite = []
 blocking = ["testcontainers/blocking"]
 watchdog = ["testcontainers/watchdog"]
 http_wait = ["testcontainers/http_wait"]
@@ -48,6 +49,7 @@ oracle = []
 orientdb = []
 openldap = ["dep:parse-display"]
 parity = []
+zitadel = ["http_wait"]
 postgres = []
 rabbitmq = []
 redis = []
@@ -73,7 +75,7 @@ rcgen = { version = "0.13.1", features = [
 ], default-features = false, optional = true }
 serde = { version = "1.0.217", features = ["derive"], optional = true }
 serde_json = { version = "1.0.138", optional = true }
-testcontainers = { version = "0.23.2" }
+testcontainers = { version = "0.24.0" }
 
 
 [dev-dependencies]
@@ -118,7 +120,7 @@ serde = { version = "1.0.217", features = ["derive"] }
 serde_json = { version = "1.0.138" }
 surrealdb = { version = "2.2.1" }
 tar = "0.4.40"
-testcontainers = { version = "0.23.2", features = ["blocking"] }
+testcontainers = { version = "0.24.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.3", default-features = false, features = [
@@ -128,7 +130,7 @@ tiberius = { version = "0.12.3", default-features = false, features = [
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 tokio-zookeeper = "0.4.0"
-kube = { version = "0.98.0", default-features = false, features = [
+kube = { version = "0.99.0", default-features = false, features = [
     "client",
     "rustls-tls",
 ] }
@@ -139,6 +141,10 @@ openssl-sys = { version = "0.9.103", features = ["vendored"] }
 native-tls = { version = "0.2.12", features = ["vendored"] }
 pulsar = "6.3"
 rqlite-rs = "0.6"
+azure_core = "0.21.0"
+azure_storage_blobs = "0.21.0"
+azure_storage = "0.21.0"
+base64 = "0.22.1"
 
 [[example]]
 name = "postgres"
@@ -175,3 +181,11 @@ required-features = ["nats"]
 [[example]]
 name = "rqlite"
 required-features = ["rqlite"]
+
+[[example]]
+name = "zitadel"
+required-features = ["zitadel", "postgres"]
+
+[[example]]
+name = "azurite"
+required-features = ["azurite"]
