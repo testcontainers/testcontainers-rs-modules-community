@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "voltrondata/flight-sql";
@@ -11,8 +12,9 @@ const TAG: &str = "v1.4.1-slim";
 ///
 /// # Example
 /// ```
-/// use arrow_flight::flight_service_client::FlightServiceClient;
-/// use arrow_flight::sql::client::FlightSqlServiceClient;
+/// use arrow_flight::{
+///     flight_service_client::FlightServiceClient, sql::client::FlightSqlServiceClient,
+/// };
 /// use futures::TryStreamExt;
 /// use testcontainers::runners::AsyncRunner;
 /// use testcontainers_modules::arrow_flightsql::ArrowFlightSQL;
@@ -82,11 +84,13 @@ impl Image for ArrowFlightSQL {
 
 #[cfg(test)]
 mod tests {
-    use crate::arrow_flightsql::ArrowFlightSQL;
-    use arrow_flight::flight_service_client::FlightServiceClient;
-    use arrow_flight::sql::client::FlightSqlServiceClient;
+    use arrow_flight::{
+        flight_service_client::FlightServiceClient, sql::client::FlightSqlServiceClient,
+    };
     use futures::TryStreamExt;
     use testcontainers::runners::AsyncRunner;
+
+    use crate::arrow_flightsql::ArrowFlightSQL;
 
     #[tokio::test]
     async fn arrow_flightsql_select_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
