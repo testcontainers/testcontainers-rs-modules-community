@@ -16,6 +16,10 @@ pub mod anvil;
 #[cfg_attr(docsrs, doc(cfg(feature = "arrow_flightsql")))]
 /// **arrow_flightsql** (Apache Arrow FlightSQL server) testcontainer
 pub mod arrow_flightsql;
+#[cfg(feature = "azurite")]
+#[cfg_attr(docsrs, doc(cfg(feature = "azurite")))]
+/// **Azurite** (azure storage emulator) testcontainer
+pub mod azurite;
 #[cfg(feature = "clickhouse")]
 #[cfg_attr(docsrs, doc(cfg(feature = "clickhouse")))]
 /// **Clickhouse** (analytics database) testcontainer
@@ -40,6 +44,10 @@ pub mod databend;
 #[cfg_attr(docsrs, doc(cfg(feature = "dex")))]
 /// **Dex** (OIDC provider) testcontainer
 pub mod dex;
+#[cfg(feature = "zitadel")]
+#[cfg_attr(docsrs, doc(cfg(feature = "zitadel")))]
+/// **Zitadel** (identity and access management) testcontainer
+pub mod zitadel;
 
 #[cfg(feature = "dynamodb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "dynamodb")))]
@@ -181,7 +189,7 @@ pub mod valkey;
 pub mod victoria_metrics;
 #[cfg(feature = "zookeeper")]
 #[cfg_attr(docsrs, doc(cfg(feature = "zookeeper")))]
-/// **Apache ZooKeeper** (locking and configuratin management) testcontainer
+/// **Apache ZooKeeper** (locking and configuration management) testcontainer
 pub mod zookeeper;
 
 /// Re-exported version of `testcontainers` to avoid version conflicts
