@@ -53,6 +53,7 @@ zitadel = ["http_wait"]
 postgres = []
 rabbitmq = []
 redis = []
+scylladb = []
 solr = []
 surrealdb = []
 trufflesuite_ganachecli = []
@@ -114,6 +115,7 @@ reqwest = { version = "0.12.5", features = [
 ], default-features = false }
 retry = "2.0.0"
 rustls = { version = "0.23.2", features = ["ring"] }
+scylla = "1.0.0"
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = { version = "1.0.138" }
 surrealdb = { version = "2.2.1" }

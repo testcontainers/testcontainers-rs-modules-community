@@ -159,6 +159,10 @@ pub mod redis;
 #[cfg_attr(docsrs, doc(cfg(feature = "rqlite")))]
 /// **RQLite** (lightweight, user-friendly, distributed relational database) testcontainer
 pub mod rqlite;
+#[cfg(feature = "scylladb")]
+#[cfg_attr(docsrs, doc(cfg(feature = "scylladb")))]
+/// **scylladb** (distributed NoSQL wide-column data store) testcontainer
+pub mod scylladb;
 #[cfg(feature = "solr")]
 #[cfg_attr(docsrs, doc(cfg(feature = "solr")))]
 /// **Apache Solr** (distributed search engine) testcontainer
