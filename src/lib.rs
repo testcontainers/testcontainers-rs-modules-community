@@ -12,6 +12,10 @@
 #[cfg_attr(docsrs, doc(cfg(feature = "anvil")))]
 /// **Anvil** (local blockchain emulator for EVM-compatible development) testcontainer
 pub mod anvil;
+#[cfg(feature = "arrow_flightsql")]
+#[cfg_attr(docsrs, doc(cfg(feature = "arrow_flightsql")))]
+/// **arrow_flightsql** (Apache Arrow FlightSQL server) testcontainer
+pub mod arrow_flightsql;
 #[cfg(feature = "clickhouse")]
 #[cfg_attr(docsrs, doc(cfg(feature = "clickhouse")))]
 /// **Clickhouse** (analytics database) testcontainer
@@ -182,3 +186,4 @@ pub mod zookeeper;
 
 /// Re-exported version of `testcontainers` to avoid version conflicts
 pub use testcontainers;
+

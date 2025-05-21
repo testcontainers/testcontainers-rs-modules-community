@@ -21,6 +21,7 @@ http_wait = ["testcontainers/http_wait"]
 properties-config = ["testcontainers/properties-config"]
 json = ["serde", "serde_json"]
 anvil = []
+arrow_flightsql = []
 clickhouse = ["http_wait"]
 cncf_distribution = []
 consul = []
@@ -76,14 +77,10 @@ testcontainers = { version = "0.23.2" }
 
 
 [dev-dependencies]
-# Work around feature incompatibility in Chrono and arrow-arith
-# https://github.com/apache/arrow-rs/issues/7196
-# TODO: Remove when we can update databend-driver
-chrono = "= 0.4.39"
-
 alloy-network = "0.11.1"
 alloy-provider = "0.11.1"
 alloy-transport-http = "0.11.1"
+arrow-flight = { version = "55.1.0", features = ["flight-sql-experimental"] }
 async-nats = "0.39.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
@@ -91,7 +88,7 @@ aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
 bollard = "0.18.1"
-databend-driver = "0.26.1"
+databend-driver = "0.27.3"
 futures = "0.3"
 lapin = "2.3.1"
 ldap3 = "0.11.5"
