@@ -1,6 +1,9 @@
 use std::{borrow::Cow, collections::BTreeMap};
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{wait::HttpWaitStrategy, ContainerPort, WaitFor},
+    Image,
+};
 
 const DEFAULT_IMAGE_NAME: &str = "hashicorp/vault";
 const DEFAULT_IMAGE_TAG: &str = "1.17";
@@ -65,7 +68,10 @@ impl Image for HashicorpVault {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stdout("Vault server started!")]
+        let http_strategy = HttpWaitStrategy::new("/sys/health")
+            .with_port(ContainerPort::Tcp(8200))
+            .with_response_matcher(|resp| resp.status().as_u16() == 200);
+        vec![WaitFor::http(http_strategy)]
     }
 
     fn env_vars(
