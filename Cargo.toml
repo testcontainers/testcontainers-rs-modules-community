@@ -128,7 +128,7 @@ tiberius = { version = "0.12.3", default-features = false, features = [
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 tokio-zookeeper = "0.4.0"
-kube = { version = "0.99.0", default-features = false, features = [
+kube = { version = "1.0.0", default-features = false, features = [
     "client",
     "rustls-tls",
 ] }
