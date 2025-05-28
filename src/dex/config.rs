@@ -49,7 +49,7 @@ pub struct Web {
 impl Web {
     pub fn http() -> Self {
         Self {
-            http: format!(":{}", HTTP_PORT),
+            http: format!(":{HTTP_PORT}"),
         }
     }
 }

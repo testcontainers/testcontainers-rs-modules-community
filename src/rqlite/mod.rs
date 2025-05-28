@@ -71,7 +71,7 @@ mod tests {
         let host_port = node.get_host_port_ipv4(4001).await?;
 
         let client = rqlite_rs::RqliteClientBuilder::new()
-            .known_host(format!("{}:{}", host_ip, host_port))
+            .known_host(format!("{host_ip}:{host_port}"))
             .build()?;
 
         let query = rqlite_rs::query!("SELECT 1+1")?;
