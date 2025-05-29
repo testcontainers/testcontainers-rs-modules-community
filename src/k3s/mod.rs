@@ -248,7 +248,7 @@ mod tests {
         let port = container.get_host_port_ipv4(KUBE_SECURE_PORT).await?;
         config.clusters.iter_mut().for_each(|cluster| {
             if let Some(server) = cluster.cluster.as_mut().and_then(|c| c.server.as_mut()) {
-                *server = format!("https://127.0.0.1:{}", port)
+                *server = format!("https://127.0.0.1:{port}")
             }
         });
 

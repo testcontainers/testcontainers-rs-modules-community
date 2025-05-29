@@ -133,8 +133,7 @@ mod tests {
 
         assert!(
             stdout.trim().ends_with("Ready."),
-            "expected a string ending with \"Ready.\" but got: {}",
-            stdout
+            "expected a string ending with \"Ready.\" but got: {stdout}",
         );
     }
 }

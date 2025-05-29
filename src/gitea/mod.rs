@@ -449,11 +449,11 @@ impl Gitea {
         if let Some(tls_config) = &self.tls {
             let cert = CopyToContainer::new(
                 CopyDataSource::Data(tls_config.cert.clone().into_bytes()),
-                format!("{GITEA_CONFIG_FOLDER}/{TLS_CERT_FILE_NAME}",),
+                format!("{GITEA_CONFIG_FOLDER}/{TLS_CERT_FILE_NAME}"),
             );
             let key = CopyToContainer::new(
                 CopyDataSource::Data(tls_config.key.clone().into_bytes()),
-                format!("{GITEA_CONFIG_FOLDER}/{TLS_KEY_FILE_NAME}",),
+                format!("{GITEA_CONFIG_FOLDER}/{TLS_KEY_FILE_NAME}"),
             );
             to_copy.push(cert);
             to_copy.push(key);
@@ -494,7 +494,7 @@ PORT_TO_REDIRECT = {redirect_port}
 
         CopyToContainer::new(
             CopyDataSource::Data(app_ini_template.into_bytes()),
-            format!("{GITEA_CONFIG_FOLDER}/{CONFIG_FILE_NAME}",),
+            format!("{GITEA_CONFIG_FOLDER}/{CONFIG_FILE_NAME}"),
         )
     }
 
@@ -520,7 +520,7 @@ PORT_TO_REDIRECT = {redirect_port}
 
     /// Generate curl command with API call to add public key for admin user.
     fn create_admin_key_cmd(&self, key: &String) -> Vec<String> {
-        let body = format!(r#"{{"title":"default","key":"{}","read_only":false}}"#, key);
+        let body = format!(r#"{{"title":"default","key":"{key}","read_only":false}}"#);
         self.create_gitea_api_curl_cmd("POST", "/user/keys", Some(body))
     }
 
@@ -532,8 +532,7 @@ PORT_TO_REDIRECT = {redirect_port}
         };
 
         let body = format!(
-            r#"{{"name":"{}","readme":"Default","auto_init":true,"private":{}}}"#,
-            repo, private
+            r#"{{"name":"{repo}","readme":"Default","auto_init":true,"private":{private}}}"#,
         );
 
         self.create_gitea_api_curl_cmd("POST", "/user/repos", Some(body))

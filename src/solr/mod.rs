@@ -66,10 +66,7 @@ mod tests {
         let host_ip = container.get_host()?;
         let host_port = container.get_host_port_ipv4(SOLR_PORT)?;
 
-        let url = format!(
-            "http://{host_ip}:{}/solr/admin/cores?action=STATUS",
-            host_port
-        );
+        let url = format!("http://{host_ip}:{host_port}/solr/admin/cores?action=STATUS");
         let res = reqwest::blocking::get(url).expect("valid HTTP response");
 
         assert_eq!(res.status(), StatusCode::OK);

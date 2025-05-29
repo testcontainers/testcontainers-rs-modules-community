@@ -160,8 +160,7 @@ mod tests {
         let first_column: String = first_row.unwrap();
         assert!(
             first_column.starts_with("11.2.3"),
-            "Expected version to start with 11.2.3, got: {}",
-            first_column
+            "Expected version to start with 11.2.3, got: {first_column}",
         );
         Ok(())
     }
