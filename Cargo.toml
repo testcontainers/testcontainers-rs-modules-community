@@ -139,7 +139,7 @@ openssl-sys = { version = "0.9.103", features = ["vendored"] }
 native-tls = { version = "0.2.12", features = ["vendored"] }
 pulsar = "6.3"
 rqlite-rs = "0.6"
-azure_core = "0.21.0"
+azure_core = "0.25.0"
 azure_storage_blobs = "0.21.0"
 azure_storage = "0.21.0"
 base64 = "0.22.1"
