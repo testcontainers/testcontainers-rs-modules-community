@@ -324,7 +324,7 @@ impl Neo4j {
         let auth = self
             .user
             .as_ref()
-            .and_then(|user| self.pass.as_ref().map(|pass| format!("{}/{}", user, pass)))
+            .and_then(|user| self.pass.as_ref().map(|pass| format!("{user}/{pass}")))
             .unwrap_or_else(|| "none".to_owned());
         Some(("NEO4J_AUTH".to_owned(), auth))
     }
@@ -337,11 +337,11 @@ impl Neo4j {
         let plugin_names = self
             .plugins
             .iter()
-            .map(|p| format!("\"{}\"", p))
+            .map(|p| format!("\"{p}\""))
             .collect::<Vec<String>>()
             .join(",");
 
-        let plugin_definition = format!("[{}]", plugin_names);
+        let plugin_definition = format!("[{plugin_names}]");
 
         Some(("NEO4JLABS_PLUGINS".to_owned(), plugin_definition))
     }
