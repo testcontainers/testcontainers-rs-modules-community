@@ -1,6 +1,6 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "postgres";
 const TAG: &str = "11-alpine";
@@ -30,6 +30,8 @@ const TAG: &str = "11-alpine";
 #[derive(Debug, Clone)]
 pub struct Postgres {
     env_vars: HashMap<String, String>,
+    copy_to_sources: Vec<CopyToContainer>,
+    fsync_enabled: bool,
 }
 
 impl Postgres {
@@ -61,8 +63,42 @@ impl Postgres {
             .insert("POSTGRES_PASSWORD".to_owned(), password.to_owned());
         self
     }
-}
 
+    /// Registers sql to be executed automatically when the container starts.
+    /// Can be called multiple times to add (not override) scripts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use testcontainers_modules::postgres::Postgres;
+    /// let postgres_image = Postgres::default().with_init_sql(
+    ///     "CREATE EXTENSION IF NOT EXISTS hstore;"
+    ///         .to_string()
+    ///         .into_bytes(),
+    /// );
+    /// ```
+    ///
+    /// ```rust,ignore
+    /// # use testcontainers_modules::postgres::Postgres;
+    /// let postgres_image = Postgres::default()
+    ///                                .with_init_sql(include_str!("path_to_init.sql").to_string().into_bytes());
+    /// ```
+    pub fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.copy_to_sources.len()
+        );
+        self.copy_to_sources
+            .push(CopyToContainer::new(init_sql.into(), target));
+        self
+    }
+
+    /// Enables [the fsync-setting](https://www.postgresql.org/docs/current/runtime-config-wal.html#GUC-FSYNC) for the Postgres instance.
+    pub fn with_fsync_enabled(mut self) -> Self {
+        self.fsync_enabled = true;
+        self
+    }
+}
 impl Default for Postgres {
     fn default() -> Self {
         let mut env_vars = HashMap::new();
@@ -70,7 +106,11 @@ impl Default for Postgres {
         env_vars.insert("POSTGRES_USER".to_owned(), "postgres".to_owned());
         env_vars.insert("POSTGRES_PASSWORD".to_owned(), "postgres".to_owned());
 
-        Self { env_vars }
+        Self {
+            env_vars,
+            copy_to_sources: Vec::new(),
+            fsync_enabled: false,
+        }
     }
 }
 
@@ -94,6 +134,18 @@ impl Image for Postgres {
         &self,
     ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
         &self.env_vars
+    }
+
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        &self.copy_to_sources
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<std::borrow::Cow<'_, str>>> {
+        if !self.fsync_enabled {
+            vec!["-c", "fsync=off"]
+        } else {
+            vec![]
+        }
     }
 }
 
@@ -142,6 +194,33 @@ mod tests {
         let first_row = &rows[0];
         let first_column: String = first_row.get(0);
         assert!(first_column.contains("13"));
+        Ok(())
+    }
+
+    #[test]
+    fn postgres_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = Postgres::default()
+            .with_init_sql(
+                "CREATE TABLE foo (bar varchar(255));"
+                    .to_string()
+                    .into_bytes(),
+            )
+            .start()?;
+
+        let connection_string = &format!(
+            "postgres://postgres:postgres@{}:{}/postgres",
+            node.get_host()?,
+            node.get_host_port_ipv4(5432)?
+        );
+        let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
+
+        let rows = conn
+            .query("INSERT INTO foo(bar) VALUES ($1)", &[&"blub"])
+            .unwrap();
+        assert_eq!(rows.len(), 0);
+
+        let rows = conn.query("SELECT bar FROM foo", &[]).unwrap();
+        assert_eq!(rows.len(), 1);
         Ok(())
     }
 }

@@ -1,10 +1,10 @@
 [package]
 name = "testcontainers-modules"
-version = "0.10.0"
+version = "0.12.1"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.82"
 repository = "https://github.com/testcontainers/testcontainers-rs-modules-community"
 keywords = ["docker", "testcontainers"]
 license = "MIT"
@@ -15,17 +15,26 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = []
+azurite = []
 blocking = ["testcontainers/blocking"]
 watchdog = ["testcontainers/watchdog"]
 http_wait = ["testcontainers/http_wait"]
+properties-config = ["testcontainers/properties-config"]
+json = ["serde", "serde_json"]
+anvil = []
+arrow_flightsql = []
 clickhouse = ["http_wait"]
+cratedb = []
 cncf_distribution = []
 consul = []
+dex = ["http_wait", "json"]
 dynamodb = []
+databend = ["http_wait"]
 elastic_search = []
 elasticmq = []
+gitea = ["http_wait", "dep:rcgen"]
 google_cloud_sdk_emulators = []
-hashicorp_vault = []
+hashicorp_vault = ["http_wait"]
 k3s = []
 kafka = []
 localstack = []
@@ -42,43 +51,60 @@ oracle = []
 orientdb = []
 openldap = ["dep:parse-display"]
 parity = []
+zitadel = ["http_wait"]
 postgres = []
 rabbitmq = []
 redis = []
+scylladb = []
 solr = []
 surrealdb = []
 trufflesuite_ganachecli = []
 victoria_metrics = []
+valkey = []
 zookeeper = []
 cockroach_db = []
 kwok = []
+pulsar = []
+rqlite = ["http_wait"]
+weaviate = ["http_wait"]
 
 [dependencies]
-# TODO: update parse-display after MSRV>=1.80.0 bump of `testcontainer-rs` and `testcontainers-modules`
-parse-display = { version = "0.9.1", optional = true, default-features = false, features = [] }
-testcontainers = { version = "0.22.0" }
+parse-display = { version = "0.10", optional = true, default-features = false, features = [
+] }
+rcgen = { version = "0.13.1", features = [
+    "pem",
+    "ring",
+], default-features = false, optional = true }
+serde = { version = "1.0.217", features = ["derive"], optional = true }
+serde_json = { version = "1.0.138", optional = true }
+testcontainers = { version = "0.24.0" }
 
 
 [dev-dependencies]
-async-nats = "0.35.0"
+alloy-network = "0.11.1"
+alloy-provider = "0.11.1"
+alloy-transport-http = "1.0.7"
+arrow-flight = { version = "55.1.0", features = ["flight-sql-experimental"] }
+async-nats = "0.42.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
-bollard = "0.17.0"
+bollard = "0.18.1"
+databend-driver = "0.27.3"
 futures = "0.3"
-lapin = "2.3.1"
+lapin = "3.0.0"
 ldap3 = "0.11.5"
-meilisearch-sdk = "0.26.1"
+meilisearch-sdk = "0.28.0"
 mongodb = "3.0.1"
-mysql = "25.0.0"
-neo4rs = "0.7.0"
+mysql = "26.0.0"
+neo4rs = "0.8.0"
 oracle = "0.6.0"
 postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
-rdkafka = "0.36.0"
-redis = { version = "0.26.0", features = ["json"] }
+rdkafka = "0.37.0"
+redis = { version = "0.32.2", features = ["json"] }
 reqwest = { version = "0.12.5", features = [
     "blocking",
     "json",
@@ -87,29 +113,38 @@ reqwest = { version = "0.12.5", features = [
 ], default-features = false }
 retry = "2.0.0"
 rustls = { version = "0.23.2", features = ["ring"] }
-serde = { version = "1.0.188", features = ["derive"] }
-serde_json = "1.0.107"
+scylla = "1.0.0"
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = { version = "1.0.138" }
 serial_test = "3.1.1"
-surrealdb = { version = "1.2.0" }
+surrealdb = { version = "2.2.1" }
 tar = "0.4.40"
-testcontainers = { version = "0.22.0", features = ["blocking"] }
+testcontainers = { version = "0.24.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
-tiberius = { version = "0.12.2", default-features = false, features = [
+tiberius = { version = "0.12.3", default-features = false, features = [
     "tds73",
     "rustls",
 ] }
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
-zookeeper-client = { version = "0.8.0" }
-kube = { version = "0.90.0", default-features = false, features = [
+tokio-zookeeper = "0.4.0"
+kube = { version = "0.99.0", default-features = false, features = [
     "client",
     "runtime",
     "rustls-tls",
 ] }
-k8s-openapi = { version = "0.21.1", features = ["v1_29"] }
-clickhouse = "0.11.6"
+k8s-openapi = { version = "0.24", features = ["v1_29"] }
+clickhouse = { version = "0.13" }
 vaultrs = "0.7.2"
+openssl-sys = { version = "0.9.103", features = ["vendored"] }
+native-tls = { version = "0.2.12", features = ["vendored"] }
+pulsar = "6.3"
+rqlite-rs = "0.6"
+azure_core = "0.21.0"
+azure_storage_blobs = "0.21.0"
+azure_storage = "0.21.0"
+base64 = "0.22.1"
 
 [[example]]
 name = "postgres"
@@ -138,3 +173,19 @@ required-features = ["mongo"]
 [[example]]
 name = "openldap"
 required-features = ["openldap"]
+
+[[example]]
+name = "nats"
+required-features = ["nats"]
+
+[[example]]
+name = "rqlite"
+required-features = ["rqlite"]
+
+[[example]]
+name = "zitadel"
+required-features = ["zitadel", "postgres"]
+
+[[example]]
+name = "azurite"
+required-features = ["azurite"]

@@ -21,17 +21,20 @@ const TAG: &str = "9.5.0-slim";
 ///
 /// let solr_instance = solr::Solr::default().start().unwrap();
 /// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT).unwrap();
-
+///
 /// let solr_url = format!("http://127.0.0.1:{}", host_port);
 ///
 /// // use HTTP client to interact with the solr API
 /// ```
-/// 
+///
 /// [`Solr`]: https://solr.apache.org/
 /// [`Solr docker image`]: https://hub.docker.com/_/solr
 /// [`Solr reference guide`]: https://solr.apache.org/guide/solr/latest/
 #[derive(Debug, Default, Clone)]
 pub struct Solr {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 
@@ -63,10 +66,7 @@ mod tests {
         let host_ip = container.get_host()?;
         let host_port = container.get_host_port_ipv4(SOLR_PORT)?;
 
-        let url = format!(
-            "http://{host_ip}:{}/solr/admin/cores?action=STATUS",
-            host_port
-        );
+        let url = format!("http://{host_ip}:{host_port}/solr/admin/cores?action=STATUS");
         let res = reqwest::blocking::get(url).expect("valid HTTP response");
 
         assert_eq!(res.status(), StatusCode::OK);

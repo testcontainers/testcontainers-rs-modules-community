@@ -3,11 +3,13 @@ use std::{borrow::Cow, collections::HashMap};
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "minio/minio";
-const TAG: &str = "RELEASE.2022-02-07T08-17-33Z";
+const TAG: &str = "RELEASE.2025-02-28T09-55-16Z";
 
 const DIR: &str = "/data";
 const CONSOLE_ADDRESS: &str = ":9001";
 
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
 pub struct MinIO {
     env_vars: HashMap<String, String>,
@@ -29,10 +31,18 @@ impl Default for MinIO {
     }
 }
 
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
 pub struct MinIOServerCmd {
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub dir: String,
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub certs_dir: Option<String>,
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub json_log: bool,
 }
 
@@ -76,7 +86,7 @@ impl Image for MinIO {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stdout("API:")]
+        vec![WaitFor::message_on_stderr("API:")]
     }
 
     fn env_vars(

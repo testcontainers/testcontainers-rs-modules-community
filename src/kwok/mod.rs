@@ -33,7 +33,12 @@ pub const KWOK_CLUSTER_PORT: ContainerPort = ContainerPort::Tcp(8080);
 ///
 /// [`Kwok Cluster`]: https://kwok.sigs.k8s.io/
 #[derive(Debug, Default, Clone)]
-pub struct KwokCluster;
+pub struct KwokCluster {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for KwokCluster {
     fn name(&self) -> &str {
@@ -82,7 +87,7 @@ mod test {
                 .expect("Error initializing rustls provider");
         }
 
-        let node = KwokCluster.start().await?;
+        let node = KwokCluster::default().start().await?;
         let host_port = node.get_host_port_ipv4(8080.tcp()).await?;
 
         // Create a custom Kubeconfig
@@ -98,7 +103,7 @@ mod test {
                 name: CONTEXT_NAME.to_string(),
                 context: Option::from(kube::config::Context {
                     cluster: CLUSTER_NAME.to_string(),
-                    user: String::from(CLUSTER_USER),
+                    user: Some(String::from(CLUSTER_USER)),
                     ..Default::default()
                 }),
             }],

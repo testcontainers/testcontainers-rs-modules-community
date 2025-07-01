@@ -1,4 +1,8 @@
+pub use pro::LocalStackPro;
 use testcontainers::{core::WaitFor, Image};
+
+/// LocalStack Pro
+pub mod pro;
 
 const NAME: &str = "localstack/localstack";
 const TAG: &str = "3.0";
@@ -26,6 +30,9 @@ const DEFAULT_WAIT: u64 = 3000;
 /// No environment variables are required.
 #[derive(Default, Debug, Clone)]
 pub struct LocalStack {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 
@@ -63,7 +70,7 @@ mod tests {
 
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = sqs::config::Credentials::new("fake", "fake", None, None, "test");
-        let config = aws_config::defaults(BehaviorVersion::v2024_03_28())
+        let config = aws_config::defaults(BehaviorVersion::v2025_01_17())
             .region(region_provider)
             .credentials_provider(creds)
             .endpoint_url(format!("http://{host_ip}:{host_port}"))

@@ -1,3 +1,5 @@
+// let's document our code for other/future developers
+#![deny(missing_docs)]
 #![cfg_attr(docsrs, deny(rustdoc::broken_intra_doc_links))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
@@ -6,6 +8,18 @@
 #![doc = include_str!("../README.md")]
 //! Please have a look at the documentation of the separate modules for examples on how to use the module.
 
+#[cfg(feature = "anvil")]
+#[cfg_attr(docsrs, doc(cfg(feature = "anvil")))]
+/// **Anvil** (local blockchain emulator for EVM-compatible development) testcontainer
+pub mod anvil;
+#[cfg(feature = "arrow_flightsql")]
+#[cfg_attr(docsrs, doc(cfg(feature = "arrow_flightsql")))]
+/// **arrow_flightsql** (Apache Arrow FlightSQL server) testcontainer
+pub mod arrow_flightsql;
+#[cfg(feature = "azurite")]
+#[cfg_attr(docsrs, doc(cfg(feature = "azurite")))]
+/// **Azurite** (azure storage emulator) testcontainer
+pub mod azurite;
 #[cfg(feature = "clickhouse")]
 #[cfg_attr(docsrs, doc(cfg(feature = "clickhouse")))]
 /// **Clickhouse** (analytics database) testcontainer
@@ -22,6 +36,23 @@ pub mod cockroach_db;
 #[cfg_attr(docsrs, doc(cfg(feature = "consul")))]
 /// **Consul** (identity-based networking) testcontainer
 pub mod consul;
+#[cfg(feature = "cratedb")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cratedb")))]
+/// **CrateDB** (distributed real-time analytics database) testcontainer
+pub mod cratedb;
+#[cfg(feature = "databend")]
+#[cfg_attr(docsrs, doc(cfg(feature = "databend")))]
+/// **Databend** (analytics database) testcontainer
+pub mod databend;
+#[cfg(feature = "dex")]
+#[cfg_attr(docsrs, doc(cfg(feature = "dex")))]
+/// **Dex** (OIDC provider) testcontainer
+pub mod dex;
+#[cfg(feature = "zitadel")]
+#[cfg_attr(docsrs, doc(cfg(feature = "zitadel")))]
+/// **Zitadel** (identity and access management) testcontainer
+pub mod zitadel;
+
 #[cfg(feature = "dynamodb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "dynamodb")))]
 /// **DynamoDB** (NoSQL database) testcontainer
@@ -34,6 +65,10 @@ pub mod elastic_search;
 #[cfg_attr(docsrs, doc(cfg(feature = "elasticmq")))]
 /// **ElasticMQ** (message queue) testcontainer
 pub mod elasticmq;
+#[cfg(feature = "gitea")]
+#[cfg_attr(docsrs, doc(cfg(feature = "gitea")))]
+/// **Gitea** (self-hosted Git service) testcontainer
+pub mod gitea;
 #[cfg(feature = "google_cloud_sdk_emulators")]
 #[cfg_attr(docsrs, doc(cfg(feature = "google_cloud_sdk_emulators")))]
 /// **googles cloud sdk emulator** testcontainer
@@ -56,7 +91,7 @@ pub mod kafka;
 pub mod kwok;
 #[cfg(feature = "localstack")]
 #[cfg_attr(docsrs, doc(cfg(feature = "localstack")))]
-/// **Apache Kafka** (data streaming) testcontainer
+/// **LocalStack** (local AWS emulation) testcontainer
 pub mod localstack;
 #[cfg(feature = "mariadb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "mariadb")))]
@@ -88,7 +123,7 @@ pub mod mssql_server;
 pub mod mysql;
 #[cfg(feature = "nats")]
 #[cfg_attr(docsrs, doc(cfg(feature = "nats")))]
-/// **Nats** (message orineted middleware) testcontainer
+/// **Nats** (message oriented middleware) testcontainer
 pub mod nats;
 #[cfg(feature = "neo4j")]
 #[cfg_attr(docsrs, doc(cfg(feature = "neo4j")))]
@@ -114,6 +149,10 @@ pub mod parity_parity;
 #[cfg_attr(docsrs, doc(cfg(feature = "postgres")))]
 /// **Postgres** (relational database) testcontainer
 pub mod postgres;
+#[cfg(feature = "pulsar")]
+#[cfg_attr(docsrs, doc(cfg(feature = "pulsar")))]
+/// **Apache Pulsar** (Cloud-Native, Distributed Messaging and Streaming) testcontainer
+pub mod pulsar;
 #[cfg(feature = "rabbitmq")]
 #[cfg_attr(docsrs, doc(cfg(feature = "rabbitmq")))]
 /// **rabbitmq** (message broker) testcontainer
@@ -122,6 +161,14 @@ pub mod rabbitmq;
 #[cfg_attr(docsrs, doc(cfg(feature = "redis")))]
 /// **redis** (in memory nosql database) testcontainer
 pub mod redis;
+#[cfg(feature = "rqlite")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rqlite")))]
+/// **RQLite** (lightweight, user-friendly, distributed relational database) testcontainer
+pub mod rqlite;
+#[cfg(feature = "scylladb")]
+#[cfg_attr(docsrs, doc(cfg(feature = "scylladb")))]
+/// **scylladb** (distributed NoSQL wide-column data store) testcontainer
+pub mod scylladb;
 #[cfg(feature = "solr")]
 #[cfg_attr(docsrs, doc(cfg(feature = "solr")))]
 /// **Apache Solr** (distributed search engine) testcontainer
@@ -132,15 +179,25 @@ pub mod solr;
 pub mod surrealdb;
 #[cfg(feature = "trufflesuite_ganachecli")]
 #[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
-/// **Trufflesuite Ganache CLI** (etherium simulator) testcontainer
+/// **Trufflesuite Ganache CLI** (ethereum simulator) testcontainer
 pub mod trufflesuite_ganachecli;
+
+#[cfg(feature = "weaviate")]
+#[cfg_attr(docsrs, doc(cfg(feature = "weaviate")))]
+/// **Weaviate** (Vector database) testcontainer
+pub mod weaviate;
+
+#[cfg(feature = "valkey")]
+#[cfg_attr(docsrs, doc(cfg(feature = "valkey")))]
+/// **Valkey** (in memory nosql database) testcontainer
+pub mod valkey;
 #[cfg(feature = "victoria_metrics")]
 #[cfg_attr(docsrs, doc(cfg(feature = "victoria_metrics")))]
 /// **VictoriaMetrics** (monitoring and time series metrics database) testcontainer
 pub mod victoria_metrics;
 #[cfg(feature = "zookeeper")]
 #[cfg_attr(docsrs, doc(cfg(feature = "zookeeper")))]
-/// **Apache ZooKeeper** (locking and configuratin management) testcontainer
+/// **Apache ZooKeeper** (locking and configuration management) testcontainer
 pub mod zookeeper;
 
 /// Re-exported version of `testcontainers` to avoid version conflicts

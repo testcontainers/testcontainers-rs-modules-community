@@ -5,8 +5,13 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "parity/parity";
 const TAG: &str = "v2.5.0";
 
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Default, Clone)]
 pub struct ParityEthereum {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
     _priv: (),
 }
 

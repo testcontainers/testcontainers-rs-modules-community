@@ -13,7 +13,9 @@ const TAG: &str = "v1.96.0";
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, victoria_metrics};
 ///
-/// let victoria_metrics_instance = victoria_metrics::VictoriaMetrics.start().unwrap();
+/// let victoria_metrics_instance = victoria_metrics::VictoriaMetrics::default()
+///     .start()
+///     .unwrap();
 ///
 /// let import_url = format!(
 ///     "http://127.0.0.1:{}/api/v1/import",
@@ -31,7 +33,12 @@ const TAG: &str = "v1.96.0";
 /// [`VictoriaMetrics API examples`]: https://docs.victoriametrics.com/url-examples.html#victoriametrics-api-examples
 /// [`VictoriaMetrics Docker image`]: https://hub.docker.com/r/victoriametrics/victoria-metrics
 #[derive(Debug, Default, Clone)]
-pub struct VictoriaMetrics;
+pub struct VictoriaMetrics {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for VictoriaMetrics {
     fn name(&self) -> &str {
@@ -61,7 +68,7 @@ mod tests {
 
     #[test]
     fn query_buildinfo() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        let node = VictoriaMetricsImage.start()?;
+        let node = VictoriaMetricsImage::default().start()?;
         let host_ip = node.get_host()?;
         let host_port = node.get_host_port_ipv4(8428)?;
         let url = format!("http://{host_ip}:{host_port}/api/v1/status/buildinfo");
