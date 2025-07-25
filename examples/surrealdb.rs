@@ -6,7 +6,7 @@ use surrealdb::{
 };
 use testcontainers_modules::{
     surrealdb::{SurrealDb, SURREALDB_PORT},
-    testcontainers::clients::Cli,
+    testcontainers::runners::AsyncRunner,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -25,9 +25,11 @@ struct Person {
 #[tokio::main]
 async fn main() {
     let _ = pretty_env_logger::try_init();
-    let docker = Cli::default();
-    let node = docker.run(SurrealDb::default());
-    let url = format!("127.0.0.1:{}", node.get_host_port_ipv4(SURREALDB_PORT));
+    let node = SurrealDb::default().start().await.unwrap();
+    let url = format!(
+        "127.0.0.1:{}",
+        node.get_host_port_ipv4(SURREALDB_PORT).await.unwrap()
+    );
 
     let db: Surreal<Client> = Surreal::init();
     db.connect::<Ws>(url)
@@ -68,7 +70,7 @@ async fn main() {
     assert_eq!(result.title, "Founder & CEO");
     assert_eq!(result.name.first, "Tobie");
     assert_eq!(result.name.last, "Morgan Hitchcock");
-    assert_eq!(result.marketing, true);
+    assert!(result.marketing);
 
     println!("All right, all right, all right!\n\n{:#?}", result);
 }

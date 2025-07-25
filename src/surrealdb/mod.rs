@@ -1,20 +1,18 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "surrealdb/surrealdb";
-const TAG: &str = "v1.1.1";
+const TAG: &str = "v2.2";
 
-pub const SURREALDB_PORT: u16 = 8000;
-
-#[derive(Debug, Default, Clone)]
-pub struct SurrealDbArgs;
-
-impl ImageArgs for SurrealDbArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        Box::new(vec!["start".to_owned()].into_iter())
-    }
-}
+/// Port that the [`SurrealDB`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`SurrealDB`]: https://surrealdb.com/
+pub const SURREALDB_PORT: ContainerPort = ContainerPort::Tcp(8000);
 
 /// Module to work with [`SurrealDB`] inside of tests.
 /// Starts an instance of SurrealDB.
@@ -26,28 +24,28 @@ impl ImageArgs for SurrealDbArgs {
 /// #    engine::remote::ws::{Client, Ws},
 /// #    Surreal,
 /// # };
-/// use testcontainers::clients;
-/// use testcontainers_modules::surrealdb;
+/// use testcontainers_modules::{surrealdb, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let surrealdb_instance = docker.run(surrealdb::SurrealDb::default());
+/// let surrealdb_instance = surrealdb::SurrealDb::default().start().unwrap();
 ///
 /// let connection_string = format!(
-///    "127.0.0.1:{}",
-///    surrealdb_instance.get_host_port_ipv4(surrealdb::SURREALDB_PORT)
+///     "127.0.0.1:{}",
+///     surrealdb_instance
+///         .get_host_port_ipv4(surrealdb::SURREALDB_PORT)
+///         .unwrap(),
 /// );
 ///
 /// # let runtime = tokio::runtime::Runtime::new().unwrap();
 /// # runtime.block_on(async {
 /// let db: Surreal<Client> = Surreal::init();
-/// db.connect::<Ws>(connection_string).await.expect("Failed to connect to SurrealDB");
+/// db.connect::<Ws>(connection_string)
+///     .await
+///     .expect("Failed to connect to SurrealDB");
 /// # });
-///
 /// ```
 /// [`SurrealDB`]: https://surrealdb.com/
 /// [`SurrealDB docker image`]: https://hub.docker.com/r/surrealdb/surrealdb
-///
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SurrealDb {
     env_vars: HashMap<String, String>,
 }
@@ -67,10 +65,10 @@ impl SurrealDb {
         self
     }
 
-    /// Sets authentication for the SurrealDB instance.
-    pub fn with_authentication(mut self, authentication: bool) -> Self {
+    /// Sets unauthenticated flag for the SurrealDB instance.
+    pub fn with_unauthenticated(mut self) -> Self {
         self.env_vars
-            .insert("SURREAL_AUTH".to_owned(), authentication.to_string());
+            .insert("SURREAL_UNAUTHENTICATED".to_owned(), "true".to_string());
         self
     }
 
@@ -103,26 +101,30 @@ impl Default for SurrealDb {
 }
 
 impl Image for SurrealDb {
-    type Args = SurrealDbArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stderr("Started web server on ")]
+        vec![WaitFor::message_on_stdout("Started web server on ")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 
-    fn expose_ports(&self) -> Vec<u16> {
-        vec![SURREALDB_PORT]
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        ["start"]
+    }
+
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[SURREALDB_PORT]
     }
 }
 
@@ -134,7 +136,7 @@ mod tests {
         opt::auth::Root,
         Surreal,
     };
-    use testcontainers::clients;
+    use testcontainers::runners::AsyncRunner;
 
     use super::*;
 
@@ -152,11 +154,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn surrealdb_select() {
+    async fn surrealdb_select() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(SurrealDb::default());
-        let host_port = node.get_host_port_ipv4(SURREALDB_PORT);
+        let node = SurrealDb::default().start().await?;
+        let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await?;
         let url = format!("127.0.0.1:{host_port}");
 
         let db: Surreal<Client> = Surreal::init();
@@ -193,15 +194,15 @@ mod tests {
         assert_eq!(result.title, "Founder & CEO");
         assert_eq!(result.name.first, "Tobie");
         assert_eq!(result.name.last, "Morgan Hitchcock");
-        assert_eq!(result.marketing, true)
+        assert!(result.marketing);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn surrealdb_no_auth() {
+    async fn surrealdb_no_auth() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(SurrealDb::default().with_authentication(false));
-        let host_port = node.get_host_port_ipv4(SURREALDB_PORT);
+        let node = SurrealDb::default().with_unauthenticated().start().await?;
+        let host_port = node.get_host_port_ipv4(SURREALDB_PORT).await?;
         let url = format!("127.0.0.1:{host_port}");
 
         let db: Surreal<Client> = Surreal::init();
@@ -231,6 +232,7 @@ mod tests {
         assert_eq!(result.title, "Founder & CEO");
         assert_eq!(result.name.first, "Tobie");
         assert_eq!(result.name.last, "Morgan Hitchcock");
-        assert_eq!(result.marketing, true)
+        assert!(result.marketing);
+        Ok(())
     }
 }

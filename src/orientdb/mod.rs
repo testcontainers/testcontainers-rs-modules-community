@@ -1,63 +1,59 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "orientdb";
 const TAG: &str = "3.2.19";
 
-#[derive(Debug)]
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+#[derive(Debug, Default, Clone)]
 pub struct OrientDb {
-    env_vars: HashMap<String, String>,
-}
-
-impl Default for OrientDb {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("ORIENTDB_ROOT_PASSWORD".to_owned(), "root".to_owned());
-
-        OrientDb { env_vars }
-    }
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
 }
 
 impl Image for OrientDb {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stderr("OrientDB Studio available at")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [("ORIENTDB_ROOT_PASSWORD", "root")]
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::orientdb::OrientDb;
     use reqwest::StatusCode;
     use retry::{delay::Fixed, retry};
-    use testcontainers::clients;
+
+    use crate::{orientdb::OrientDb, testcontainers::runners::SyncRunner};
 
     #[test]
     fn orientdb_exists_database() {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(OrientDb::default());
+        let node = OrientDb::default().start().unwrap();
         let client = reqwest::blocking::Client::new();
 
         let response = retry(Fixed::from_millis(500).take(5), || {
             client
                 .get(format!(
-                    "http://localhost:{}/listDatabases",
-                    node.get_host_port_ipv4(2480)
+                    "http://{}:{}/listDatabases",
+                    node.get_host().unwrap(),
+                    node.get_host_port_ipv4(2480).unwrap()
                 ))
                 .header("Accept-Encoding", "gzip,deflate")
                 .send()

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "postgres";
 const TAG: &str = "11-alpine";
@@ -14,23 +14,24 @@ const TAG: &str = "11-alpine";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::postgres;
+/// use testcontainers_modules::{postgres, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let postgres_instance = docker.run(postgres::Postgres::default());
+/// let postgres_instance = postgres::Postgres::default().start().unwrap();
 ///
 /// let connection_string = format!(
-///     "postgres://postgres:postgres@127.0.0.1:{}/postgres",
-///     postgres_instance.get_host_port_ipv4(5432)
+///     "postgres://postgres:postgres@{}:{}/postgres",
+///     postgres_instance.get_host().unwrap(),
+///     postgres_instance.get_host_port_ipv4(5432).unwrap()
 /// );
 /// ```
 ///
 /// [`Postgres`]: https://www.postgresql.org/
 /// [`Postgres docker image`]: https://hub.docker.com/_/postgres
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Postgres {
     env_vars: HashMap<String, String>,
+    copy_to_sources: Vec<CopyToContainer>,
+    fsync_enabled: bool,
 }
 
 impl Postgres {
@@ -62,8 +63,42 @@ impl Postgres {
             .insert("POSTGRES_PASSWORD".to_owned(), password.to_owned());
         self
     }
-}
 
+    /// Registers sql to be executed automatically when the container starts.
+    /// Can be called multiple times to add (not override) scripts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use testcontainers_modules::postgres::Postgres;
+    /// let postgres_image = Postgres::default().with_init_sql(
+    ///     "CREATE EXTENSION IF NOT EXISTS hstore;"
+    ///         .to_string()
+    ///         .into_bytes(),
+    /// );
+    /// ```
+    ///
+    /// ```rust,ignore
+    /// # use testcontainers_modules::postgres::Postgres;
+    /// let postgres_image = Postgres::default()
+    ///                                .with_init_sql(include_str!("path_to_init.sql").to_string().into_bytes());
+    /// ```
+    pub fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.copy_to_sources.len()
+        );
+        self.copy_to_sources
+            .push(CopyToContainer::new(init_sql.into(), target));
+        self
+    }
+
+    /// Enables [the fsync-setting](https://www.postgresql.org/docs/current/runtime-config-wal.html#GUC-FSYNC) for the Postgres instance.
+    pub fn with_fsync_enabled(mut self) -> Self {
+        self.fsync_enabled = true;
+        self
+    }
+}
 impl Default for Postgres {
     fn default() -> Self {
         let mut env_vars = HashMap::new();
@@ -71,47 +106,65 @@ impl Default for Postgres {
         env_vars.insert("POSTGRES_USER".to_owned(), "postgres".to_owned());
         env_vars.insert("POSTGRES_PASSWORD".to_owned(), "postgres".to_owned());
 
-        Self { env_vars }
+        Self {
+            env_vars,
+            copy_to_sources: Vec::new(),
+            fsync_enabled: false,
+        }
     }
 }
 
 impl Image for Postgres {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stderr(
-            "database system is ready to accept connections",
-        )]
+        vec![
+            WaitFor::message_on_stderr("database system is ready to accept connections"),
+            WaitFor::message_on_stdout("database system is ready to accept connections"),
+        ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
+    }
+
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        &self.copy_to_sources
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<std::borrow::Cow<'_, str>>> {
+        if !self.fsync_enabled {
+            vec!["-c", "fsync=off"]
+        } else {
+            vec![]
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::{clients, RunnableImage};
+    use testcontainers::{runners::SyncRunner, ImageExt};
 
     use super::*;
 
     #[test]
-    fn postgres_one_plus_one() {
-        let docker = clients::Cli::default();
+    fn postgres_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
         let postgres_image = Postgres::default().with_host_auth();
-        let node = docker.run(postgres_image);
+        let node = postgres_image.start()?;
 
         let connection_string = &format!(
-            "postgres://postgres@127.0.0.1:{}/postgres",
-            node.get_host_port_ipv4(5432)
+            "postgres://postgres@{}:{}/postgres",
+            node.get_host()?,
+            node.get_host_port_ipv4(5432)?
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
 
@@ -121,17 +174,17 @@ mod tests {
         let first_row = &rows[0];
         let first_column: i32 = first_row.get(0);
         assert_eq!(first_column, 2);
+        Ok(())
     }
 
     #[test]
-    fn postgres_custom_version() {
-        let docker = clients::Cli::default();
-        let image = RunnableImage::from(Postgres::default()).with_tag("13-alpine");
-        let node = docker.run(image);
+    fn postgres_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = Postgres::default().with_tag("13-alpine").start()?;
 
         let connection_string = &format!(
-            "postgres://postgres:postgres@127.0.0.1:{}/postgres",
-            node.get_host_port_ipv4(5432)
+            "postgres://postgres:postgres@{}:{}/postgres",
+            node.get_host()?,
+            node.get_host_port_ipv4(5432)?
         );
         let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
 
@@ -141,5 +194,33 @@ mod tests {
         let first_row = &rows[0];
         let first_column: String = first_row.get(0);
         assert!(first_column.contains("13"));
+        Ok(())
+    }
+
+    #[test]
+    fn postgres_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = Postgres::default()
+            .with_init_sql(
+                "CREATE TABLE foo (bar varchar(255));"
+                    .to_string()
+                    .into_bytes(),
+            )
+            .start()?;
+
+        let connection_string = &format!(
+            "postgres://postgres:postgres@{}:{}/postgres",
+            node.get_host()?,
+            node.get_host_port_ipv4(5432)?
+        );
+        let mut conn = postgres::Client::connect(connection_string, postgres::NoTls).unwrap();
+
+        let rows = conn
+            .query("INSERT INTO foo(bar) VALUES ($1)", &[&"blub"])
+            .unwrap();
+        assert_eq!(rows.len(), 0);
+
+        let rows = conn.query("SELECT bar FROM foo", &[]).unwrap();
+        assert_eq!(rows.len(), 1);
+        Ok(())
     }
 }

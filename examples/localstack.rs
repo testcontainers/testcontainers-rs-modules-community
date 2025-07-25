@@ -1,28 +1,33 @@
-use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
+use aws_config::{BehaviorVersion, Region};
 use aws_sdk_s3 as s3;
-use testcontainers::RunnableImage;
-use testcontainers_modules::{localstack::LocalStack, testcontainers::clients::Cli};
+use testcontainers_modules::{
+    localstack::LocalStack,
+    testcontainers::{runners::AsyncRunner, ImageExt},
+};
 
 #[tokio::main]
-async fn main() -> Result<(), s3::Error> {
-    let docker = Cli::default();
-    let image: RunnableImage<LocalStack> = LocalStack::default().into();
-    let image = image.with_env_var(("SERVICES", "s3"));
-    let container = docker.run(image);
-    let host_port = container.get_host_port_ipv4(4566);
+#[allow(clippy::result_large_err)]
+async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
+    let _ = pretty_env_logger::try_init();
 
+    let request = LocalStack::default().with_env_var("SERVICES", "s3");
+    let container = request.start().await?;
+
+    let host_ip = container.get_host().await?;
+    let host_port = container.get_host_port_ipv4(4566).await?;
     // Set up AWS client
-    let endpoint_url = format!("http://127.0.0.1:{host_port}");
-    let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
+    let endpoint_url = format!("http://{host_ip}:{host_port}");
     let creds = s3::config::Credentials::new("fake", "fake", None, None, "test");
-    let config = aws_config::defaults(BehaviorVersion::v2023_11_09())
-        .region(region_provider)
+
+    let config = aws_sdk_s3::config::Builder::default()
+        .behavior_version(BehaviorVersion::v2025_01_17())
+        .region(Region::new("us-east-1"))
         .credentials_provider(creds)
         .endpoint_url(endpoint_url)
-        .load()
-        .await;
+        .force_path_style(true)
+        .build();
 
-    let client = s3::Client::new(&config);
+    let client = s3::Client::from_conf(config);
 
     client
         .create_bucket()

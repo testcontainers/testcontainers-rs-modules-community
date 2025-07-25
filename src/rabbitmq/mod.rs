@@ -12,13 +12,15 @@ const TAG: &str = "3.8.22-management";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::rabbitmq;
+/// use testcontainers_modules::{rabbitmq, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let rabbitmq_instance = docker.run(rabbitmq::RabbitMq);
+/// let rabbitmq_instance = rabbitmq::RabbitMq::default().start().unwrap();
 ///
-/// let amqp_url = format!("amqp://127.0.0.1:{}", rabbitmq_instance.get_host_port_ipv4(5672));
+/// let amqp_url = format!(
+///     "amqp://{}:{}",
+///     rabbitmq_instance.get_host().unwrap(),
+///     rabbitmq_instance.get_host_port_ipv4(5672).unwrap()
+/// );
 ///
 /// // do something with the started rabbitmq instance..
 /// ```
@@ -28,17 +30,20 @@ const TAG: &str = "3.8.22-management";
 /// [`RabbitMQ Management HTTP API`]: https://www.rabbitmq.com/management.html#http-api
 /// [`RabbitMQ docker image`]: https://hub.docker.com/_/rabbitmq
 #[derive(Debug, Default, Clone)]
-pub struct RabbitMq;
+pub struct RabbitMq {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for RabbitMq {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -61,17 +66,20 @@ mod tests {
         types::FieldTable,
         BasicProperties, Connection, ConnectionProperties, ExchangeKind,
     };
-    use testcontainers::clients;
 
-    use crate::rabbitmq;
+    use crate::{rabbitmq, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
-    async fn rabbitmq_produce_and_consume_messages() {
+    async fn rabbitmq_produce_and_consume_messages(
+    ) -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let rabbit_node = docker.run(rabbitmq::RabbitMq);
+        let rabbit_node = rabbitmq::RabbitMq::default().start().await?;
 
-        let amqp_url = format!("amqp://127.0.0.1:{}", rabbit_node.get_host_port_ipv4(5672));
+        let amqp_url = format!(
+            "amqp://{}:{}",
+            rabbit_node.get_host().await?,
+            rabbit_node.get_host_port_ipv4(5672).await?
+        );
 
         let options = ConnectionProperties::default();
         let connection = Connection::connect(amqp_url.as_str(), options)
@@ -145,5 +153,6 @@ mod tests {
         );
         assert_eq!(delivery.exchange.as_str(), "test_exchange");
         assert_eq!(delivery.routing_key.as_str(), "routing-key");
+        Ok(())
     }
 }

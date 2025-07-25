@@ -1,11 +1,12 @@
 use std::{
     borrow::Cow,
-    cell::RefCell,
     collections::{BTreeSet, HashMap},
+    sync::RwLock,
 };
+
 use testcontainers::{
-    core::{ContainerState, WaitFor},
-    Image, RunnableImage,
+    core::{ContainerState, IntoContainerPort, WaitFor},
+    ContainerRequest, Image, TestcontainersError,
 };
 
 /// Available Neo4j plugins.
@@ -13,12 +14,52 @@ use testcontainers::{
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum Neo4jLabsPlugin {
+    /// APOC (Awesome Procedures on Cypher) **Extended** contains additional procedures and functions, which is available when you self-host the database and add the apoc-extended jar.
+    /// See [`Neo4jLabsPlugin::ApocCore`] for the officially supported variant.
+    /// As of `5.0` APOC has been split into separate repositories, one being the main, officially supported, `APOC Core` and `APOC Extended` Library.
+    ///
+    /// The APOC plugin provides provides access to user-defined procedures and functions which extend the use of the Cypher query language into areas such as data integration, graph algorithms, and data conversion..
+    /// Please see [the APOC Extended documentation] for furhter details
+    ///
+    /// [Cypher query language]: https://neo4j.com/docs/cypher-manual/current/introduction/
+    /// [the APOC Extended documentation]: https://neo4j.com/docs/apoc/current/
     Apoc,
+    /// APOC (Awesome Procedures on Cypher) **Core** are battle hardened procedures and functions that don’t have external dependencies or require configuration.
+    /// This is also the based of the functionality available in Neo4j AuraDB which lists the available APOC surface in their docs..
+    /// See [`Neo4jLabsPlugin::Apoc`] for the variant maintained by the community.
+    /// As of `5.0` APOC has been split into separate repositories, one being the main, officially supported, `APOC Core` and `APOC Extended` Library.
+    ///
+    /// The APOC plugin provides provides access to user-defined procedures and functions which extend the use of the [Cypher query language] into areas such as data integration, graph algorithms, and data conversion..
+    /// Please see [the APOC Core documentation] for furhter details
+    ///
+    /// [Cypher query language]: https://neo4j.com/docs/cypher-manual/current/introduction/
+    /// [the APOC Core documentation]: https://neo4j.com/docs/aura/platform/apoc/
     ApocCore,
+    /// Bloom is a graph exploration application for visually interacting with graph data.
+    /// Please see [their documentation](https://neo4j.com/docs/bloom-user-guide/current/) for furhter details
     Bloom,
+    /// Allows integration of Kafka and other streaming solutions with Neo4j.
+    /// Either to ingest data into the graph from other sources.
+    /// Or to send update events (change data capture - CDC) to the event log for later consumption.
+    /// Please see [their documentation](https://neo4j.com/docs/kafka-streams/) for furhter details
+    ///
+    /// <div class="warning">
+    ///
+    /// The Kafka Connect Neo4j Connector is the recommended method to integrate Kafka with Neo4j, as Neo4j Streams is no longer under active development and will not be supported after version 4.4 of Neo4j.
+    /// The most recent version of the Kafka Connect Neo4j Connector [can be found here](https://neo4j.com/docs/kafka).
+    ///
+    /// </div>
     Streams,
+    /// Graph Data Science (GDS) library provides efficiently implemented, parallel versions of common graph algorithms, exposed as Cypher procedures. Additionally, GDS includes machine learning pipelines to train predictive supervised models to solve graph problems, such as predicting missing relationships..
+    /// Please see [their documentation](https://neo4j.com/docs/graph-data-science/current/) for furhter details
     GraphDataScience,
+    /// neosemantics (n10s) is a plugin that enables the use of RDF and its associated vocabularies like (OWL,RDFS,SKOS and others) in Neo4j.
+    /// [RDF is a W3C standard model](https://www.w3.org/RDF/) for data interchange.
+    /// You can use n10s to build integrations with RDF-generating / RDF-consuming components.
+    /// You can also use it to validate your graph against constraints expressed in [SHACL](https://www.w3.org/TR/shacl/) or to run basic inferencing.
+    /// Please see [their documentation](https://neo4j.com/labs/neosemantics/) for furhter details
     NeoSemantics,
+    /// Allows specifying other plugins
     Custom(String),
 }
 
@@ -45,12 +86,14 @@ impl std::fmt::Display for Neo4jLabsPlugin {
 /// # Example
 ///
 /// ```rust,no_run
-/// use testcontainers::clients::Cli;
-/// use testcontainers_modules::neo4j::Neo4j;
+/// use testcontainers_modules::{neo4j::Neo4j, testcontainers::runners::SyncRunner};
 ///
-/// let cli = Cli::default();
-/// let container = cli.run(Neo4j::default());
-/// let uri = format!("bolt://localhost:{}", container.image().bolt_port_ipv4());
+/// let container = Neo4j::default().start().unwrap();
+/// let uri = format!(
+///     "bolt://{}:{}",
+///     container.get_host().unwrap(),
+///     container.image().bolt_port_ipv4().unwrap()
+/// );
 /// let auth_user = container.image().user();
 /// let auth_pass = container.image().password();
 /// // connect to Neo4j with the uri, user and pass
@@ -160,7 +203,7 @@ pub struct Neo4jImage {
     version: String,
     auth: Option<(String, String)>,
     env_vars: HashMap<String, String>,
-    state: RefCell<Option<ContainerState>>,
+    state: RwLock<Option<ContainerState>>,
 }
 
 impl Neo4jImage {
@@ -194,51 +237,61 @@ impl Neo4jImage {
     }
 
     /// Return the port to connect to the Neo4j server via Bolt over IPv4.
-    pub fn bolt_port_ipv4(&self) -> u16 {
+    pub fn bolt_port_ipv4(&self) -> Result<u16, TestcontainersError> {
         self.state
-            .borrow()
+            .read()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .as_ref()
-            .expect("Container must be started before port can be retrieved")
-            .host_port_ipv4(7687)
+            .ok_or_else(|| {
+                TestcontainersError::other("Container must be started before port can be retrieved")
+            })?
+            .host_port_ipv4(7687.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via Bolt over IPv6.
-    pub fn bolt_port_ipv6(&self) -> u16 {
+    pub fn bolt_port_ipv6(&self) -> Result<u16, TestcontainersError> {
         self.state
-            .borrow()
+            .read()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .as_ref()
-            .expect("Container must be started before port can be retrieved")
-            .host_port_ipv6(7687)
+            .ok_or_else(|| {
+                TestcontainersError::other("Container must be started before port can be retrieved")
+            })?
+            .host_port_ipv6(7687.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv4.
-    pub fn http_port_ipv4(&self) -> u16 {
+    pub fn http_port_ipv4(&self) -> Result<u16, TestcontainersError> {
         self.state
-            .borrow()
+            .read()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .as_ref()
-            .expect("Container must be started before port can be retrieved")
-            .host_port_ipv4(7474)
+            .ok_or_else(|| {
+                TestcontainersError::other("Container must be started before port can be retrieved")
+            })?
+            .host_port_ipv4(7474.tcp())
     }
 
     /// Return the port to connect to the Neo4j server via HTTP over IPv6.
-    pub fn http_port_ipv6(&self) -> u16 {
+    pub fn http_port_ipv6(&self) -> Result<u16, TestcontainersError> {
         self.state
-            .borrow()
+            .read()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
             .as_ref()
-            .expect("Container must be started before port can be retrieved")
-            .host_port_ipv6(7474)
+            .ok_or_else(|| {
+                TestcontainersError::other("Container must be started before port can be retrieved")
+            })?
+            .host_port_ipv6(7474.tcp())
     }
 }
 
 impl Image for Neo4jImage {
-    type Args = ();
-
-    fn name(&self) -> String {
-        "neo4j".to_owned()
+    fn name(&self) -> &str {
+        "neo4j"
     }
 
-    fn tag(&self) -> String {
-        self.version.clone()
+    fn tag(&self) -> &str {
+        &self.version
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -248,13 +301,21 @@ impl Image for Neo4jImage {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 
-    fn exec_after_start(&self, cs: ContainerState) -> Vec<testcontainers::core::ExecCommand> {
-        *self.state.borrow_mut() = Some(cs);
-        Vec::new()
+    fn exec_after_start(
+        &self,
+        cs: ContainerState,
+    ) -> Result<Vec<testcontainers::core::ExecCommand>, TestcontainersError> {
+        self.state
+            .write()
+            .map_err(|_| TestcontainersError::other("failed to lock the sate of Neo4J"))?
+            .replace(cs);
+        Ok(Vec::new())
     }
 }
 
@@ -323,7 +384,7 @@ impl Neo4j {
             version,
             auth,
             env_vars,
-            state: RefCell::new(None),
+            state: RwLock::new(None),
         }
     }
 }
@@ -334,7 +395,7 @@ impl From<Neo4j> for Neo4jImage {
     }
 }
 
-impl From<Neo4j> for RunnableImage<Neo4jImage> {
+impl From<Neo4j> for ContainerRequest<Neo4jImage> {
     fn from(neo4j: Neo4j) -> Self {
         Self::from(neo4j.build())
     }
@@ -353,9 +414,9 @@ impl std::fmt::Debug for Neo4jImage {
 #[cfg(test)]
 mod tests {
     use neo4rs::Graph;
-    use testcontainers::clients::Cli;
 
     use super::*;
+    use crate::testcontainers::runners::AsyncRunner;
 
     #[test]
     fn set_valid_version() {
@@ -450,11 +511,14 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn it_works() {
-        let cli = Cli::default();
-        let container = cli.run(Neo4j::default());
+    async fn it_works() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let container = Neo4j::default().start().await?;
 
-        let uri = format!("bolt://localhost:{}", container.image().bolt_port_ipv4());
+        let uri = format!(
+            "bolt://{}:{}",
+            container.get_host().await?,
+            container.image().bolt_port_ipv4()?
+        );
 
         let auth_user = container.image().user().expect("default user");
         let auth_pass = container.image().password().expect("default password");
@@ -464,5 +528,6 @@ mod tests {
         let row = result.next().await.unwrap().unwrap();
         let value: i64 = row.get("1").unwrap();
         assert_eq!(1, value);
+        Ok(())
     }
 }

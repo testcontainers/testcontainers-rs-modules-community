@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "mysql";
 const TAG: &str = "8.1";
@@ -13,41 +13,60 @@ const TAG: &str = "8.1";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::mysql;
+/// use testcontainers_modules::{mysql, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let mysql_instance = docker.run(mysql::Mysql::default());
-///
-/// let mysql_url = format!("mysql://127.0.0.1:{}/test", mysql_instance.get_host_port_ipv4(3306));
+/// let mysql_instance = mysql::Mysql::default().start().unwrap();
+/// let mysql_url = format!(
+///     "mysql://{}:{}/test",
+///     mysql_instance.get_host().unwrap(),
+///     mysql_instance.get_host_port_ipv4(3306).unwrap()
+/// );
 /// ```
 ///
 /// [`MySQL`]: https://www.mysql.com/
 /// [`MySQL docker image`]: https://hub.docker.com/_/mysql
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct Mysql {
-    env_vars: HashMap<String, String>,
+    copy_to_sources: Vec<CopyToContainer>,
 }
-
-impl Default for Mysql {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("MYSQL_DATABASE".to_owned(), "test".to_owned());
-        env_vars.insert("MYSQL_ALLOW_EMPTY_PASSWORD".into(), "yes".into());
-
-        Self { env_vars }
+impl Mysql {
+    /// Registers sql to be executed automatically when the container starts.
+    /// Can be called multiple times to add (not override) scripts.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use testcontainers_modules::mysql::Mysql;
+    /// let mysql_image = Mysql::default().with_init_sql(
+    ///     "CREATE TABLE foo (bar varchar(255));"
+    ///         .to_string()
+    ///         .into_bytes(),
+    /// );
+    /// ```
+    ///
+    /// ```rust,ignore
+    /// # use testcontainers_modules::mysql::Mysql;
+    /// let mysql_image = Mysql::default()
+    ///                                .with_init_sql(include_str!("path_to_init.sql").to_string().into_bytes());
+    /// ```
+    pub fn with_init_sql(mut self, init_sql: impl Into<CopyDataSource>) -> Self {
+        let target = format!(
+            "/docker-entrypoint-initdb.d/init_{i}.sql",
+            i = self.copy_to_sources.len()
+        );
+        self.copy_to_sources
+            .push(CopyToContainer::new(init_sql.into(), target));
+        self
     }
 }
 
 impl Image for Mysql {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -57,27 +76,63 @@ impl Image for Mysql {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [
+            ("MYSQL_DATABASE", "test"),
+            ("MYSQL_ALLOW_EMPTY_PASSWORD", "yes"),
+        ]
+    }
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        &self.copy_to_sources
     }
 }
 
 #[cfg(test)]
 mod tests {
     use mysql::prelude::Queryable;
-    use testcontainers::{clients, RunnableImage};
+    use testcontainers::core::IntoContainerPort;
 
-    use crate::mysql::Mysql as MysqlImage;
+    use crate::{
+        mysql::Mysql as MysqlImage,
+        testcontainers::{runners::SyncRunner, ImageExt},
+    };
 
     #[test]
-    fn mysql_one_plus_one() {
-        let docker = clients::Cli::default();
-        let mysql_image = MysqlImage::default();
-        let node = docker.run(mysql_image);
+    fn mysql_with_init_sql() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = crate::mysql::Mysql::default()
+            .with_init_sql(
+                "CREATE TABLE foo (bar varchar(255));"
+                    .to_string()
+                    .into_bytes(),
+            )
+            .start()?;
 
         let connection_string = &format!(
-            "mysql://root@127.0.0.1:{}/mysql",
-            node.get_host_port_ipv4(3306)
+            "mysql://root@{}:{}/test",
+            node.get_host()?,
+            node.get_host_port_ipv4(3306.tcp())?
+        );
+        let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
+
+        let rows: Vec<String> = conn.query("INSERT INTO foo(bar) VALUES ('blub')").unwrap();
+        assert_eq!(rows.len(), 0);
+
+        let rows: Vec<String> = conn.query("SELECT bar FROM foo").unwrap();
+        assert_eq!(rows.len(), 1);
+        Ok(())
+    }
+
+    #[test]
+    fn mysql_one_plus_one() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let mysql_image = MysqlImage::default();
+        let node = mysql_image.start()?;
+
+        let connection_string = &format!(
+            "mysql://root@{}:{}/mysql",
+            node.get_host()?,
+            node.get_host_port_ipv4(3306)?
         );
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
 
@@ -86,21 +141,23 @@ mod tests {
 
         let first_column: i32 = first_row.unwrap();
         assert_eq!(first_column, 2);
+        Ok(())
     }
 
     #[test]
-    fn mysql_custom_version() {
-        let docker = clients::Cli::default();
-        let image = RunnableImage::from(MysqlImage::default()).with_tag("8.0.34");
-        let node = docker.run(image);
+    fn mysql_custom_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let image = MysqlImage::default().with_tag("8.0.34");
+        let node = image.start()?;
 
         let connection_string = &format!(
-            "mysql://root@localhost:{}/mysql",
-            node.get_host_port_ipv4(3306)
+            "mysql://root@{}:{}/mysql",
+            node.get_host()?,
+            node.get_host_port_ipv4(3306)?
         );
 
         let mut conn = mysql::Conn::new(mysql::Opts::from_url(connection_string).unwrap()).unwrap();
         let first_row = conn.query_first("SELECT version()").unwrap();
         assert_eq!(first_row, Some(String::from("8.0.34")));
+        Ok(())
     }
 }

@@ -1,16 +1,19 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "minio/minio";
-const TAG: &str = "RELEASE.2022-02-07T08-17-33Z";
+const TAG: &str = "RELEASE.2025-02-28T09-55-16Z";
 
 const DIR: &str = "/data";
 const CONSOLE_ADDRESS: &str = ":9001";
 
-#[derive(Debug)]
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+#[derive(Debug, Clone)]
 pub struct MinIO {
     env_vars: HashMap<String, String>,
+    cmd: MinIOServerCmd,
 }
 
 impl Default for MinIO {
@@ -21,18 +24,29 @@ impl Default for MinIO {
             CONSOLE_ADDRESS.to_owned(),
         );
 
-        Self { env_vars }
+        Self {
+            env_vars,
+            cmd: MinIOServerCmd::default(),
+        }
     }
 }
 
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
-pub struct MinIOServerArgs {
+pub struct MinIOServerCmd {
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub dir: String,
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub certs_dir: Option<String>,
+    #[allow(missing_docs)]
+    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     pub json_log: bool,
 }
 
-impl Default for MinIOServerArgs {
+impl Default for MinIOServerCmd {
     fn default() -> Self {
         Self {
             dir: DIR.to_owned(),
@@ -42,8 +56,11 @@ impl Default for MinIOServerArgs {
     }
 }
 
-impl ImageArgs for MinIOServerArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
+impl IntoIterator for &MinIOServerCmd {
+    type Item = String;
+    type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
         let mut args = vec!["server".to_owned(), self.dir.to_owned()];
 
         if let Some(ref certs_dir) = self.certs_dir {
@@ -55,27 +72,31 @@ impl ImageArgs for MinIOServerArgs {
             args.push("--json".to_owned());
         }
 
-        Box::new(args.into_iter())
+        args.into_iter()
     }
 }
 
 impl Image for MinIO {
-    type Args = MinIOServerArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stdout("API:")]
+        vec![WaitFor::message_on_stderr("API:")]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        &self.cmd
     }
 }
 
@@ -83,18 +104,16 @@ impl Image for MinIO {
 mod tests {
     use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_s3::{config::Credentials, Client};
-    use testcontainers::clients;
+    use testcontainers::runners::AsyncRunner;
 
     use crate::minio;
 
     #[tokio::test]
-    async fn minio_buckets() {
-        let docker = clients::Cli::default();
+    async fn minio_buckets() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let minio = minio::MinIO::default();
-        let node = docker.run(minio);
+        let node = minio.start().await?;
 
-        let host_port = node.get_host_port_ipv4(9000);
-
+        let host_port = node.get_host_port_ipv4(9000).await?;
         let client = build_s3_client(host_port).await;
 
         let bucket_name = "test-bucket";
@@ -115,6 +134,7 @@ mod tests {
             .unwrap();
         assert_eq!(1, buckets.len());
         assert_eq!(bucket_name, buckets[0].name.as_ref().unwrap());
+        Ok(())
     }
 
     async fn build_s3_client(host_port: u16) -> Client {

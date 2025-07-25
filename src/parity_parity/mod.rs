@@ -1,59 +1,58 @@
-use testcontainers::{core::WaitFor, Image, ImageArgs};
+use std::borrow::Cow;
+
+use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "parity/parity";
 const TAG: &str = "v2.5.0";
 
-#[derive(Debug, Default)]
-pub struct ParityEthereum;
-
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Default, Clone)]
-pub struct ParityEthereumArgs;
-
-impl ImageArgs for ParityEthereumArgs {
-    fn into_iterator(self) -> Box<dyn Iterator<Item = String>> {
-        Box::new(
-            vec![
-                "--config=dev".to_string(),
-                "--jsonrpc-apis=all".to_string(),
-                "--unsafe-expose".to_string(),
-                "--tracing=on".to_string(),
-            ]
-            .into_iter(),
-        )
-    }
+pub struct ParityEthereum {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
 }
 
 impl Image for ParityEthereum {
-    type Args = ParityEthereumArgs;
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stderr("Public node URL:")]
     }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        [
+            "--config=dev",
+            "--jsonrpc-apis=all",
+            "--unsafe-expose",
+            "--tracing=on",
+        ]
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::clients;
+    use testcontainers::runners::SyncRunner;
 
     use crate::parity_parity;
 
     #[test]
-    fn parity_parity_net_version() {
+    fn parity_parity_net_version() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(parity_parity::ParityEthereum);
-        let host_port = node.get_host_port_ipv4(8545);
+        let node = parity_parity::ParityEthereum::default().start()?;
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(8545)?;
 
         let response = reqwest::blocking::Client::new()
-            .post(format!("http://127.0.0.1:{host_port}"))
+            .post(format!("http://{host_ip}:{host_port}"))
             .body(
                 serde_json::json!({
                     "jsonrpc": "2.0",
@@ -71,5 +70,6 @@ mod tests {
         let response: serde_json::Value = serde_json::from_str(&response).unwrap();
 
         assert_eq!(response["result"], "17");
+        Ok(())
     }
 }

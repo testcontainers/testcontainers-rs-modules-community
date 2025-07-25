@@ -1,7 +1,9 @@
-use std::collections::HashMap;
-
 use testcontainers::{core::WaitFor, Image};
 
+/// Port that the [`Apache Solr`] container has internally
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Apache Solr`]: https://solr.apache.org/
 pub const SOLR_PORT: u16 = 8983;
 
 const NAME: &str = "solr";
@@ -15,13 +17,11 @@ const TAG: &str = "9.5.0-slim";
 ///
 /// # Example
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::solr;
+/// use testcontainers_modules::{solr, testcontainers::runners::SyncRunner};
 ///
-/// let docker = clients::Cli::default();
-/// let solr_instance = docker.run(solr::Solr::default());
-/// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT);
-
+/// let solr_instance = solr::Solr::default().start().unwrap();
+/// let host_port = solr_instance.get_host_port_ipv4(solr::SOLR_PORT).unwrap();
+///
 /// let solr_url = format!("http://127.0.0.1:{}", host_port);
 ///
 /// // use HTTP client to interact with the solr API
@@ -30,49 +30,43 @@ const TAG: &str = "9.5.0-slim";
 /// [`Solr`]: https://solr.apache.org/
 /// [`Solr docker image`]: https://hub.docker.com/_/solr
 /// [`Solr reference guide`]: https://solr.apache.org/guide/solr/latest/
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Solr {
-    env_vars: HashMap<String, String>,
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
 }
 
 impl Image for Solr {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout("o.e.j.s.Server Started Server")]
-    }
-
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use reqwest::{self, StatusCode};
-    use testcontainers::clients;
+    use testcontainers::runners::SyncRunner;
 
     use super::*;
 
     #[test]
-    fn solr_ping() {
-        let docker = clients::Cli::default();
+    fn solr_ping() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let solr_image = Solr::default();
-        let container = docker.run(solr_image);
-        let host_port = container.get_host_port_ipv4(SOLR_PORT);
+        let container = solr_image.start()?;
+        let host_ip = container.get_host()?;
+        let host_port = container.get_host_port_ipv4(SOLR_PORT)?;
 
-        let url = format!(
-            "http://localhost:{}/solr/admin/cores?action=STATUS",
-            host_port
-        );
+        let url = format!("http://{host_ip}:{host_port}/solr/admin/cores?action=STATUS");
         let res = reqwest::blocking::get(url).expect("valid HTTP response");
 
         assert_eq!(res.status(), StatusCode::OK);
@@ -80,5 +74,6 @@ mod tests {
         let json: serde_json::Value = res.json().expect("valid JSON body");
 
         assert_eq!(json["responseHeader"]["status"], 0);
+        Ok(())
     }
 }

@@ -46,18 +46,12 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.13.0
         with:
-          profile: minimal
           toolchain: stable
           components: clippy
-          override: true
       - name: Clippy check
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+        run: cargo clippy --all-features
 
   fmt:
     name: Rustfmt check
@@ -65,18 +59,11 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.13.0
         with:
-          profile: minimal
-          toolchain: stable
+          toolchain: nightly
           components: rustfmt
-          override: true
-      - name: Rustfmt check
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+      - run: cargo +nightly fmt --all -- --check
 
   prlint:
     name: PR name check
@@ -101,15 +88,12 @@ jobs:
         toolchain:
           - stable
           - nightly
+        partition:
+          - 1/4
+          - 2/4
+          - 3/4
+          - 4/4
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
       - name: Checkout sources
         uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
@@ -120,5 +104,16 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-hack
+      - name: Install Protoc # for pulsar tests
+        uses: arduino/setup-protoc@v3
+      - name: Install the latest Oracle instant client # for oracle tess
+        run: |
+          sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1
+          curl -Lo basic.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip
+          mkdir linux
+          unzip basic.zip -d linux -x "META-INF/*"
+          IC_DIR=$PWD/$(ls -d linux/instantclient*)
+          echo LD_LIBRARY_PATH=$IC_DIR:$LD_LIBRARY_PATH >> $GITHUB_ENV
+          echo $IC_DIR >> $GITHUB_PATH
       - name: Tests
-        run: cargo hack test --each-feature --clean-per-run
+        run: cargo hack test --each-feature --exclude-all-features --partition ${{ matrix.partition }}

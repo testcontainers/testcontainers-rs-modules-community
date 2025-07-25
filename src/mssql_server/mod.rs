@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 use testcontainers::{core::WaitFor, Image};
 
@@ -15,14 +15,13 @@ use testcontainers::{core::WaitFor, Image};
 /// # Example
 ///
 /// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::mssql_server;
+/// use testcontainers_modules::{testcontainers::runners::SyncRunner, mssql_server};
 ///
-/// let docker = clients::Cli::default();
-/// let mssql_server = docker.run(mssql_server::MssqlServer::default());
+/// let mssql_server = mssql_server::MssqlServer::default().with_accept_eula().start().unwrap();
 /// let ado_connection_string = format!(
-///    "Server=tcp:127.0.0.1,{};Database=test;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;",
-///    mssql_server.get_host_port_ipv4(1433)
+///    "Server=tcp:{},{};Database=test;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;",
+///    mssql_server.get_host().unwrap(),
+///    mssql_server.get_host_port_ipv4(1433).unwrap()
 /// );
 /// ```
 ///
@@ -34,12 +33,12 @@ use testcontainers::{core::WaitFor, Image};
 /// Following environment variables are required.
 /// A image provided by this module has default values for them.
 ///
-/// ## `ACCEPT_EULA`
+/// ## EULA Acceptance
 ///
-/// You need to accept the [End-User Licensing Agreement](https://go.microsoft.com/fwlink/?linkid=857698)
-/// before using the SQL Server image provided by this module.
-/// To accept EULA, you can set this environment variable to `Y`.
-/// The default value is `Y`.
+/// Due to licensing restrictions you are required to explicitly accept an End User License Agreement (EULA) for the MS SQL Server container image.
+/// This is facilitated through the explicit call of `with_accept_eula` function.
+///
+/// Please see the [microsoft-mssql-server image documentation](https://hub.docker.com/_/microsoft-mssql-server#environment-variables) for a link to the EULA document.
 ///
 /// ## `MSSQL_SA_PASSWORD`
 ///
@@ -51,29 +50,38 @@ use testcontainers::{core::WaitFor, Image};
 ///
 /// The edition of SQL Server.
 /// The default value is `Developer`, which will run the container using the Developer Edition.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MssqlServer {
     env_vars: HashMap<String, String>,
 }
 
 impl MssqlServer {
     const NAME: &'static str = "mcr.microsoft.com/mssql/server";
-    const TAG: &'static str = "2022-CU10-ubuntu-22.04";
-    const DEFAULT_SA_PASSWORD: &'static str = "yourStrong(!)Password";
+    const TAG: &'static str = "2022-CU14-ubuntu-22.04";
+    /// Default Password for `MSSQL_SA_PASSWORD`.
+    /// If you want to set your own password, please use [`with_sa_password`]
+    pub const DEFAULT_SA_PASSWORD: &'static str = "yourStrong(!)Password";
 
     /// Sets the password as `MSSQL_SA_PASSWORD`.
-    pub fn with_sa_password(self, password: impl Into<String>) -> Self {
-        let mut env_vars = self.env_vars;
-        env_vars.insert("MSSQL_SA_PASSWORD".to_owned(), password.into());
+    pub fn with_sa_password(mut self, password: impl Into<String>) -> Self {
+        self.env_vars
+            .insert("MSSQL_SA_PASSWORD".into(), password.into());
+        self
+    }
 
-        Self { env_vars }
+    /// Due to licensing restrictions you are required to explicitly accept an End User License Agreement (EULA) for the MS SQL Server container image.
+    /// This is facilitated through the `with_accept_eula` function.
+    ///
+    /// Please see the [microsoft-mssql-server image documentation](https://hub.docker.com/_/microsoft-mssql-server#environment-variables) for a link to the EULA document.
+    pub fn with_accept_eula(mut self) -> Self {
+        self.env_vars.insert("ACCEPT_EULA".into(), "Y".into());
+        self
     }
 }
 
 impl Default for MssqlServer {
     fn default() -> Self {
         let mut env_vars = HashMap::new();
-        env_vars.insert("ACCEPT_EULA".to_owned(), "Y".to_owned());
         env_vars.insert(
             "MSSQL_SA_PASSWORD".to_owned(),
             Self::DEFAULT_SA_PASSWORD.to_owned(),
@@ -85,14 +93,12 @@ impl Default for MssqlServer {
 }
 
 impl Image for MssqlServer {
-    type Args = ();
-
-    fn name(&self) -> String {
-        Self::NAME.to_owned()
+    fn name(&self) -> &str {
+        Self::NAME
     }
 
-    fn tag(&self) -> String {
-        Self::TAG.to_owned()
+    fn tag(&self) -> &str {
+        Self::TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -103,8 +109,10 @@ impl Image for MssqlServer {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        &self.env_vars
     }
 }
 
@@ -112,7 +120,7 @@ impl Image for MssqlServer {
 mod tests {
     use std::error;
 
-    use testcontainers::{clients, RunnableImage};
+    use testcontainers::runners::AsyncRunner;
     use tiberius::{AuthMethod, Client, Config};
     use tokio::net::TcpStream;
     use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
@@ -121,9 +129,12 @@ mod tests {
 
     #[tokio::test]
     async fn one_plus_one() -> Result<(), Box<dyn error::Error>> {
-        let docker = clients::Cli::default();
-        let container = docker.run(MssqlServer::default());
-        let config = new_config(container.get_host_port_ipv4(1433), "yourStrong(!)Password");
+        let container = MssqlServer::default().with_accept_eula().start().await?;
+        let config = new_config(
+            container.get_host().await?,
+            container.get_host_port_ipv4(1433).await?,
+            MssqlServer::DEFAULT_SA_PASSWORD,
+        );
         let mut client = get_mssql_client(config).await?;
 
         let stream = client.query("SELECT 1 + 1", &[]).await?;
@@ -136,32 +147,21 @@ mod tests {
 
     #[tokio::test]
     async fn custom_sa_password() -> Result<(), Box<dyn error::Error>> {
-        let docker = clients::Cli::default();
-        let image = MssqlServer::default().with_sa_password("yourStrongPassword123!");
-        let container = docker.run(image);
-        let config = new_config(container.get_host_port_ipv4(1433), "yourStrongPassword123!");
+        let image = MssqlServer::default()
+            .with_accept_eula()
+            .with_sa_password("yourStrongPassword123!");
+        let container = image.start().await?;
+        let config = new_config(
+            container.get_host().await?,
+            container.get_host_port_ipv4(1433).await?,
+            "yourStrongPassword123!",
+        );
         let mut client = get_mssql_client(config).await?;
 
         let stream = client.query("SELECT 1 + 1", &[]).await?;
         let row = stream.into_row().await?.unwrap();
 
         assert_eq!(row.get::<i32, _>(0).unwrap(), 2);
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn custom_version() -> Result<(), Box<dyn error::Error>> {
-        let docker = clients::Cli::default();
-        let image = RunnableImage::from(MssqlServer::default()).with_tag("2019-CU23-ubuntu-20.04");
-        let container = docker.run(image);
-        let config = new_config(container.get_host_port_ipv4(1433), "yourStrong(!)Password");
-        let mut client = get_mssql_client(config).await?;
-
-        let stream = client.query("SELECT @@VERSION", &[]).await?;
-        let row = stream.into_row().await?.unwrap();
-
-        assert!(row.get::<&str, _>(0).unwrap().contains("2019"));
 
         Ok(())
     }
@@ -177,8 +177,9 @@ mod tests {
         Ok(client)
     }
 
-    fn new_config(port: u16, password: &str) -> Config {
+    fn new_config(host: impl ToString, port: u16, password: &str) -> Config {
         let mut config = Config::new();
+        config.host(host);
         config.port(port);
         config.authentication(AuthMethod::sql_server("sa", password));
         config.trust_cert();

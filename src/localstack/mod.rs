@@ -1,4 +1,8 @@
+pub use pro::LocalStackPro;
 use testcontainers::{core::WaitFor, Image};
+
+/// LocalStack Pro
+pub mod pro;
 
 const NAME: &str = "localstack/localstack";
 const TAG: &str = "3.0";
@@ -18,26 +22,27 @@ const DEFAULT_WAIT: u64 = 3000;
 /// the Image into a RunnableImage first.
 ///
 /// ```
-/// use testcontainers_modules::localstack::LocalStack;
-/// use testcontainers::RunnableImage;
+/// use testcontainers_modules::{localstack::LocalStack, testcontainers::ImageExt};
 ///
-/// let image: RunnableImage<LocalStack> = LocalStack::default().into();
-/// let image = image.with_env_var(("SERVICES", "s3"));
+/// let container_request = LocalStack::default().with_env_var("SERVICES", "s3");
 /// ```
 ///
 /// No environment variables are required.
-#[derive(Default, Debug)]
-pub struct LocalStack;
+#[derive(Default, Debug, Clone)]
+pub struct LocalStack {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for LocalStack {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -50,24 +55,25 @@ impl Image for LocalStack {
 
 #[cfg(test)]
 mod tests {
-    use super::LocalStack;
-    use aws_config::meta::region::RegionProviderChain;
-    use aws_config::BehaviorVersion;
+    use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_sqs as sqs;
-    use testcontainers::clients;
+    use testcontainers::runners::AsyncRunner;
+
+    use super::LocalStack;
 
     #[tokio::test]
-    async fn create_and_list_queue() -> Result<(), sqs::Error> {
-        let docker = clients::Cli::default();
-        let node = docker.run(LocalStack::default());
-        let host_port = node.get_host_port_ipv4(4566);
+    #[allow(clippy::result_large_err)]
+    async fn create_and_list_queue() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = LocalStack::default().start().await?;
+        let host_ip = node.get_host().await?;
+        let host_port = node.get_host_port_ipv4(4566).await?;
 
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = sqs::config::Credentials::new("fake", "fake", None, None, "test");
-        let config = aws_config::defaults(BehaviorVersion::v2023_11_09())
+        let config = aws_config::defaults(BehaviorVersion::v2025_01_17())
             .region(region_provider)
             .credentials_provider(creds)
-            .endpoint_url(format!("http://localhost:{}", host_port))
+            .endpoint_url(format!("http://{host_ip}:{host_port}"))
             .load()
             .await;
         let client = sqs::Client::new(&config);

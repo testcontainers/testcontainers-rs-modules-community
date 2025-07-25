@@ -1,33 +1,62 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "bitnami/zookeeper";
 const TAG: &str = "3.9.0";
 
-#[derive(Debug)]
+/// # [Apache ZooKeeper] image for [testcontainers](https://crates.io/crates/testcontainers).
+///
+/// This image is based on the [`bitnami/zookeeper` docker image].
+/// By default, anonymous logins are allowed.
+/// See the [Zookeeper documentation] for additional options.
+///
+/// # Example
+///
+/// ```
+/// async {
+///     use testcontainers_modules::{testcontainers::runners::AsyncRunner, zookeeper};
+///
+///     let node = zookeeper::Zookeeper::default().start().await.unwrap();
+///     let zk_url = format!(
+///         "{}:{}",
+///         node.get_host().await.unwrap(),
+///         node.get_host_port_ipv4(2181).await.unwrap(),
+///     );
+///     let zk_socket_addr = tokio::net::lookup_host(&zk_url)
+///         .await
+///         .unwrap()
+///         .next()
+///         .unwrap();
+///
+///     let (zk, default_watcher) = tokio_zookeeper::ZooKeeper::connect(&zk_socket_addr)
+///         .await
+///         .expect("connect to Zookeeper");
+///
+///     let path = "/test";
+///     let _stat = zk.watch().exists(path).await.expect("stat received");
+/// };
+/// ```
+///
+///
+/// [Apache ZooKeeper]: https://zookeeper.apache.org/
+/// [`bitnami/zookeeper` docker image]: https://hub.docker.com/r/bitnami/openldap
+/// [Zookeeper documentation]: https://zookeeper.apache.org/documentation.html
+#[derive(Debug, Default, Clone)]
 pub struct Zookeeper {
-    env_vars: HashMap<String, String>,
-}
-
-impl Default for Zookeeper {
-    fn default() -> Self {
-        let mut env_vars = HashMap::new();
-        env_vars.insert("ALLOW_ANONYMOUS_LOGIN".to_owned(), "yes".to_owned());
-
-        Self { env_vars }
-    }
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
 }
 
 impl Image for Zookeeper {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -37,45 +66,52 @@ impl Image for Zookeeper {
         ]
     }
 
-    fn env_vars(&self) -> Box<dyn Iterator<Item = (&String, &String)> + '_> {
-        Box::new(self.env_vars.iter())
+    fn env_vars(
+        &self,
+    ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
+        [("ALLOW_ANONYMOUS_LOGIN", "yes")]
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use testcontainers::clients;
-    use zookeeper_client::{Acls, Client, CreateMode, EventType};
+    use futures::StreamExt;
+    use rustls::crypto::CryptoProvider;
+    use tokio::net::lookup_host;
+    use tokio_zookeeper::*;
 
-    use crate::zookeeper::Zookeeper as ZookeeperImage;
+    use crate::{testcontainers::runners::AsyncRunner, zookeeper::Zookeeper as ZookeeperImage};
 
     #[tokio::test]
-    async fn zookeeper_check_directories_existence() {
+    async fn zookeeper_check_directories_existence(
+    ) -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
+        if CryptoProvider::get_default().is_none() {
+            rustls::crypto::ring::default_provider()
+                .install_default()
+                .expect("Error initializing rustls provider");
+        }
 
-        let docker = clients::Cli::default();
-        let node = docker.run(ZookeeperImage::default());
+        let node = ZookeeperImage::default().start().await?;
 
-        let host_port = node.get_host_port_ipv4(2181);
-        let zk_url = format!("127.0.0.1:{host_port}");
-        let client = Client::connect(&zk_url)
-            .await
-            .expect("connect to Zookeeper");
+        let host = node.get_host().await?;
+        let host_port = node.get_host_port_ipv4(2181).await?;
+        let zk_url = format!("{host}:{host_port}");
+        let zk_socket_addr = lookup_host(&zk_url).await?.next().unwrap();
+
+        let (zk, mut default_watcher) = ZooKeeper::connect(&zk_socket_addr).await.unwrap();
 
         let path = "/test";
-        let (_, stat_watcher) = client
-            .check_and_watch_stat(path)
-            .await
-            .expect("stat watcher created");
+        let _stat = zk.watch().exists(path).await.expect("stat requested");
 
-        let create_options = CreateMode::Ephemeral.with_acls(Acls::anyone_all());
-        let (_, _) = client
-            .create(path, &[1, 2], &create_options)
-            .await
+        let path = zk
+            .create(path, &[1, 2], Acl::open_unsafe(), CreateMode::Ephemeral)
+            .await?
             .expect("create a node");
 
-        let event = stat_watcher.changed().await;
-        assert_eq!(event.event_type, EventType::NodeCreated);
+        let event = default_watcher.next().await.expect("event received");
+        assert_eq!(event.event_type, WatchedEventType::NodeCreated);
         assert_eq!(event.path, path);
+        Ok(())
     }
 }

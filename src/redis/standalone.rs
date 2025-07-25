@@ -12,14 +12,16 @@ const TAG: &str = "5.0";
 /// # Example
 /// ```
 /// use redis::Commands;
-/// use testcontainers::clients;
-/// use testcontainers_modules::redis::{Redis, REDIS_PORT};
+/// use testcontainers_modules::{
+///     redis::{Redis, REDIS_PORT},
+///     testcontainers::runners::SyncRunner,
+/// };
 ///
-/// let docker = clients::Cli::default();
-/// let redis_instance = docker.run(Redis::default());
-/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT);
+/// let redis_instance = Redis::default().start().unwrap();
+/// let host_ip = redis_instance.get_host().unwrap();
+/// let host_port = redis_instance.get_host_port_ipv4(REDIS_PORT).unwrap();
 ///
-/// let url = format!("redis://127.0.0.1:{host_port}");
+/// let url = format!("redis://{host_ip}:{host_port}");
 /// let client = redis::Client::open(url.as_ref()).unwrap();
 /// let mut con = client.get_connection().unwrap();
 ///
@@ -31,18 +33,21 @@ const TAG: &str = "5.0";
 /// [`Redis docker image`]: https://hub.docker.com/_/redis
 /// [`Redis reference guide`]: https://redis.io/docs/interact/
 /// [`REDIS_PORT`]: super::REDIS_PORT
-#[derive(Debug, Default)]
-pub struct Redis;
+#[derive(Debug, Default, Clone)]
+pub struct Redis {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for Redis {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -53,17 +58,16 @@ impl Image for Redis {
 #[cfg(test)]
 mod tests {
     use redis::Commands;
-    use testcontainers::clients;
 
-    use crate::redis::{Redis, REDIS_PORT};
+    use crate::{redis::Redis, testcontainers::runners::SyncRunner};
 
     #[test]
-    fn redis_fetch_an_integer() {
+    fn redis_fetch_an_integer() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
-        let docker = clients::Cli::default();
-        let node = docker.run(Redis);
-        let host_port = node.get_host_port_ipv4(REDIS_PORT);
-        let url = format!("redis://127.0.0.1:{host_port}");
+        let node = Redis::default().start()?;
+        let host_ip = node.get_host()?;
+        let host_port = node.get_host_port_ipv4(6379)?;
+        let url = format!("redis://{host_ip}:{host_port}");
 
         let client = redis::Client::open(url.as_ref()).unwrap();
         let mut con = client.get_connection().unwrap();
@@ -71,5 +75,6 @@ mod tests {
         con.set::<_, _, ()>("my_key", 42).unwrap();
         let result: i64 = con.get("my_key").unwrap();
         assert_eq!(42, result);
+        Ok(())
     }
 }

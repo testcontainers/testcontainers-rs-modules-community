@@ -3,18 +3,23 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "softwaremill/elasticmq";
 const TAG: &str = "1.5.2";
 
-#[derive(Debug, Default)]
-pub struct ElasticMq;
+#[allow(missing_docs)]
+// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+#[derive(Debug, Default, Clone)]
+pub struct ElasticMq {
+    /// (remove if there is another variable)
+    /// Field is included to prevent this struct to be a unit struct.
+    /// This allows extending functionality (and thus further variables) without breaking changes
+    _priv: (),
+}
 
 impl Image for ElasticMq {
-    type Args = ();
-
-    fn name(&self) -> String {
-        NAME.to_owned()
+    fn name(&self) -> &str {
+        NAME
     }
 
-    fn tag(&self) -> String {
-        TAG.to_owned()
+    fn tag(&self) -> &str {
+        TAG
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
@@ -24,26 +29,28 @@ impl Image for ElasticMq {
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Display;
+
     use aws_config::{meta::region::RegionProviderChain, BehaviorVersion};
     use aws_sdk_sqs::{config::Credentials, Client};
-    use testcontainers::clients;
 
-    use crate::elasticmq::ElasticMq;
+    use crate::{elasticmq::ElasticMq, testcontainers::runners::AsyncRunner};
 
     #[tokio::test]
-    async fn sqs_list_queues() {
-        let docker = clients::Cli::default();
-        let node = docker.run(ElasticMq);
-        let host_port = node.get_host_port_ipv4(9324);
-        let client = build_sqs_client(host_port).await;
+    async fn sqs_list_queues() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let node = ElasticMq::default().start().await?;
+        let host_ip = node.get_host().await?;
+        let host_port = node.get_host_port_ipv4(9324).await?;
+        let client = build_sqs_client(host_ip, host_port).await;
 
         let result = client.list_queues().send().await.unwrap();
         // list should be empty
-        assert!(result.queue_urls.filter(|urls| !urls.is_empty()).is_none())
+        assert!(result.queue_urls.filter(|urls| !urls.is_empty()).is_none());
+        Ok(())
     }
 
-    async fn build_sqs_client(host_port: u16) -> Client {
-        let endpoint_uri = format!("http://127.0.0.1:{host_port}");
+    async fn build_sqs_client(host_ip: impl Display, host_port: u16) -> Client {
+        let endpoint_uri = format!("http://{host_ip}:{host_port}");
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = Credentials::new("fakeKey", "fakeSecret", None, None, "test");
 
