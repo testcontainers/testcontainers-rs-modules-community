@@ -1,26 +1,5 @@
 use std::borrow::Cow;
-/// Module to work with [`Google Cloud Emulators`] inside of tests.
-///
-/// The same image can be used to run multiple emulators, using the `emulator` argument allows
-/// selecting the one to run.
-///
-/// This module is based on the official [`GCloud SDK image`].
-///
-/// # Example
-/// ```
-/// use testcontainers::clients;
-/// use testcontainers_modules::google_cloud_sdk_emulators;
-///
-/// let docker = clients::Cli::default();
-/// let container = docker.run(google_cloud_sdk_emulators::CloudSdk::spanner());
-///
-/// let spanner_host = format!("localhost:{}", container.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT));
-///
-/// // do something with the started spanner instance.
-/// ```
-///
-/// [`Google Cloud Emulators`]: https://cloud.google.com/sdk/gcloud/reference/beta/emulators
-/// [`GCloud SDK image`]: https://cloud.google.com/sdk/docs/downloads-docker
+
 use testcontainers::{
     core::{ContainerPort, WaitFor},
     Image,
@@ -56,7 +35,15 @@ pub const PUBSUB_PORT: u16 = 8085;
 /// [`Spanner`]: https://cloud.google.com/spanner
 #[deprecated(since = "0.3.8", note = "please use `SPANNER_GRPC_PORT` instead")]
 pub const SPANNER_PORT: u16 = SPANNER_GRPC_PORT;
+/// Port that the [`Spanner`] emulator container has internally (gRPC)
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Spanner`]: https://cloud.google.com/spanner
 pub const SPANNER_GRPC_PORT: u16 = 9010;
+/// Port that the [`Spanner`] emulator container has internally (REST)
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Spanner`]: https://cloud.google.com/spanner
 pub const SPANNER_REST_PORT: u16 = 9020;
 
 #[allow(missing_docs)]
@@ -115,9 +102,28 @@ impl IntoIterator for &CloudSdkCmd {
     }
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-#[derive(Debug, Clone)]
+/// Module to work with [`Google Cloud Emulators`] inside of tests.
+///
+/// The same image can be used to run multiple emulators, using the `emulator` argument allows
+/// selecting the one to run.
+///
+/// This module is based on the official [`GCloud SDK image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::runners::SyncRunner;
+/// use testcontainers_modules::google_cloud_sdk_emulators;
+///
+/// let container = google_cloud_sdk_emulators::CloudSdk::spanner().start().unwrap();
+/// let port = container.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT).unwrap();
+///
+/// let spanner_host = format!("localhost:{port}");
+///
+/// // do something with the started spanner instance.
+/// ```
+///
+/// [`Google Cloud Emulators`]: https://cloud.google.com/sdk/gcloud/reference/beta/emulators
+/// [`GCloud SDK image`]: https://cloud.google.com/sdk/docs/downloads-docker#[derive(Debug, Clone)]
 pub struct CloudSdk {
     exposed_ports: Vec<ContainerPort>,
     ready_condition: WaitFor,
@@ -147,15 +153,22 @@ impl Image for CloudSdk {
 }
 
 impl CloudSdk {
-    fn new(port: u16, emulator: Emulator, ready_condition: WaitFor) -> Self {
+    fn new(
+        port: u16,
+        rest_port: Option<u16>,
+        emulator: Emulator,
+        ready_condition: WaitFor,
+    ) -> Self {
         let cmd = CloudSdkCmd {
             host: HOST.to_owned(),
             port,
             rest_port,
             emulator,
         };
+        let mut exposed_ports = vec![ContainerPort::Tcp(port)];
+        exposed_ports.extend(rest_port.map(ContainerPort::Tcp));
         Self {
-            exposed_ports: vec![ContainerPort::Tcp(port)],
+            exposed_ports,
             ready_condition,
             cmd,
         }
@@ -266,7 +279,9 @@ mod tests {
     fn spanner_emulator_expose_port() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
         let node = google_cloud_sdk_emulators::CloudSdk::spanner().start()?;
-        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_PORT)?;
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_GRPC_PORT)?;
+        assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT)?;
         assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
         Ok(())
     }
