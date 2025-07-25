@@ -52,8 +52,8 @@ pub const SPANNER_REST_PORT: u16 = 9020;
 pub struct CloudSdkCmd {
     pub host: String,
     pub port: u16,
-    pub rest_port: Option<u16>,
     pub emulator: Emulator,
+    additional_args: Vec<String>,
 }
 
 #[allow(missing_docs)]
@@ -61,7 +61,7 @@ pub struct CloudSdkCmd {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Emulator {
     Bigtable,
-    Datastore { project: String },
+    Datastore,
     Firestore,
     PubSub,
     Spanner,
@@ -72,12 +72,12 @@ impl IntoIterator for &CloudSdkCmd {
     type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        let (emulator, project) = match &self.emulator {
-            Emulator::Bigtable => ("bigtable", None),
-            Emulator::Datastore { project } => ("datastore", Some(project)),
-            Emulator::Firestore => ("firestore", None),
-            Emulator::PubSub => ("pubsub", None),
-            Emulator::Spanner => ("spanner", None),
+        let emulator = match self.emulator {
+            Emulator::Bigtable => "bigtable",
+            Emulator::Datastore => "datastore",
+            Emulator::Firestore => "firestore",
+            Emulator::PubSub => "pubsub",
+            Emulator::Spanner => "spanner",
         };
         let mut args = vec![
             "gcloud".to_owned(),
@@ -86,17 +86,9 @@ impl IntoIterator for &CloudSdkCmd {
             emulator.to_owned(),
             "start".to_owned(),
         ];
-        if let Some(project) = project {
-            args.push("--project".to_owned());
-            args.push(project.to_owned());
-        }
         args.push("--host-port".to_owned());
         args.push(format!("{}:{}", self.host, self.port));
-
-        if let Some(rest_port) = self.rest_port {
-            args.push("--rest-port".to_owned());
-            args.push(rest_port.to_string());
-        }
+        args.extend(self.additional_args.iter().cloned());
 
         args.into_iter()
     }
@@ -155,18 +147,19 @@ impl Image for CloudSdk {
 impl CloudSdk {
     fn new(
         port: u16,
-        rest_port: Option<u16>,
+        additional_port: Option<u16>,
+        additional_args: Vec<String>,
         emulator: Emulator,
         ready_condition: WaitFor,
     ) -> Self {
         let cmd = CloudSdkCmd {
             host: HOST.to_owned(),
             port,
-            rest_port,
+            additional_args,
             emulator,
         };
         let mut exposed_ports = vec![ContainerPort::Tcp(port)];
-        exposed_ports.extend(rest_port.map(ContainerPort::Tcp));
+        exposed_ports.extend(additional_port.map(ContainerPort::Tcp));
         Self {
             exposed_ports,
             ready_condition,
@@ -180,6 +173,7 @@ impl CloudSdk {
         Self::new(
             BIGTABLE_PORT,
             None,
+            vec![],
             Emulator::Bigtable,
             WaitFor::message_on_stderr("[bigtable] Cloud Bigtable emulator running on"),
         )
@@ -191,6 +185,7 @@ impl CloudSdk {
         Self::new(
             FIRESTORE_PORT,
             None,
+            vec![],
             Emulator::Firestore,
             WaitFor::message_on_stderr("[firestore] Dev App Server is now running"),
         )
@@ -199,11 +194,11 @@ impl CloudSdk {
     // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn datastore(project: impl Into<String>) -> Self {
-        let project = project.into();
         Self::new(
             DATASTORE_PORT,
             None,
-            Emulator::Datastore { project },
+            vec!["--project".to_string(), project.into()],
+            Emulator::Datastore,
             WaitFor::message_on_stderr("[datastore] Dev App Server is now running"),
         )
     }
@@ -214,6 +209,7 @@ impl CloudSdk {
         Self::new(
             PUBSUB_PORT,
             None,
+            vec![],
             Emulator::PubSub,
             WaitFor::message_on_stderr("[pubsub] INFO: Server started, listening on"),
         )
@@ -225,6 +221,7 @@ impl CloudSdk {
         Self::new(
             SPANNER_GRPC_PORT,
             Some(SPANNER_REST_PORT),
+            vec!["--rest-port".to_string(), SPANNER_REST_PORT.to_string()],
             Emulator::Spanner,
             WaitFor::message_on_stderr("Cloud Spanner emulator running"),
         )
