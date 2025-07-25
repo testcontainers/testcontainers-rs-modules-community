@@ -33,7 +33,7 @@ pub const PUBSUB_PORT: u16 = 8085;
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Spanner`]: https://cloud.google.com/spanner
-#[deprecated(since = "0.3.8", note = "please use `SPANNER_GRPC_PORT` instead")]
+#[deprecated(since = "0.13.0", note = "please use `SPANNER_GRPC_PORT` instead")]
 pub const SPANNER_PORT: u16 = SPANNER_GRPC_PORT;
 /// Port that the [`Spanner`] emulator container has internally (gRPC)
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
