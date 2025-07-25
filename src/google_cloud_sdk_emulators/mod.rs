@@ -49,17 +49,17 @@ pub const SPANNER_REST_PORT: u16 = 9020;
 #[allow(missing_docs)]
 // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
-pub struct CloudSdkCmd {
-    pub host: String,
-    pub port: u16,
-    pub emulator: Emulator,
+struct CloudSdkCmd {
+    host: String,
+    port: u16,
+    emulator: Emulator,
     additional_args: Vec<String>,
 }
 
 #[allow(missing_docs)]
 // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum Emulator {
+enum Emulator {
     Bigtable,
     Datastore,
     Firestore,
