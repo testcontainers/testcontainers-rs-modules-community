@@ -6,7 +6,7 @@ use testcontainers::{
 };
 
 const NAME: &str = "google/cloud-sdk";
-const TAG: &str = "362.0.0-emulators";
+const TAG: &str = "531.0.0-emulators";
 
 const HOST: &str = "0.0.0.0";
 /// Port that the [`Bigtable`] emulator container has internally
