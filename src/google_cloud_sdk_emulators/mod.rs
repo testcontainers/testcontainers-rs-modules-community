@@ -282,4 +282,20 @@ mod tests {
         assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
         Ok(())
     }
+
+    #[test]
+    fn spanner_emulator_expose_rest() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
+        let node = google_cloud_sdk_emulators::CloudSdk::spanner().start()?;
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT)?;
+        let body = reqwest::blocking::Client::new()
+            .get(format!(
+                "http://localhost:{port}/v1/projects/test/instances"
+            ))
+            .send()?
+            .error_for_status()?
+            .text()?;
+        assert_eq!(body, "{}");
+        Ok(())
+    }
 }
