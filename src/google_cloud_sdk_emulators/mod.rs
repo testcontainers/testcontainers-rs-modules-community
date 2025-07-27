@@ -106,8 +106,12 @@ impl IntoIterator for &CloudSdkCmd {
 /// use testcontainers::runners::SyncRunner;
 /// use testcontainers_modules::google_cloud_sdk_emulators;
 ///
-/// let container = google_cloud_sdk_emulators::CloudSdk::spanner().start().unwrap();
-/// let port = container.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT).unwrap();
+/// let container = google_cloud_sdk_emulators::CloudSdk::spanner()
+///     .start()
+///     .unwrap();
+/// let port = container
+///     .get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT)
+///     .unwrap();
 ///
 /// let spanner_host = format!("localhost:{port}");
 ///
