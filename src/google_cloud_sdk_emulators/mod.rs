@@ -56,8 +56,7 @@ struct CloudSdkCmd {
     additional_args: Vec<String>,
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// The emulator used by the sdk
 #[derive(Debug, Clone, Eq, PartialEq)]
 enum Emulator {
     Bigtable,
