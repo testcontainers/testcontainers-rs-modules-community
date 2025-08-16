@@ -70,16 +70,27 @@ pub struct K3s {
     cmd: K3sCmd,
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Configuration for K3s server command-line arguments.
+///
+/// This struct allows you to customize the K3s server startup configuration
+/// by setting various options like the container snapshotter.
 #[derive(Debug, Clone)]
 pub struct K3sCmd {
     snapshotter: String,
 }
 
 impl K3sCmd {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Sets the container snapshotter for the K3s server.
+    ///
+    /// The snapshotter is responsible for managing container filesystem snapshots.
+    /// Common values include "overlayfs", "fuse-overlayfs", or "native".
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::k3s::K3sCmd;
+    ///
+    /// let cmd = K3sCmd::default().with_snapshotter("overlayfs");
+    /// ```
     pub fn with_snapshotter(self, snapshotter: impl Into<String>) -> Self {
         Self {
             snapshotter: snapshotter.into(),
@@ -134,8 +145,19 @@ impl Image for K3s {
 }
 
 impl K3s {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Mounts a host directory to the K3s configuration directory.
+    ///
+    /// This allows you to access the K3s configuration files (like kubeconfig)
+    /// from the host filesystem. The kubeconfig file will be created at
+    /// `{conf_mount_path}/k3s.yaml` and can be read using [`read_kube_config`](Self::read_kube_config).
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::k3s::K3s;
+    /// use std::path::Path;
+    ///
+    /// let k3s = K3s::default().with_conf_mount(Path::new("/tmp/k3s-config"));
+    /// ```
     pub fn with_conf_mount(mut self, conf_mount_path: impl AsRef<Path>) -> Self {
         self.env_vars
             .insert(String::from("K3S_KUBECONFIG_MODE"), String::from("644"));
@@ -148,8 +170,21 @@ impl K3s {
         }
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Reads the kubeconfig file from the mounted configuration directory.
+    ///
+    /// This method reads the `k3s.yaml` file from the mounted configuration directory
+    /// that was set up using [`with_conf_mount`](Self::with_conf_mount).
+    /// The kubeconfig can be used to connect kubectl or other Kubernetes clients to the K3s cluster.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use testcontainers_modules::k3s::K3s;
+    /// use std::path::Path;
+    ///
+    /// let k3s = K3s::default().with_conf_mount(Path::new("/tmp/k3s-config"));
+    /// // After starting the container...
+    /// let kubeconfig = k3s.read_kube_config().expect("Failed to read kubeconfig");
+    /// ```
     pub fn read_kube_config(&self) -> io::Result<String> {
         let k3s_conf_file_path = self
             .conf_mount
