@@ -5,8 +5,33 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "parity/parity";
 const TAG: &str = "v2.5.0";
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with [`Parity Ethereum`] inside of tests.
+///
+/// Starts an instance of Parity Ethereum based on the official [`Parity docker image`].
+///
+/// Parity Ethereum is a fast and feature-rich multi-network Ethereum client.
+/// This module provides a local Ethereum node for testing purposes with JSON-RPC API enabled.
+/// The container exposes port `8545` for HTTP JSON-RPC connections by default.
+///
+/// The node is configured with development settings including:
+/// - Development chain configuration
+/// - All JSON-RPC APIs enabled
+/// - Unsafe expose mode (for testing)
+/// - Tracing enabled
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{parity_parity::ParityEthereum, testcontainers::runners::SyncRunner};
+///
+/// let ethereum_instance = ParityEthereum::default().start().unwrap();
+/// let host = ethereum_instance.get_host().unwrap();
+/// let port = ethereum_instance.get_host_port_ipv4(8545).unwrap();
+///
+/// // Use the JSON-RPC endpoint at http://{host}:{port}
+/// ```
+///
+/// [`Parity Ethereum`]: https://www.parity.io/
+/// [`Parity docker image`]: https://hub.docker.com/r/parity/parity
 #[derive(Debug, Default, Clone)]
 pub struct ParityEthereum {
     /// (remove if there is another variable)
