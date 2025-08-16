@@ -32,7 +32,9 @@ pub const ELASTICSEARCH_INTER_NODE_PORT: ContainerPort = ContainerPort::Tcp(9300
 ///
 /// # Example
 /// ```
-/// use testcontainers_modules::{elastic_search::ElasticSearch, testcontainers::runners::SyncRunner};
+/// use testcontainers_modules::{
+///     elastic_search::ElasticSearch, testcontainers::runners::SyncRunner,
+/// };
 ///
 /// let elasticsearch_instance = ElasticSearch::default().start().unwrap();
 /// let host = elasticsearch_instance.get_host().unwrap();
