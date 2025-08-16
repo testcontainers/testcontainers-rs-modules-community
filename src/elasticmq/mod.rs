@@ -3,8 +3,30 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "softwaremill/elasticmq";
 const TAG: &str = "1.5.2";
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with [`ElasticMQ`] inside of tests.
+///
+/// Starts an instance of ElasticMQ based on the official [`ElasticMQ docker image`].
+///
+/// ElasticMQ is a message queue system, offering an actor-based Scala and an SQS-compatible REST (query) interface.
+/// This module provides a local ElasticMQ instance for testing purposes, which is compatible with the AWS SQS API.
+/// The container exposes port `9324` by default.
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{elasticmq::ElasticMq, testcontainers::runners::AsyncRunner};
+///
+/// # async fn example() -> Result<(), Box<dyn std::error::Error + 'static>> {
+/// let elasticmq_instance = ElasticMq::default().start().await?;
+/// let host = elasticmq_instance.get_host().await?;
+/// let port = elasticmq_instance.get_host_port_ipv4(9324).await?;
+///
+/// // Use the SQS-compatible endpoint at http://{host}:{port}
+/// # Ok(())
+/// # }
+/// ```
+///
+/// [`ElasticMQ`]: https://github.com/softwaremill/elasticmq
+/// [`ElasticMQ docker image`]: https://hub.docker.com/r/softwaremill/elasticmq
 #[derive(Debug, Default, Clone)]
 pub struct ElasticMq {
     /// (remove if there is another variable)
