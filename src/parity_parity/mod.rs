@@ -21,7 +21,9 @@ const TAG: &str = "v2.5.0";
 ///
 /// # Example
 /// ```
-/// use testcontainers_modules::{parity_parity::ParityEthereum, testcontainers::runners::SyncRunner};
+/// use testcontainers_modules::{
+///     parity_parity::ParityEthereum, testcontainers::runners::SyncRunner,
+/// };
 ///
 /// let ethereum_instance = ParityEthereum::default().start().unwrap();
 /// let host = ethereum_instance.get_host().unwrap();
