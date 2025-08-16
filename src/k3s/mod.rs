@@ -153,8 +153,9 @@ impl K3s {
     ///
     /// # Example
     /// ```
-    /// use testcontainers_modules::k3s::K3s;
     /// use std::path::Path;
+    ///
+    /// use testcontainers_modules::k3s::K3s;
     ///
     /// let k3s = K3s::default().with_conf_mount(Path::new("/tmp/k3s-config"));
     /// ```
@@ -178,8 +179,9 @@ impl K3s {
     ///
     /// # Example
     /// ```no_run
-    /// use testcontainers_modules::k3s::K3s;
     /// use std::path::Path;
+    ///
+    /// use testcontainers_modules::k3s::K3s;
     ///
     /// let k3s = K3s::default().with_conf_mount(Path::new("/tmp/k3s-config"));
     /// // After starting the container...
