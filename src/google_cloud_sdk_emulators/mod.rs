@@ -107,7 +107,9 @@ impl IntoIterator for &CloudSdkCmd {
 ///
 /// # Example
 /// ```
-/// use testcontainers_modules::{google_cloud_sdk_emulators::CloudSdk, testcontainers::runners::SyncRunner};
+/// use testcontainers_modules::{
+///     google_cloud_sdk_emulators::CloudSdk, testcontainers::runners::SyncRunner,
+/// };
 ///
 /// let pubsub_emulator = CloudSdk::pubsub().start().unwrap();
 /// let host = pubsub_emulator.get_host().unwrap();
