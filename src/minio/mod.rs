@@ -8,8 +8,26 @@ const TAG: &str = "RELEASE.2025-02-28T09-55-16Z";
 const DIR: &str = "/data";
 const CONSOLE_ADDRESS: &str = ":9001";
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with [`MinIO`] inside of tests.
+///
+/// Starts an instance of MinIO based on the official [`MinIO docker image`].
+///
+/// MinIO is a high-performance object storage server compatible with Amazon S3 APIs.
+/// The container exposes port `9000` for API access and port `9001` for the web console by default.
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{minio::MinIO, testcontainers::runners::SyncRunner};
+///
+/// let minio_instance = MinIO::default().start().unwrap();
+/// let host = minio_instance.get_host().unwrap();
+/// let api_port = minio_instance.get_host_port_ipv4(9000).unwrap();
+///
+/// // Use the S3-compatible API at http://{host}:{api_port}
+/// ```
+///
+/// [`MinIO`]: https://min.io/
+/// [`MinIO docker image`]: https://hub.docker.com/r/minio/minio
 #[derive(Debug, Clone)]
 pub struct MinIO {
     env_vars: HashMap<String, String>,
@@ -31,18 +49,20 @@ impl Default for MinIO {
     }
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Configuration for MinIO server command-line arguments.
+///
+/// This struct allows you to customize the MinIO server startup configuration
+/// by setting various options like the data directory, TLS certificates, and logging format.
 #[derive(Debug, Clone)]
 pub struct MinIOServerCmd {
-    #[allow(missing_docs)]
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+    /// The directory where MinIO will store data.
+    /// Defaults to "/data" if not specified.
     pub dir: String,
-    #[allow(missing_docs)]
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+    /// Optional directory containing TLS certificates for HTTPS.
+    /// If provided, MinIO will enable TLS/SSL.
     pub certs_dir: Option<String>,
-    #[allow(missing_docs)]
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+    /// Whether to enable JSON formatted logging.
+    /// When true, MinIO outputs logs in JSON format for easier parsing.
     pub json_log: bool,
 }
 
