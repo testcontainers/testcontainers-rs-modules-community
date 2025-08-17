@@ -35,23 +35,38 @@ pub const PUBSUB_PORT: u16 = 8085;
 /// [`Spanner`]: https://cloud.google.com/spanner
 pub const SPANNER_PORT: u16 = 9010;
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Configuration for Google Cloud SDK emulator command-line arguments.
+///
+/// This struct specifies which Google Cloud service emulator to run and
+/// the network configuration for the emulator.
 #[derive(Debug, Clone)]
 pub struct CloudSdkCmd {
+    /// The hostname or IP address to bind the emulator to.
     pub host: String,
+    /// The port number to expose the emulator on.
     pub port: u16,
+    /// The specific Google Cloud service emulator to run.
     pub emulator: Emulator,
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Enum representing the different Google Cloud service emulators available.
+///
+/// Each variant corresponds to a specific Google Cloud service that can be
+/// emulated locally for testing purposes.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Emulator {
+    /// Cloud Bigtable emulator for NoSQL wide-column database testing.
     Bigtable,
-    Datastore { project: String },
+    /// Cloud Datastore emulator for NoSQL document database testing.
+    Datastore {
+        /// A project ID
+        project: String,
+    },
+    /// Cloud Firestore emulator for NoSQL document database testing.
     Firestore,
+    /// Cloud Pub/Sub emulator for messaging service testing.
     PubSub,
+    /// Cloud Spanner emulator for globally distributed relational database testing.
     Spanner,
 }
 
@@ -85,8 +100,27 @@ impl IntoIterator for &CloudSdkCmd {
     }
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with Google Cloud SDK emulators inside of tests.
+///
+/// Starts an instance of the Google Cloud SDK emulators based on the official
+/// [`Google Cloud SDK docker image`]. This module provides local emulators for
+/// various Google Cloud services including Bigtable, Datastore, Firestore, Pub/Sub,
+/// and Spanner.
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{
+///     google_cloud_sdk_emulators::CloudSdk, testcontainers::runners::SyncRunner,
+/// };
+///
+/// let pubsub_emulator = CloudSdk::pubsub().start().unwrap();
+/// let host = pubsub_emulator.get_host().unwrap();
+/// let port = pubsub_emulator.get_host_port_ipv4(8085).unwrap();
+///
+/// // Use the Pub/Sub emulator at {host}:{port}
+/// ```
+///
+/// [`Google Cloud SDK docker image`]: https://hub.docker.com/r/google/cloud-sdk
 #[derive(Debug, Clone)]
 pub struct CloudSdk {
     exposed_ports: Vec<ContainerPort>,
@@ -130,8 +164,16 @@ impl CloudSdk {
         }
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Creates a new CloudSdk instance configured for Cloud Bigtable emulation.
+    ///
+    /// The Bigtable emulator will be available on port 8086.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::google_cloud_sdk_emulators::CloudSdk;
+    ///
+    /// let bigtable = CloudSdk::bigtable();
+    /// ```
     pub fn bigtable() -> Self {
         Self::new(
             BIGTABLE_PORT,
@@ -140,8 +182,16 @@ impl CloudSdk {
         )
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Creates a new CloudSdk instance configured for Cloud Firestore emulation.
+    ///
+    /// The Firestore emulator will be available on port 8080.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::google_cloud_sdk_emulators::CloudSdk;
+    ///
+    /// let firestore = CloudSdk::firestore();
+    /// ```
     pub fn firestore() -> Self {
         Self::new(
             FIRESTORE_PORT,
@@ -150,8 +200,19 @@ impl CloudSdk {
         )
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Creates a new CloudSdk instance configured for Cloud Datastore emulation.
+    ///
+    /// The Datastore emulator will be available on port 8081.
+    ///
+    /// # Arguments
+    /// * `project` - The Google Cloud project ID to use for the Datastore emulator
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::google_cloud_sdk_emulators::CloudSdk;
+    ///
+    /// let datastore = CloudSdk::datastore("my-test-project");
+    /// ```
     pub fn datastore(project: impl Into<String>) -> Self {
         let project = project.into();
         Self::new(
@@ -161,8 +222,16 @@ impl CloudSdk {
         )
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Creates a new CloudSdk instance configured for Cloud Pub/Sub emulation.
+    ///
+    /// The Pub/Sub emulator will be available on port 8085.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::google_cloud_sdk_emulators::CloudSdk;
+    ///
+    /// let pubsub = CloudSdk::pubsub();
+    /// ```
     pub fn pubsub() -> Self {
         Self::new(
             PUBSUB_PORT,
@@ -171,8 +240,16 @@ impl CloudSdk {
         )
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Creates a new CloudSdk instance configured for Cloud Spanner emulation.
+    ///
+    /// The Spanner emulator will be available on port 9010.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::google_cloud_sdk_emulators::CloudSdk;
+    ///
+    /// let spanner = CloudSdk::spanner();
+    /// ```
     pub fn spanner() -> Self {
         Self::new(
             SPANNER_PORT, // gRPC port
