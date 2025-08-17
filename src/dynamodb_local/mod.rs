@@ -4,8 +4,30 @@ const NAME: &str = "amazon/dynamodb-local";
 const TAG: &str = "2.0.0";
 const DEFAULT_WAIT: u64 = 3000;
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with [`DynamoDB Local`] inside of tests.
+///
+/// Starts an instance of DynamoDB Local based on the official [`DynamoDB Local docker image`].
+///
+/// This module provides a local DynamoDB instance for testing purposes, which is compatible
+/// with the AWS DynamoDB API.
+/// The container exposes port `8000` by default.
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{dynamodb_local::DynamoDb, testcontainers::runners::AsyncRunner};
+///
+/// # async fn example() -> Result<(), Box<dyn std::error::Error + 'static>> {
+/// let dynamodb_instance = DynamoDb::default().start().await?;
+/// let host = dynamodb_instance.get_host().await?;
+/// let port = dynamodb_instance.get_host_port_ipv4(8000).await?;
+///
+/// // Use the DynamoDB endpoint at http://{host}:{port}
+/// # Ok(())
+/// # }
+/// ```
+///
+/// [`DynamoDB Local`]: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html
+/// [`DynamoDB Local docker image`]: https://hub.docker.com/r/amazon/dynamodb-local
 #[derive(Default, Debug, Clone)]
 pub struct DynamoDb {
     /// (remove if there is another variable)
