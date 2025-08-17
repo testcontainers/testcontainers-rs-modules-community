@@ -58,8 +58,10 @@ pub enum Emulator {
     /// Cloud Bigtable emulator for NoSQL wide-column database testing.
     Bigtable,
     /// Cloud Datastore emulator for NoSQL document database testing.
-    /// Requires a project ID to be specified.
-    Datastore { project: String },
+    Datastore {
+        /// A project ID
+        project: String,
+    },
     /// Cloud Firestore emulator for NoSQL document database testing.
     Firestore,
     /// Cloud Pub/Sub emulator for messaging service testing.
