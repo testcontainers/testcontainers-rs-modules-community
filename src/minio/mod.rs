@@ -22,10 +22,8 @@ const CONSOLE_ADDRESS: &str = ":9001";
 /// let minio_instance = MinIO::default().start().unwrap();
 /// let host = minio_instance.get_host().unwrap();
 /// let api_port = minio_instance.get_host_port_ipv4(9000).unwrap();
-/// let console_port = minio_instance.get_host_port_ipv4(9001).unwrap();
 ///
 /// // Use the S3-compatible API at http://{host}:{api_port}
-/// // Access the web console at http://{host}:{console_port}
 /// ```
 ///
 /// [`MinIO`]: https://min.io/
