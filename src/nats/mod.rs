@@ -13,8 +13,21 @@ pub struct Nats {
     cmd: NatsServerCmd,
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Configuration for the NATS server command-line arguments.
+///
+/// This struct allows you to customize the NATS server startup configuration
+/// by setting various options like authentication credentials and enabling features
+/// like JetStream.
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::nats::NatsServerCmd;
+///
+/// let cmd = NatsServerCmd::default()
+///     .with_user("myuser")
+///     .with_password("mypass")
+///     .with_jetstream();
+/// ```
 #[derive(Default, Debug, Clone)]
 pub struct NatsServerCmd {
     user: Option<String>,
@@ -24,15 +37,35 @@ pub struct NatsServerCmd {
 }
 
 impl NatsServerCmd {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Sets the username for NATS server authentication.
+    ///
+    /// This configures the NATS server to require authentication with the specified username.
+    /// Should be used together with [`with_password`](Self::with_password) for complete authentication setup.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::nats::NatsServerCmd;
+    ///
+    /// let cmd = NatsServerCmd::default().with_user("myuser");
+    /// ```
     pub fn with_user(mut self, user: &str) -> Self {
         self.user = Some(user.to_owned());
         self
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Sets the password for NATS server authentication.
+    ///
+    /// This configures the NATS server to require authentication with the specified password.
+    /// Should be used together with [`with_user`](Self::with_user) for complete authentication setup.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::nats::NatsServerCmd;
+    ///
+    /// let cmd = NatsServerCmd::default()
+    ///     .with_user("myuser")
+    ///     .with_password("mypass");
+    /// ```
     pub fn with_password(mut self, password: &str) -> Self {
         self.pass = Some(password.to_owned());
         self
