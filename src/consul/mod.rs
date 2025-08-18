@@ -29,17 +29,21 @@ pub struct Consul {
 
 impl Consul {
     /// Passes a JSON string of configuration options to the Consul agent
-    /// 
+    ///
     /// # Example
     /// ```
     /// use testcontainers_modules::{consul, testcontainers::runners::SyncRunner};
     ///
     /// let consul = consul::Consul::default()
-    ///     .with_local_config(r#"{
+    ///     .with_local_config(
+    ///         r#"{
     ///         "datacenter": "us_west",
     ///         "server": true,
     ///         "enable_debug": true
-    ///     }"#).start().unwrap();
+    ///     }"#,
+    ///     )
+    ///     .start()
+    ///     .unwrap();
     /// ```
     pub fn with_local_config(self, config: String) -> Self {
         let mut env_vars = self.env_vars;
