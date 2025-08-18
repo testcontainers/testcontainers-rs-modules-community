@@ -77,7 +77,7 @@ rcgen = { version = "0.13.1", features = [
 ], default-features = false, optional = true }
 serde = { version = "1.0.217", features = ["derive"], optional = true }
 serde_json = { version = "1.0.138", optional = true }
-testcontainers = { version = "0.24.0" }
+testcontainers = { version = "0.25.0" }
 
 
 [dev-dependencies]
@@ -91,7 +91,7 @@ aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
-bollard = "0.18.1"
+bollard = "0.19.1"
 databend-driver = "0.27.3"
 futures = "0.3"
 lapin = "3.0.0"
@@ -118,7 +118,7 @@ serde = { version = "1.0.217", features = ["derive"] }
 serde_json = { version = "1.0.138" }
 surrealdb = { version = "2.2.1" }
 tar = "0.4.40"
-testcontainers = { version = "0.24.0", features = ["blocking"] }
+testcontainers = { version = "0.25.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.3", default-features = false, features = [
