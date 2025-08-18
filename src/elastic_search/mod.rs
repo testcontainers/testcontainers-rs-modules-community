@@ -21,8 +21,30 @@ pub const ELASTICSEARCH_API_PORT: ContainerPort = ContainerPort::Tcp(9200);
 /// [`Elasticsearch`]: https://elastic.co/
 pub const ELASTICSEARCH_INTER_NODE_PORT: ContainerPort = ContainerPort::Tcp(9300);
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with [`Elasticsearch`] inside of tests.
+///
+/// Starts an instance of Elasticsearch based on the official [`Elasticsearch docker image`].
+///
+/// Elasticsearch is a distributed, RESTful search and analytics engine capable of addressing
+/// a growing number of use cases. This module provides a local Elasticsearch instance for testing purposes.
+/// The container exposes port `9200` for API calls ([`ELASTICSEARCH_API_PORT`]) and port `9300` for
+/// inter-node communication ([`ELASTICSEARCH_INTER_NODE_PORT`]) by default.
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{
+///     elastic_search::ElasticSearch, testcontainers::runners::SyncRunner,
+/// };
+///
+/// let elasticsearch_instance = ElasticSearch::default().start().unwrap();
+/// let host = elasticsearch_instance.get_host().unwrap();
+/// let port = elasticsearch_instance.get_host_port_ipv4(9200).unwrap();
+///
+/// // Use the Elasticsearch API at http://{host}:{port}
+/// ```
+///
+/// [`Elasticsearch`]: https://www.elastic.co/elasticsearch/
+/// [`Elasticsearch docker image`]: https://www.docker.elastic.co/r/elasticsearch/elasticsearch
 #[derive(Debug, Default, Clone)]
 pub struct ElasticSearch {
     /// (remove if there is another variable)
