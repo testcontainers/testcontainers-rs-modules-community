@@ -30,6 +30,8 @@ pub struct Consul {
 impl Consul {
     /// Passes a JSON string of configuration options to the Consul agent
     ///
+    /// For details on which options are avalible, please see [the consul docs](https://developer.hashicorp.com/consul/docs/reference/agent/configuration-file).
+    ///
     /// # Example
     /// ```
     /// use testcontainers_modules::{consul, testcontainers::runners::SyncRunner};
