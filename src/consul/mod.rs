@@ -42,13 +42,13 @@ impl Consul {
     ///         "datacenter": "us_west",
     ///         "server": true,
     ///         "enable_debug": true
-    ///     }"#.to_string())
+    ///     }"#)
     ///     .start()
     ///     .unwrap();
     /// ```
-    pub fn with_local_config(self, config: String) -> Self {
+    pub fn with_local_config(self, config: impl ToString) -> Self {
         let mut env_vars = self.env_vars;
-        env_vars.insert(CONSUL_LOCAL_CONFIG.to_owned(), config);
+        env_vars.insert(CONSUL_LOCAL_CONFIG.to_owned(), config.to_string());
         Self { env_vars }
     }
 }
