@@ -42,8 +42,7 @@ impl Consul {
     ///         "datacenter": "us_west",
     ///         "server": true,
     ///         "enable_debug": true
-    ///     }"#,
-    ///     )
+    ///     }"#.to_string())
     ///     .start()
     ///     .unwrap();
     /// ```
