@@ -6,7 +6,7 @@ use testcontainers::{
 };
 
 const NAME: &str = "google/cloud-sdk";
-const TAG: &str = "362.0.0-emulators";
+const TAG: &str = "531.0.0-emulators";
 
 const HOST: &str = "0.0.0.0";
 /// Port that the [`Bigtable`] emulator container has internally
@@ -33,23 +33,34 @@ pub const PUBSUB_PORT: u16 = 8085;
 /// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
 ///
 /// [`Spanner`]: https://cloud.google.com/spanner
-pub const SPANNER_PORT: u16 = 9010;
+#[deprecated(since = "0.13.0", note = "please use `SPANNER_GRPC_PORT` instead")]
+pub const SPANNER_PORT: u16 = SPANNER_GRPC_PORT;
+/// Port that the [`Spanner`] emulator container has internally (gRPC)
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Spanner`]: https://cloud.google.com/spanner
+pub const SPANNER_GRPC_PORT: u16 = 9010;
+/// Port that the [`Spanner`] emulator container has internally (REST)
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`Spanner`]: https://cloud.google.com/spanner
+pub const SPANNER_REST_PORT: u16 = 9020;
 
 #[allow(missing_docs)]
 // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
 #[derive(Debug, Clone)]
-pub struct CloudSdkCmd {
-    pub host: String,
-    pub port: u16,
-    pub emulator: Emulator,
+struct CloudSdkCmd {
+    host: String,
+    port: u16,
+    emulator: Emulator,
+    additional_args: Vec<String>,
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// The emulator used by the sdk
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum Emulator {
+enum Emulator {
     Bigtable,
-    Datastore { project: String },
+    Datastore,
     Firestore,
     PubSub,
     Spanner,
@@ -60,12 +71,12 @@ impl IntoIterator for &CloudSdkCmd {
     type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        let (emulator, project) = match &self.emulator {
-            Emulator::Bigtable => ("bigtable", None),
-            Emulator::Datastore { project } => ("datastore", Some(project)),
-            Emulator::Firestore => ("firestore", None),
-            Emulator::PubSub => ("pubsub", None),
-            Emulator::Spanner => ("spanner", None),
+        let emulator = match self.emulator {
+            Emulator::Bigtable => "bigtable",
+            Emulator::Datastore => "datastore",
+            Emulator::Firestore => "firestore",
+            Emulator::PubSub => "pubsub",
+            Emulator::Spanner => "spanner",
         };
         let mut args = vec![
             "gcloud".to_owned(),
@@ -74,20 +85,40 @@ impl IntoIterator for &CloudSdkCmd {
             emulator.to_owned(),
             "start".to_owned(),
         ];
-        if let Some(project) = project {
-            args.push("--project".to_owned());
-            args.push(project.to_owned());
-        }
         args.push("--host-port".to_owned());
         args.push(format!("{}:{}", self.host, self.port));
+        args.extend(self.additional_args.iter().cloned());
 
         args.into_iter()
     }
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-#[derive(Debug, Clone)]
+/// Module to work with [`Google Cloud Emulators`] inside of tests.
+///
+/// The same image can be used to run multiple emulators, using the `emulator` argument allows
+/// selecting the one to run.
+///
+/// This module is based on the official [`GCloud SDK image`].
+///
+/// # Example
+/// ```
+/// use testcontainers::runners::SyncRunner;
+/// use testcontainers_modules::google_cloud_sdk_emulators;
+///
+/// let container = google_cloud_sdk_emulators::CloudSdk::spanner()
+///     .start()
+///     .unwrap();
+/// let port = container
+///     .get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT)
+///     .unwrap();
+///
+/// let spanner_host = format!("localhost:{port}");
+///
+/// // do something with the started spanner instance.
+/// ```
+///
+/// [`Google Cloud Emulators`]: https://cloud.google.com/sdk/gcloud/reference/beta/emulators
+/// [`GCloud SDK image`]: https://cloud.google.com/sdk/docs/downloads-docker#[derive(Debug, Clone)]
 pub struct CloudSdk {
     exposed_ports: Vec<ContainerPort>,
     ready_condition: WaitFor,
@@ -117,14 +148,23 @@ impl Image for CloudSdk {
 }
 
 impl CloudSdk {
-    fn new(port: u16, emulator: Emulator, ready_condition: WaitFor) -> Self {
+    fn new(
+        port: u16,
+        additional_port: Option<u16>,
+        additional_args: Vec<String>,
+        emulator: Emulator,
+        ready_condition: WaitFor,
+    ) -> Self {
         let cmd = CloudSdkCmd {
             host: HOST.to_owned(),
             port,
+            additional_args,
             emulator,
         };
+        let mut exposed_ports = vec![ContainerPort::Tcp(port)];
+        exposed_ports.extend(additional_port.map(ContainerPort::Tcp));
         Self {
-            exposed_ports: vec![ContainerPort::Tcp(port)],
+            exposed_ports,
             ready_condition,
             cmd,
         }
@@ -135,6 +175,8 @@ impl CloudSdk {
     pub fn bigtable() -> Self {
         Self::new(
             BIGTABLE_PORT,
+            None,
+            vec![],
             Emulator::Bigtable,
             WaitFor::message_on_stderr("[bigtable] Cloud Bigtable emulator running on"),
         )
@@ -145,6 +187,8 @@ impl CloudSdk {
     pub fn firestore() -> Self {
         Self::new(
             FIRESTORE_PORT,
+            None,
+            vec![],
             Emulator::Firestore,
             WaitFor::message_on_stderr("[firestore] Dev App Server is now running"),
         )
@@ -153,10 +197,11 @@ impl CloudSdk {
     // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
     #[allow(missing_docs)]
     pub fn datastore(project: impl Into<String>) -> Self {
-        let project = project.into();
         Self::new(
             DATASTORE_PORT,
-            Emulator::Datastore { project },
+            None,
+            vec!["--project".to_string(), project.into()],
+            Emulator::Datastore,
             WaitFor::message_on_stderr("[datastore] Dev App Server is now running"),
         )
     }
@@ -166,6 +211,8 @@ impl CloudSdk {
     pub fn pubsub() -> Self {
         Self::new(
             PUBSUB_PORT,
+            None,
+            vec![],
             Emulator::PubSub,
             WaitFor::message_on_stderr("[pubsub] INFO: Server started, listening on"),
         )
@@ -175,7 +222,9 @@ impl CloudSdk {
     #[allow(missing_docs)]
     pub fn spanner() -> Self {
         Self::new(
-            SPANNER_PORT, // gRPC port
+            SPANNER_GRPC_PORT,
+            Some(SPANNER_REST_PORT),
+            vec!["--rest-port".to_string(), SPANNER_REST_PORT.to_string()],
             Emulator::Spanner,
             WaitFor::message_on_stderr("Cloud Spanner emulator running"),
         )
@@ -230,8 +279,26 @@ mod tests {
     fn spanner_emulator_expose_port() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let _ = pretty_env_logger::try_init();
         let node = google_cloud_sdk_emulators::CloudSdk::spanner().start()?;
-        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_PORT)?;
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_GRPC_PORT)?;
         assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT)?;
+        assert!(RANDOM_PORTS.contains(&port), "Port {port} not found");
+        Ok(())
+    }
+
+    #[test]
+    fn spanner_emulator_expose_rest() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let _ = pretty_env_logger::try_init();
+        let node = google_cloud_sdk_emulators::CloudSdk::spanner().start()?;
+        let port = node.get_host_port_ipv4(google_cloud_sdk_emulators::SPANNER_REST_PORT)?;
+        let body = reqwest::blocking::Client::new()
+            .get(format!(
+                "http://localhost:{port}/v1/projects/test/instances"
+            ))
+            .send()?
+            .error_for_status()?
+            .text()?;
+        assert_eq!(body, "{}");
         Ok(())
     }
 }
