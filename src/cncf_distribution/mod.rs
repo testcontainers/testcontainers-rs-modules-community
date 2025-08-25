@@ -50,14 +50,17 @@ impl Image for CncfDistribution {
 
 #[cfg(test)]
 mod tests {
-    use bollard::image::{BuildImageOptions, CreateImageOptions};
+    use bollard::query_parameters::{
+        CreateImageOptionsBuilder, PushImageOptionsBuilder, RemoveImageOptions,
+    };
     use futures::StreamExt;
+    use testcontainers::{runners::AsyncBuilder, GenericBuildableImage, Image};
 
     use crate::{cncf_distribution, testcontainers::runners::AsyncRunner};
 
-    const DOCKERFILE: &[u8] = b"
+    const DOCKERFILE: &str = "
         FROM scratch
-        COPY Dockerfile /
+        COPY hello.sh /
     ";
 
     #[tokio::test]
@@ -67,45 +70,42 @@ mod tests {
             .start()
             .await?;
         let docker = bollard::Docker::connect_with_local_defaults().unwrap();
-        let image_tag = format!(
-            "localhost:{}/test:latest",
+
+        let image_name = &format!(
+            "localhost:{}/test",
             distribution_node.get_host_port_ipv4(5000).await?
         );
+        let image_tag = "latest";
 
-        let mut archive = tar::Builder::new(Vec::new());
-        let mut header = tar::Header::new_gnu();
-        header.set_path("Dockerfile").unwrap();
-        header.set_size(DOCKERFILE.len() as u64);
-        header.set_cksum();
-        archive.append(&header, DOCKERFILE).unwrap();
-
-        // Build test image
-        let mut build_image = docker.build_image(
-            BuildImageOptions {
-                dockerfile: "Dockerfile",
-                t: &image_tag,
-                ..Default::default()
-            },
-            None,
-            Some(archive.into_inner().unwrap().into()),
-        );
-        while let Some(x) = build_image.next().await {
-            println!("Build status: {:?}", x.unwrap());
-        }
+        let image = GenericBuildableImage::new(image_name, image_tag)
+            .with_dockerfile_string(DOCKERFILE)
+            .with_data(b"#!/bin/sh\necho 'Hello World'", "./hello.sh")
+            .build_image()
+            .await?;
 
         // Push image, and then remove it
-        let mut push_image = docker.push_image::<String>(&image_tag, None, None);
+        let mut push_image = docker.push_image(
+            image.name(),
+            Some(PushImageOptionsBuilder::new().tag(image.tag()).build()),
+            None,
+        );
         while let Some(x) = push_image.next().await {
             println!("Push image: {:?}", x.unwrap());
         }
-        docker.remove_image(&image_tag, None, None).await.unwrap();
+
+        docker
+            .remove_image(image.name(), None::<RemoveImageOptions>, None)
+            .await
+            .unwrap();
 
         // Pull image
         let mut create_image = docker.create_image(
-            Some(CreateImageOptions {
-                from_image: image_tag.as_str(),
-                ..Default::default()
-            }),
+            Some(
+                CreateImageOptionsBuilder::new()
+                    .from_image(image.name())
+                    .tag(image.tag())
+                    .build(),
+            ),
             None,
             None,
         );
@@ -115,12 +115,12 @@ mod tests {
 
         assert_eq!(
             docker
-                .inspect_image(&image_tag)
+                .inspect_image(image.name())
                 .await
                 .unwrap()
                 .repo_tags
                 .unwrap()[0],
-            image_tag,
+            format!("{}:{}", image.name(), image.tag())
         );
 
         Ok(())
