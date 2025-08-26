@@ -84,7 +84,7 @@ testcontainers = { version = "0.25.0" }
 alloy-network = "0.11.1"
 alloy-provider = "0.11.1"
 alloy-transport-http = "1.0.7"
-arrow-flight = { version = "55.1.0", features = ["flight-sql-experimental"] }
+arrow-flight = { version = "56.1.0", features = ["flight-sql-experimental"] }
 async-nats = "0.42.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
