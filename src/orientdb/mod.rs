@@ -5,8 +5,31 @@ use testcontainers::{core::WaitFor, Image};
 const NAME: &str = "orientdb";
 const TAG: &str = "3.2.19";
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with [`OrientDB`] inside of tests.
+///
+/// Starts an instance of OrientDB based on the official [`OrientDB docker image`].
+///
+/// OrientDB is a multi-model database, supporting graph, document, object, and key-value models.
+/// This module provides a local OrientDB instance for testing purposes.
+/// The container exposes port `2424` for binary connections and port `2480` for HTTP connections by default.
+///
+/// The default root password is set to `"root"`.
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{orientdb::OrientDb, testcontainers::runners::SyncRunner};
+///
+/// let orientdb_instance = OrientDb::default().start().unwrap();
+/// let host = orientdb_instance.get_host().unwrap();
+/// let http_port = orientdb_instance.get_host_port_ipv4(2480).unwrap();
+/// let binary_port = orientdb_instance.get_host_port_ipv4(2424).unwrap();
+///
+/// // Use the HTTP endpoint at http://{host}:{http_port}
+/// // Use the binary endpoint at {host}:{binary_port}
+/// ```
+///
+/// [`OrientDB`]: https://orientdb.org/
+/// [`OrientDB docker image`]: https://hub.docker.com/_/orientdb
 #[derive(Debug, Default, Clone)]
 pub struct OrientDb {
     /// (remove if there is another variable)
