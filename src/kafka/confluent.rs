@@ -18,8 +18,33 @@ pub const KAFKA_PORT: ContainerPort = ContainerPort::Tcp(9093);
 /// [`Zookeeper`]: https://zookeeper.apache.org/
 pub const ZOOKEEPER_PORT: ContainerPort = ContainerPort::Tcp(2181);
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with [`Apache Kafka`] inside of tests.
+///
+/// Starts an instance of Kafka based on the official [`Confluent Kafka docker image`].
+///
+/// This module provides a local Kafka instance with an embedded Zookeeper for testing purposes.
+/// The container exposes port 9093 for Kafka ([`KAFKA_PORT`]) and port 2181 for Zookeeper
+/// ([`ZOOKEEPER_PORT`]) by default.
+///
+/// The Kafka instance is pre-configured with:
+/// - Single broker setup (broker ID: 1)
+/// - Embedded Zookeeper
+/// - PLAINTEXT security protocol
+/// - Auto-created topics with replication factor 1
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{kafka::Kafka, testcontainers::runners::SyncRunner};
+///
+/// let kafka_instance = Kafka::default().start().unwrap();
+/// let host = kafka_instance.get_host().unwrap();
+/// let port = kafka_instance.get_host_port_ipv4(9093).unwrap();
+///
+/// // Use the Kafka bootstrap server at {host}:{port}
+/// ```
+///
+/// [`Apache Kafka`]: https://kafka.apache.org/
+/// [`Confluent Kafka docker image`]: https://hub.docker.com/r/confluentinc/cp-kafka
 #[derive(Debug, Clone)]
 pub struct Kafka {
     env_vars: HashMap<String, String>,

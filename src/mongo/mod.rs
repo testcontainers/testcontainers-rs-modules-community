@@ -6,32 +6,68 @@ use testcontainers::{
 const NAME: &str = "mongo";
 const TAG: &str = "5.0.6";
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Type of MongoDB instance to create.
 #[derive(Default, Debug, Clone)]
 enum InstanceKind {
+    /// A standalone MongoDB instance (default).
     #[default]
     Standalone,
+    /// A MongoDB replica set instance.
     ReplSet,
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Module to work with [`MongoDB`] inside of tests.
+///
+/// Starts an instance of MongoDB based on the official [`MongoDB docker image`].
+///
+/// This module supports both standalone and replica set configurations.
+/// The container exposes port `27017` by default.
+///
+/// # Example
+/// ```
+/// use testcontainers_modules::{mongo::Mongo, testcontainers::runners::SyncRunner};
+///
+/// let mongo_instance = Mongo::default().start().unwrap();
+/// let host = mongo_instance.get_host().unwrap();
+/// let port = mongo_instance.get_host_port_ipv4(27017).unwrap();
+///
+/// // Connect to MongoDB at mongodb://{host}:{port}
+/// ```
+///
+/// [`MongoDB`]: https://www.mongodb.com/
+/// [`MongoDB docker image`]: https://hub.docker.com/_/mongo
 #[derive(Default, Debug, Clone)]
 pub struct Mongo {
     kind: InstanceKind,
 }
 
 impl Mongo {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Creates a new standalone MongoDB instance.
+    ///
+    /// This is equivalent to using `Mongo::default()`.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::mongo::Mongo;
+    ///
+    /// let mongo = Mongo::new();
+    /// ```
     pub fn new() -> Self {
         Self {
             kind: InstanceKind::Standalone,
         }
     }
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Creates a new MongoDB replica set instance.
+    ///
+    /// This configures MongoDB to run as a replica set, which is useful for testing
+    /// replica set specific features like transactions.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::mongo::Mongo;
+    ///
+    /// let mongo = Mongo::repl_set();
+    /// ```
     pub fn repl_set() -> Self {
         Self {
             kind: InstanceKind::ReplSet,
