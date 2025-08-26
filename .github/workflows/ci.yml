@@ -94,8 +94,10 @@ jobs:
           - 3/4
           - 4/4
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
+      - name: Free Disk Space - Ubuntu Runners
+        uses: endersonmenezes/free-disk-space@v2.1.1
+        with:
+          remove_haskell: true
       - name: Checkout sources
         uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
