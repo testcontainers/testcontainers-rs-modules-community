@@ -173,7 +173,6 @@ mod tests {
 
     #[tokio::test]
     async fn starts_with_accounts() -> Result<(), Box<dyn std::error::Error + 'static>> {
-        use azure_core::auth::Secret;
         use testcontainers::runners::AsyncRunner;
 
         let data = b"key1";
@@ -181,7 +180,7 @@ mod tests {
 
         let account_name = "account1";
         let container = Azurite::default()
-            .with_accounts(format!("{}:{};", account_name, account_key))
+            .with_accounts(format!("{account_name}:{account_key};"))
             .start()
             .await?;
 
@@ -194,7 +193,7 @@ mod tests {
                     account_name
                 ),
             },
-            StorageCredentials::access_key(account_name, Secret::new(account_key)),
+            StorageCredentials::access_key(account_name, account_key),
         )
         .container_client("container-name")
         .create()
