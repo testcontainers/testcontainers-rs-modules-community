@@ -78,7 +78,8 @@ mod tests {
         let docker = Docker::connect_with_local_defaults().unwrap();
 
         let image_name = &format!(
-            "localhost:{}/test",
+            "{}:{}/test",
+            distribution_node.get_host().await?,
             distribution_node.get_host_port_ipv4(5000).await?
         );
         let image_tag = "latest";
