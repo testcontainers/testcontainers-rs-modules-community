@@ -17,6 +17,11 @@ updates:
           - "aws-sdk-*"
           - "aws-config"
           - "aws-types"
+      kube:
+        patterns:
+          - kube
+          - k8s-openapi
+          - schemars
     commit-message:
       prefix: chore
       prefix-development: test
