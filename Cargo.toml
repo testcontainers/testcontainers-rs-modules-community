@@ -81,9 +81,8 @@ testcontainers = { version = "0.25.0" }
 
 
 [dev-dependencies]
-alloy-network = "0.11.1"
-alloy-provider = "0.11.1"
-alloy-transport-http = "1.0.7"
+alloy-network = "1.0.27"
+alloy-provider = "1.0.27"
 arrow-flight = { version = "56.1.0", features = ["flight-sql-experimental"] }
 async-nats = "0.42.0"
 aws-config = "1.0.1"
@@ -91,7 +90,7 @@ aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
-databend-driver = "0.27.3"
+databend-driver = "0.28.2"
 futures = "0.3"
 lapin = "3.0.0"
 ldap3 = "0.11.5"
@@ -128,12 +127,8 @@ tiberius = { version = "0.12.3", default-features = false, features = [
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 tokio-zookeeper = "0.4.0"
-kube = { version = "0.99.0", default-features = false, features = [
-    "client",
-    "runtime",
-    "rustls-tls",
-] }
-k8s-openapi = { version = "0.24", features = ["v1_29"] }
+kube = { version = "1.1.0", features = ["runtime"] }
+k8s-openapi = { version = "0.25", features = ["v1_30"] }
 clickhouse = { version = "0.13" }
 vaultrs = "0.7.2"
 openssl-sys = { version = "0.9.103", features = ["vendored"] }

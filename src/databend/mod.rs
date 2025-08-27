@@ -97,11 +97,10 @@ mod tests {
     async fn test_databend() {
         let databend = DatabendImage::default().start().await.unwrap();
         let http_port = databend.get_host_port_ipv4(8000).await.unwrap();
+        let host = databend.get_host().await.unwrap();
         // "databend://user:password@localhost:8000/default?sslmode=disable
-        let dsn = format!(
-            "databend://databend:databend@localhost:{}/default?sslmode=disable",
-            http_port
-        );
+        let dsn =
+            format!("databend://databend:databend@{host}:{http_port}/default?sslmode=disable");
         let client = Client::new(dsn.to_string());
         let conn = client.get_conn().await.unwrap();
         let row = conn.query_row("select 'hello'", ()).await.unwrap();
