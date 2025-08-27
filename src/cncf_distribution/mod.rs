@@ -50,11 +50,17 @@ impl Image for CncfDistribution {
 
 #[cfg(test)]
 mod tests {
-    use bollard::query_parameters::{
-        CreateImageOptionsBuilder, PushImageOptionsBuilder, RemoveImageOptions,
-    };
     use futures::StreamExt;
-    use testcontainers::{runners::AsyncBuilder, GenericBuildableImage, Image};
+    use testcontainers::{
+        bollard::{
+            query_parameters::{
+                CreateImageOptionsBuilder, PushImageOptionsBuilder, RemoveImageOptions,
+            },
+            Docker,
+        },
+        runners::AsyncBuilder,
+        GenericBuildableImage, Image,
+    };
 
     use crate::{cncf_distribution, testcontainers::runners::AsyncRunner};
 
@@ -69,7 +75,7 @@ mod tests {
         let distribution_node = cncf_distribution::CncfDistribution::default()
             .start()
             .await?;
-        let docker = bollard::Docker::connect_with_local_defaults().unwrap();
+        let docker = Docker::connect_with_local_defaults().unwrap();
 
         let image_name = &format!(
             "localhost:{}/test",
@@ -122,6 +128,11 @@ mod tests {
                 .unwrap()[0],
             format!("{}:{}", image.name(), image.tag())
         );
+
+        // clean-up
+        docker
+            .remove_image(image.name(), None::<RemoveImageOptions>, None)
+            .await?;
 
         Ok(())
     }
