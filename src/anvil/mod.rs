@@ -70,7 +70,9 @@ impl AnvilNode {
 
     /// Mount a host directory for anvil state at `/state` inside the container
     pub fn with_state_mount(mut self, host_dir: impl AsRef<std::path::Path>) -> Self {
-        let Some(host_dir_str) = host_dir.as_ref().to_str() else { return self; };
+        let Some(host_dir_str) = host_dir.as_ref().to_str() else {
+            return self;
+        };
         self.state_mount = Some(Mount::bind_mount(host_dir_str, "/state"));
         self
     }
