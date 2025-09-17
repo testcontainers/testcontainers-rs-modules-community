@@ -1,6 +1,6 @@
 [package]
 name = "testcontainers-modules"
-version = "0.12.1"
+version = "0.13.0"
 description = "Community maintained modules for Testcontainers for Rust"
 categories = ["development-tools::testing"]
 edition = "2021"
@@ -77,34 +77,32 @@ rcgen = { version = "0.13.1", features = [
 ], default-features = false, optional = true }
 serde = { version = "1.0.217", features = ["derive"], optional = true }
 serde_json = { version = "1.0.138", optional = true }
-testcontainers = { version = "0.24.0" }
+testcontainers = { version = "0.25.0" }
 
 
 [dev-dependencies]
-alloy-network = "0.11.1"
-alloy-provider = "0.11.1"
-alloy-transport-http = "1.0.7"
-arrow-flight = { version = "55.1.0", features = ["flight-sql-experimental"] }
-async-nats = "0.41.0"
+alloy-network = "1.0.27"
+alloy-provider = "1.0.27"
+arrow-flight = { version = "56.1.0", features = ["flight-sql-experimental"] }
+async-nats = "0.42.0"
 aws-config = "1.0.1"
 aws-sdk-dynamodb = "1.2.0"
 aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
-bollard = "0.18.1"
-databend-driver = "0.27.3"
+databend-driver = "0.28.2"
 futures = "0.3"
-lapin = "2.3.1"
+lapin = "3.0.0"
 ldap3 = "0.11.5"
-meilisearch-sdk = "0.28.0"
+meilisearch-sdk = "0.29.1"
 mongodb = "3.0.1"
 mysql = "26.0.0"
 neo4rs = "0.8.0"
 oracle = "0.6.0"
 postgres = "0.19.7"
 pretty_env_logger = "0.5.0"
-rdkafka = "0.37.0"
-redis = { version = "0.29.0", features = ["json"] }
+rdkafka = "0.38.0"
+redis = { version = "0.32.2", features = ["json"] }
 reqwest = { version = "0.12.5", features = [
     "blocking",
     "json",
@@ -116,9 +114,10 @@ rustls = { version = "0.23.2", features = ["ring"] }
 scylla = "1.0.0"
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = { version = "1.0.138" }
+serial_test = "3.1.1"
 surrealdb = { version = "2.2.1" }
 tar = "0.4.40"
-testcontainers = { version = "0.24.0", features = ["blocking"] }
+testcontainers = { version = "0.25.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.3", default-features = false, features = [
@@ -128,18 +127,15 @@ tiberius = { version = "0.12.3", default-features = false, features = [
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 tokio-zookeeper = "0.4.0"
-kube = { version = "0.99.0", default-features = false, features = [
-    "client",
-    "rustls-tls",
-] }
-k8s-openapi = { version = "0.24", features = ["v1_29"] }
+kube = { version = "1.1.0", features = ["runtime"] }
+k8s-openapi = { version = "0.25", features = ["v1_30"] }
 clickhouse = { version = "0.13" }
 vaultrs = "0.7.2"
 openssl-sys = { version = "0.9.103", features = ["vendored"] }
 native-tls = { version = "0.2.12", features = ["vendored"] }
 pulsar = "6.3"
 rqlite-rs = "0.6"
-azure_core = "0.21.0"
+azure_core = "0.27.0"
 azure_storage_blobs = "0.21.0"
 azure_storage = "0.21.0"
 base64 = "0.22.1"

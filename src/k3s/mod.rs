@@ -70,16 +70,27 @@ pub struct K3s {
     cmd: K3sCmd,
 }
 
-#[allow(missing_docs)]
-// not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
+/// Configuration for K3s server command-line arguments.
+///
+/// This struct allows you to customize the K3s server startup configuration
+/// by setting various options like the container snapshotter.
 #[derive(Debug, Clone)]
 pub struct K3sCmd {
     snapshotter: String,
 }
 
 impl K3sCmd {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Sets the container snapshotter for the K3s server.
+    ///
+    /// The snapshotter is responsible for managing container filesystem snapshots.
+    /// Common values include "overlayfs", "fuse-overlayfs", or "native".
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::k3s::K3sCmd;
+    ///
+    /// let cmd = K3sCmd::default().with_snapshotter("overlayfs");
+    /// ```
     pub fn with_snapshotter(self, snapshotter: impl Into<String>) -> Self {
         Self {
             snapshotter: snapshotter.into(),
@@ -134,8 +145,20 @@ impl Image for K3s {
 }
 
 impl K3s {
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Mounts a host directory to the K3s configuration directory.
+    ///
+    /// This allows you to access the K3s configuration files (like kubeconfig)
+    /// from the host filesystem. The kubeconfig file will be created at
+    /// `{conf_mount_path}/k3s.yaml` and can be read using [`read_kube_config`](Self::read_kube_config).
+    ///
+    /// # Example
+    /// ```
+    /// use std::path::Path;
+    ///
+    /// use testcontainers_modules::k3s::K3s;
+    ///
+    /// let k3s = K3s::default().with_conf_mount(Path::new("/tmp/k3s-config"));
+    /// ```
     pub fn with_conf_mount(mut self, conf_mount_path: impl AsRef<Path>) -> Self {
         self.env_vars
             .insert(String::from("K3S_KUBECONFIG_MODE"), String::from("644"));
@@ -148,8 +171,22 @@ impl K3s {
         }
     }
 
-    // not having docs here is currently allowed to address the missing docs problem one place at a time. Helping us by documenting just one of these places helps other devs tremendously
-    #[allow(missing_docs)]
+    /// Reads the kubeconfig file from the mounted configuration directory.
+    ///
+    /// This method reads the `k3s.yaml` file from the mounted configuration directory
+    /// that was set up using [`with_conf_mount`](Self::with_conf_mount).
+    /// The kubeconfig can be used to connect kubectl or other Kubernetes clients to the K3s cluster.
+    ///
+    /// # Example
+    /// ```no_run
+    /// use std::path::Path;
+    ///
+    /// use testcontainers_modules::k3s::K3s;
+    ///
+    /// let k3s = K3s::default().with_conf_mount(Path::new("/tmp/k3s-config"));
+    /// // After starting the container...
+    /// let kubeconfig = k3s.read_kube_config().expect("Failed to read kubeconfig");
+    /// ```
     pub fn read_kube_config(&self) -> io::Result<String> {
         let k3s_conf_file_path = self
             .conf_mount
@@ -180,15 +217,19 @@ mod tests {
 
     use k8s_openapi::api::core::v1::Pod;
     use kube::{
-        api::ListParams,
+        api::{Api, DeleteParams, ListParams, Patch, PatchParams, PostParams, ResourceExt},
         config::{KubeConfigOptions, Kubeconfig},
-        Api, Config, ResourceExt,
+        runtime::wait::{await_condition, conditions::is_pod_running},
+        Config,
     };
     use rustls::crypto::CryptoProvider;
+    use serde_json::json;
+    use serial_test::serial;
     use testcontainers::{runners::AsyncRunner, ContainerAsync, ImageExt};
 
     use super::*;
 
+    #[serial]
     #[tokio::test]
     async fn k3s_pods() -> Result<(), Box<dyn std::error::Error + 'static>> {
         let conf_dir = temp_dir();
@@ -229,6 +270,88 @@ mod tests {
                 .any(|pod_name| pod_name.starts_with("local-path-provisioner")),
             "local-path-provisioner pod not found - found pods {pod_names:?}"
         );
+        Ok(())
+    }
+
+    // Based on: https://github.com/kube-rs/kube/blob/main/examples/pod_api.rs
+    #[serial]
+    #[tokio::test]
+    async fn pod_api() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        let conf_dir = temp_dir();
+        let k3s = K3s::default()
+            .with_conf_mount(&conf_dir)
+            .with_privileged(true)
+            .with_userns_mode("host");
+
+        let k3s_container = k3s.start().await?;
+
+        let client = get_kube_client(&k3s_container).await?;
+
+        // Manage pods
+        let pods: Api<Pod> = Api::default_namespaced(client);
+
+        // Create Pod blog
+        let p: Pod = serde_json::from_value(json!({
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": { "name": "busybox" },
+            "spec": {
+                "containers": [{
+                  "name": "busybox",
+                  "image": "busybox:1.36.1-musl"
+                }],
+            }
+        }))?;
+
+        let post_params = PostParams::default();
+        match pods.create(&post_params, &p).await {
+            Ok(o) => {
+                let name = o.name_any();
+                assert_eq!(p.name_any(), name);
+            }
+            Err(kube::Error::Api(ae)) => assert_eq!(ae.code, 409), // if you skipped delete, for instance
+            Err(e) => return Err(e.into()),                        // any other case is probably bad
+        }
+
+        // Watch it phase for a few seconds
+        let establish = await_condition(pods.clone(), "busybox", is_pod_running());
+        let _ = tokio::time::timeout(std::time::Duration::from_secs(15), establish).await?;
+
+        // Verify we can get it
+        let p1cpy = pods.get("busybox").await?;
+        if let Some(spec) = &p1cpy.spec {
+            assert_eq!(spec.containers[0].name, "busybox");
+        }
+
+        // Replace its spec
+        let patch = json!({
+            "metadata": {
+                "resourceVersion": p1cpy.resource_version(),
+            },
+            "spec": {
+                "activeDeadlineSeconds": 5
+            }
+        });
+
+        let patch_params = PatchParams::default();
+        let p_patched = pods
+            .patch("busybox", &patch_params, &Patch::Merge(&patch))
+            .await?;
+        assert_eq!(p_patched.spec.unwrap().active_deadline_seconds, Some(5));
+
+        let lp = ListParams::default().fields(&format!("metadata.name={}", "busybox")); // only want results for our pod
+        for p in pods.list(&lp).await? {
+            println!("Found Pod: {}", p.name_any());
+        }
+
+        // Delete it
+        let delete_params = DeleteParams::default();
+        pods.delete("busybox", &delete_params)
+            .await?
+            .map_left(|pdel| {
+                assert_eq!(pdel.name_any(), "busybox");
+            });
+
         Ok(())
     }
 

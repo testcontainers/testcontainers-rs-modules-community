@@ -44,7 +44,7 @@ impl Image for Mosquitto {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stderr(format!(
-            "mosquitto version {TAG} running"
+            "mosquitto version {TAG} running",
         ))]
     }
 
