@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use testcontainers::{
-    core::{ContainerPort, WaitFor},
+    core::{ContainerPort, Mount, WaitFor},
     Image,
 };
 
@@ -35,6 +35,10 @@ pub struct AnvilNode {
     fork_url: Option<String>,
     fork_block_number: Option<u64>,
     tag: Option<String>,
+    load_state_path: Option<String>,
+    dump_state_path: Option<String>,
+    state_interval_secs: Option<u64>,
+    state_mount: Option<Mount>,
 }
 
 impl AnvilNode {
@@ -63,6 +67,36 @@ impl AnvilNode {
         self.fork_block_number = Some(block_number);
         self
     }
+
+    /// Mount a host directory for anvil state at `/state` inside the container
+    pub fn with_state_mount(mut self, host_dir: impl AsRef<std::path::Path>) -> Self {
+        let Some(host_dir_str) = host_dir.as_ref().to_str() else {
+            return self;
+        };
+        self.state_mount = Some(Mount::bind_mount(host_dir_str, "/state"));
+        self
+    }
+
+    /// Configure Anvil to initialize from a previously saved state snapshot.
+    /// Equivalent to passing `--load-state <PATH>`.
+    pub fn with_load_state_path(mut self, path: impl Into<String>) -> Self {
+        self.load_state_path = Some(path.into());
+        self
+    }
+
+    /// Configure Anvil to dump the state on exit to the given file or directory.
+    /// Equivalent to passing `--dump-state <PATH>`.
+    pub fn with_dump_state_path(mut self, path: impl Into<String>) -> Self {
+        self.dump_state_path = Some(path.into());
+        self
+    }
+
+    /// Configure periodic state persistence interval in seconds.
+    /// Equivalent to passing `--state-interval <SECONDS>`.
+    pub fn with_state_interval(mut self, seconds: u64) -> Self {
+        self.state_interval_secs = Some(seconds);
+        self
+    }
 }
 
 impl Image for AnvilNode {
@@ -84,6 +118,21 @@ impl Image for AnvilNode {
             cmd.push(fork_block_number.to_string());
         }
 
+        if let Some(ref load_path) = self.load_state_path {
+            cmd.push("--load-state".to_string());
+            cmd.push(load_path.clone());
+        }
+
+        if let Some(ref dump_path) = self.dump_state_path {
+            cmd.push("--dump-state".to_string());
+            cmd.push(dump_path.clone());
+        }
+
+        if let Some(interval) = self.state_interval_secs {
+            cmd.push("--state-interval".to_string());
+            cmd.push(interval.to_string());
+        }
+
         cmd.into_iter().map(Cow::from)
     }
 
@@ -95,6 +144,10 @@ impl Image for AnvilNode {
         &self,
     ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
         [("ANVIL_IP_ADDR".to_string(), "0.0.0.0".to_string())].into_iter()
+    }
+
+    fn mounts(&self) -> impl IntoIterator<Item = &Mount> {
+        self.state_mount.iter()
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
@@ -141,7 +194,10 @@ mod tests {
     fn test_command_construction() {
         let node = AnvilNode::default()
             .with_chain_id(1337)
-            .with_fork_url("http://example.com");
+            .with_fork_url("http://example.com")
+            .with_load_state_path("/state/state.json")
+            .with_dump_state_path("/state/state.json")
+            .with_state_interval(5);
 
         let cmd: Vec<String> = node
             .cmd()
@@ -151,7 +207,18 @@ mod tests {
 
         assert_eq!(
             cmd,
-            vec!["--chain-id", "1337", "--fork-url", "http://example.com"]
+            vec![
+                "--chain-id",
+                "1337",
+                "--fork-url",
+                "http://example.com",
+                "--load-state",
+                "/state/state.json",
+                "--dump-state",
+                "/state/state.json",
+                "--state-interval",
+                "5",
+            ]
         );
 
         assert_eq!(node.entrypoint(), Some("anvil"));
