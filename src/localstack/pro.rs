@@ -6,7 +6,7 @@ const NAME: &str = "localstack/localstack-pro";
 
 /// This module provides [LocalStack](https://www.localstack.cloud/) (Pro Edition).
 ///
-/// Currently pinned to [version `3.0`](https://hub.docker.com/layers/localstack/localstack-pro/3.0/images/sha256-4d9167a049a705b0edafb9e0a6e362aaf5f9d890cebb894dd9113b17eed83153?context=explore)
+/// Currently pinned to [version `4.5`](https://hub.docker.com/layers/localstack/localstack/4.5/images/sha256-acc5bf76bd8542897e6326c82f737a980791b998e4d641bcd1560902938ac305?context=explore)
 ///
 /// # Configuration
 ///
