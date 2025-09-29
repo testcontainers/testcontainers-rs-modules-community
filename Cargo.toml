@@ -71,7 +71,7 @@ weaviate = ["http_wait"]
 [dependencies]
 parse-display = { version = "0.10", optional = true, default-features = false, features = [
 ] }
-rcgen = { version = "0.13.1", features = [
+rcgen = { version = "0.14.5", features = [
     "pem",
     "ring",
 ], default-features = false, optional = true }
