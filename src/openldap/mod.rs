@@ -6,8 +6,8 @@ use testcontainers::{
     CopyDataSource, CopyToContainer, Image,
 };
 
-const NAME: &str = "bitnami/openldap";
-const TAG: &str = "2.6.8";
+const NAME: &str = "bitnamilegacy/openldap";
+const TAG: &str = "2.6.10";
 const OPENLDAP_PORT: ContainerPort = ContainerPort::Tcp(1389);
 const OPENLDAPS_PORT: ContainerPort = ContainerPort::Tcp(1636);
 
