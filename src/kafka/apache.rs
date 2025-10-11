@@ -16,9 +16,15 @@ const TAG: &str = "3.8.0";
 pub const KAFKA_PORT: ContainerPort = ContainerPort::Tcp(9092);
 
 const START_SCRIPT: &str = "/opt/kafka/testcontainers_start.sh";
-const DEFAULT_INTERNAL_TOPIC_RF: usize = 1;
-const DEFAULT_CLUSTER_ID: &str = "5L6g3nShT-eMCtK--X86sw";
-const DEFAULT_BROKER_ID: usize = 1;
+
+/// The default Replication Factor to use.
+pub const DEFAULT_INTERNAL_TOPIC_RF: usize = 1;
+
+/// The default cluster id to use.
+pub const DEFAULT_CLUSTER_ID: &str = "5L6g3nShT-eMCtK--X86sw";
+
+/// The default broker id.
+pub const DEFAULT_BROKER_ID: usize = 1;
 
 /// Module to work with [`Apache Kafka`] broker
 ///
