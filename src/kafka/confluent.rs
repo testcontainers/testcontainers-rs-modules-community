@@ -18,6 +18,15 @@ pub const KAFKA_PORT: ContainerPort = ContainerPort::Tcp(9093);
 /// [`Zookeeper`]: https://zookeeper.apache.org/
 pub const ZOOKEEPER_PORT: ContainerPort = ContainerPort::Tcp(2181);
 
+/// The default Replication Factor to use.
+pub const DEFAULT_INTERNAL_TOPIC_RF: usize = 1;
+
+/// The default cluster id to use.
+pub const DEFAULT_CLUSTER_ID: &str = "5L6g3nShT-eMCtK--X86sw";
+
+/// The default broker id.
+pub const DEFAULT_BROKER_ID: usize = 1;
+
 /// Module to work with [`Apache Kafka`] inside of tests.
 ///
 /// Starts an instance of Kafka based on the official [`Confluent Kafka docker image`].
@@ -80,11 +89,12 @@ impl Default for Kafka {
                 port = KAFKA_PORT.as_u16(),
             ),
         );
-        env_vars.insert("KAFKA_BROKER_ID".to_owned(), "1".to_owned());
+        env_vars.insert("KAFKA_BROKER_ID".to_owned(), DEFAULT_BROKER_ID.to_string());
         env_vars.insert(
             "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR".to_owned(),
-            "1".to_owned(),
+            DEFAULT_INTERNAL_TOPIC_RF.to_string(),
         );
+        env_vars.insert("CLUSTER_ID".to_owned(), DEFAULT_CLUSTER_ID.to_owned());
 
         Self { env_vars }
     }
