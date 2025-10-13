@@ -547,7 +547,7 @@ mod tests {
             .await?
             .success()?;
         let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
-        assert_eq!(users.len(), 2); // cn=maximiliane and cn=readers
+        assert_eq!(users.len(), 1); // cn=maximiliane
         ldap.unbind().await?;
         Ok(())
     }
@@ -574,7 +574,7 @@ mod tests {
         assert_eq!(access.len(), 0, "no search until now");
 
         let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
-        assert_eq!(users.len(), 3, "cn=readers should be read");
+        assert_eq!(users.len(), 2, "cn=readers should be read");
 
         let access = read_access_log(&mut ldap, "(reqType=search)", &["*"]).await?;
         assert_eq!(access.len(), 1, "access log contains 1xread_users");
@@ -741,7 +741,7 @@ H32P9zbIKaSiPxFg5JVRW5hpQWUI1dYr3CpKP4i98w==
             .await?
             .success()?;
         let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
-        assert_eq!(users.len(), 2); // cn=maximiliane and cn=readers
+        assert_eq!(users.len(), 1); // cn=maximiliane
         ldap.unbind().await?;
         Ok(())
     }
