@@ -14,7 +14,7 @@ const OPENLDAPS_PORT: ContainerPort = ContainerPort::Tcp(1636);
 /// Module to work with [`OpenLDAP`] inside of tests.
 ///
 /// Starts an instance of OpenLDAP.
-/// This module is based on the [`bitnami/openldap docker image`].
+/// This module is based on the [`bitnamilegacy/openldap docker image`].
 /// See the [`OpenLDAP configuration guide`] for further configuration options.
 ///
 /// # Example
@@ -41,7 +41,7 @@ const OPENLDAPS_PORT: ContainerPort = ContainerPort::Tcp(1636);
 /// ```
 ///
 /// [`OpenLDAP`]: https://www.openldap.org/
-/// [`bitnami/openldap docker image`]: https://hub.docker.com/r/bitnami/openldap
+/// [`bitnamilegacy/openldap docker image`]: https://hub.docker.com/r/bitnamilegacy/openldap
 /// [`OpenLDAP configuration guide`]: https://www.openldap.org/doc/admin26/guide.html
 #[derive(Debug, Clone)]
 pub struct OpenLDAP {
