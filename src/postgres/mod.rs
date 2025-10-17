@@ -125,8 +125,8 @@ impl Image for Postgres {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![
-            WaitFor::message_on_stderr("database system is ready to accept connections"),
-            WaitFor::message_on_stdout("database system is ready to accept connections"),
+            WaitFor::message_on_either_std("listening on IPv4 address \"0.0.0.0\", port 5432"),
+            WaitFor::message_on_either_std("database system is ready to accept connections"),
         ]
     }
 
