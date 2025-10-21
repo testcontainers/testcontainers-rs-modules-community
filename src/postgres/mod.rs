@@ -138,6 +138,7 @@ impl Image for Postgres {
             "pg_isready".to_string(),
             "--host".to_string(),
             "localhost".to_string(),
+            "--dbname".to_string(),
             self.env_vars.get("POSTGRES_DB").unwrap().to_string(),
             "--username".to_string(),
             self.env_vars.get("POSTGRES_USER").unwrap().to_string()
