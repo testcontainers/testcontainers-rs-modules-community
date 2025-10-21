@@ -124,8 +124,9 @@ impl Image for Postgres {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        // actual wait for `ready_conditions` is be done in `exec_after_start`
-        vec![]
+        vec![
+            WaitFor::message_on_either_std("database system is ready to accept connections"),
+        ]
     }
 
     fn exec_after_start(
@@ -133,7 +134,6 @@ impl Image for Postgres {
         cs: ContainerState,
     ) -> Result<Vec<ExecCommand>, testcontainers::TestcontainersError> {
         let mut commands = vec![];
-        // with container running, we can use pg_isready to check if the db is ready to accept connections
         let cmd = vec![
             "pg_isready".to_string(),
             "--host".to_string(),
