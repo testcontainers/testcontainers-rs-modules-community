@@ -148,7 +148,6 @@ impl Image for Postgres {
         Ok(commands)
     }
 
-
     fn env_vars(
         &self,
     ) -> impl IntoIterator<Item = (impl Into<Cow<'_, str>>, impl Into<Cow<'_, str>>)> {
