@@ -7,7 +7,12 @@ use testcontainers::{
 
 const NAME: &str = "ghcr.io/foundry-rs/foundry";
 const TAG: &str = "v1.1.0";
-const PORT: ContainerPort = ContainerPort::Tcp(8545);
+
+/// Port that the [`AnvilNode`] container exposes for JSON-RPC connections.
+/// Can be rebound externally via [`testcontainers::core::ImageExt::with_mapped_port`]
+///
+/// [`AnvilNode`]: https://book.getfoundry.sh/anvil/
+pub const ANVIL_PORT: ContainerPort = ContainerPort::Tcp(8545);
 
 /// # Community Testcontainers Implementation for [Foundry Anvil](https://book.getfoundry.sh/anvil/)
 ///
@@ -151,7 +156,7 @@ impl Image for AnvilNode {
     }
 
     fn expose_ports(&self) -> &[ContainerPort] {
-        &[PORT]
+        &[ANVIL_PORT]
     }
 
     fn name(&self) -> &str {
@@ -180,7 +185,7 @@ mod tests {
         let _ = pretty_env_logger::try_init();
 
         let node = AnvilNode::default().start().await.unwrap();
-        let port = node.get_host_port_ipv4(PORT).await.unwrap();
+        let port = node.get_host_port_ipv4(ANVIL_PORT).await.unwrap();
 
         let provider: RootProvider<AnyNetwork> =
             RootProvider::new_http(format!("http://localhost:{port}").parse().unwrap());
