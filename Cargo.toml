@@ -141,6 +141,10 @@ azure_storage = "0.21.0"
 base64 = "0.22.1"
 
 [[example]]
+name = "anvil"
+required-features = ["anvil"]
+
+[[example]]
 name = "postgres"
 required-features = ["postgres"]
 
