@@ -10,7 +10,7 @@
 
 #[cfg(feature = "anvil")]
 #[cfg_attr(docsrs, doc(cfg(feature = "anvil")))]
-/// **Anvil** (local blockchain emulator for EVM-compatible development) testcontainer
+/// **Anvil** (Foundry's fast local Ethereum node for development and testing) testcontainer
 pub mod anvil;
 #[cfg(feature = "arrow_flightsql")]
 #[cfg_attr(docsrs, doc(cfg(feature = "arrow_flightsql")))]
