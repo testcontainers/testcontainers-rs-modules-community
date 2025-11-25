@@ -1,6 +1,6 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
+use testcontainers::{core::{WaitFor, CmdWaitFor, ExecCommand, ContainerState}, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "postgres";
 const TAG: &str = "11-alpine";
@@ -125,9 +125,28 @@ impl Image for Postgres {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![
-            WaitFor::message_on_stderr("database system is ready to accept connections"),
-            WaitFor::message_on_stdout("database system is ready to accept connections"),
+            WaitFor::message_on_either_std("database system is ready to accept connections"),
         ]
+    }
+
+    fn exec_after_start(
+        &self,
+        cs: ContainerState,
+    ) -> Result<Vec<ExecCommand>, testcontainers::TestcontainersError> {
+        let mut commands = vec![];
+        let cmd = vec![
+            "pg_isready".to_string(),
+            "--host".to_string(),
+            "localhost".to_string(),
+            "--dbname".to_string(),
+            self.env_vars.get("POSTGRES_DB").unwrap().to_string(),
+            "--username".to_string(),
+            self.env_vars.get("POSTGRES_USER").unwrap().to_string()
+        ];
+        
+        commands.push(ExecCommand::new(cmd).with_cmd_ready_condition(CmdWaitFor::exit()));
+
+        Ok(commands)
     }
 
     fn env_vars(
