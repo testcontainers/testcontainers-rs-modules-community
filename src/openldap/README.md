@@ -1,6 +1,6 @@
 # OpenLDAP Testcontainer
 
-This modules provides the `bitnami/openldap` image as a testcontainer.
+This modules provides the `bitnamilegacy/openldap` image as a testcontainer.
 
 
 ## Testing

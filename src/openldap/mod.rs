@@ -6,15 +6,15 @@ use testcontainers::{
     CopyDataSource, CopyToContainer, Image,
 };
 
-const NAME: &str = "bitnami/openldap";
-const TAG: &str = "2.6.8";
+const NAME: &str = "bitnamilegacy/openldap";
+const TAG: &str = "2.6.10";
 const OPENLDAP_PORT: ContainerPort = ContainerPort::Tcp(1389);
 const OPENLDAPS_PORT: ContainerPort = ContainerPort::Tcp(1636);
 
 /// Module to work with [`OpenLDAP`] inside of tests.
 ///
 /// Starts an instance of OpenLDAP.
-/// This module is based on the [`bitnami/openldap docker image`].
+/// This module is based on the [`bitnamilegacy/openldap docker image`].
 /// See the [`OpenLDAP configuration guide`] for further configuration options.
 ///
 /// # Example
@@ -41,7 +41,7 @@ const OPENLDAPS_PORT: ContainerPort = ContainerPort::Tcp(1636);
 /// ```
 ///
 /// [`OpenLDAP`]: https://www.openldap.org/
-/// [`bitnami/openldap docker image`]: https://hub.docker.com/r/bitnami/openldap
+/// [`bitnamilegacy/openldap docker image`]: https://hub.docker.com/r/bitnamilegacy/openldap
 /// [`OpenLDAP configuration guide`]: https://www.openldap.org/doc/admin26/guide.html
 #[derive(Debug, Clone)]
 pub struct OpenLDAP {
@@ -547,7 +547,7 @@ mod tests {
             .await?
             .success()?;
         let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
-        assert_eq!(users.len(), 2); // cn=maximiliane and cn=readers
+        assert_eq!(users.len(), 1); // cn=maximiliane
         ldap.unbind().await?;
         Ok(())
     }
@@ -574,7 +574,7 @@ mod tests {
         assert_eq!(access.len(), 0, "no search until now");
 
         let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
-        assert_eq!(users.len(), 3, "cn=readers should be read");
+        assert_eq!(users.len(), 2, "cn=readers should be read");
 
         let access = read_access_log(&mut ldap, "(reqType=search)", &["*"]).await?;
         assert_eq!(access.len(), 1, "access log contains 1xread_users");
@@ -741,7 +741,7 @@ H32P9zbIKaSiPxFg5JVRW5hpQWUI1dYr3CpKP4i98w==
             .await?
             .success()?;
         let users = read_users(&mut ldap, "(cn=*)", &["cn"]).await?;
-        assert_eq!(users.len(), 2); // cn=maximiliane and cn=readers
+        assert_eq!(users.len(), 1); // cn=maximiliane
         ldap.unbind().await?;
         Ok(())
     }
