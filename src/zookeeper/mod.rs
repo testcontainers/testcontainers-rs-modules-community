@@ -2,12 +2,12 @@ use std::borrow::Cow;
 
 use testcontainers::{core::WaitFor, Image};
 
-const NAME: &str = "bitnami/zookeeper";
+const NAME: &str = "bitnamilegacy/zookeeper";
 const TAG: &str = "3.9.0";
 
 /// # [Apache ZooKeeper] image for [testcontainers](https://crates.io/crates/testcontainers).
 ///
-/// This image is based on the [`bitnami/zookeeper` docker image].
+/// This image is based on the [`bitnamilegacy/zookeeper` docker image].
 /// By default, anonymous logins are allowed.
 /// See the [Zookeeper documentation] for additional options.
 ///
@@ -40,7 +40,7 @@ const TAG: &str = "3.9.0";
 ///
 ///
 /// [Apache ZooKeeper]: https://zookeeper.apache.org/
-/// [`bitnami/zookeeper` docker image]: https://hub.docker.com/r/bitnami/openldap
+/// [`bitnamilegacy/zookeeper` docker image]: https://hub.docker.com/r/bitnamilegacy/zookeeper
 /// [Zookeeper documentation]: https://zookeeper.apache.org/documentation.html
 #[derive(Debug, Default, Clone)]
 pub struct Zookeeper {
