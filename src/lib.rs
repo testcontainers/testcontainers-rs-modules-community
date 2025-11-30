@@ -169,6 +169,10 @@ pub mod rqlite;
 #[cfg_attr(docsrs, doc(cfg(feature = "scylladb")))]
 /// **scylladb** (distributed NoSQL wide-column data store) testcontainer
 pub mod scylladb;
+#[cfg(feature = "selenium")]
+#[cfg_attr(docsrs, doc(cfg(feature = "selenium")))]
+/// **Selenium** (browser automation) testcontainer
+pub mod selenium;
 #[cfg(feature = "solr")]
 #[cfg_attr(docsrs, doc(cfg(feature = "solr")))]
 /// **Apache Solr** (distributed search engine) testcontainer
