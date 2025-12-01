@@ -57,6 +57,7 @@ postgres = []
 rabbitmq = []
 redis = []
 scylladb = []
+selenium = []
 solr = []
 surrealdb = []
 trufflesuite_ganachecli = []
@@ -140,6 +141,7 @@ azure_core = "0.30.1"
 azure_storage_blobs = "0.21.0"
 azure_storage = "0.21.0"
 base64 = "0.22.1"
+fantoccini = "0.21"
 
 [[example]]
 name = "anvil"
@@ -188,3 +190,7 @@ required-features = ["zitadel", "postgres"]
 [[example]]
 name = "azurite"
 required-features = ["azurite"]
+
+[[example]]
+name = "selenium"
+required-features = ["selenium"]
