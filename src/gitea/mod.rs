@@ -1,7 +1,7 @@
 /// Self-hosted git server with https/http/ssh access, uses [Gitea](https://docs.gitea.com/).
 use std::result::Result;
 
-use rcgen::{BasicConstraints, CertificateParams, IsCa, KeyPair};
+use rcgen::{BasicConstraints, CertificateParams, IsCa, Issuer, KeyPair};
 use testcontainers::{
     core::{
         wait::HttpWaitStrategy, CmdWaitFor, ContainerPort, ContainerState, ExecCommand, WaitFor,
@@ -631,7 +631,6 @@ impl GiteaTlsCert {
         let ca_key = KeyPair::generate().unwrap();
         let mut ca_cert = CertificateParams::new(vec!["Gitea root CA".to_string()]).unwrap();
         ca_cert.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
-        let ca_cert = ca_cert.self_signed(&ca_key).unwrap();
 
         // prepare SANs
         let mut hostnames = vec![
@@ -646,11 +645,13 @@ impl GiteaTlsCert {
 
         // and generate server key and cert
         let key = KeyPair::generate().unwrap();
+        let issuer = Issuer::from_params(&ca_cert, &ca_key);
         let cert = CertificateParams::new(hostnames)
             .unwrap()
-            .signed_by(&key, &ca_cert, &ca_key)
+            .signed_by(&key, &issuer)
             .unwrap();
 
+        let ca_cert = ca_cert.self_signed(&ca_key).unwrap();
         Self {
             cert: cert.pem(),
             key: key.serialize_pem(),
