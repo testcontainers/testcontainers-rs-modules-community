@@ -17,9 +17,10 @@ rustdoc-args = ["--cfg", "docsrs"]
 default = []
 azurite = []
 blocking = ["testcontainers/blocking"]
-watchdog = ["testcontainers/watchdog"]
+docker-compose = ["testcontainers/docker-compose"]
 http_wait = ["testcontainers/http_wait"]
 properties-config = ["testcontainers/properties-config"]
+watchdog = ["testcontainers/watchdog"]
 json = ["serde", "serde_json"]
 anvil = []
 arrow_flightsql = []
@@ -72,13 +73,13 @@ weaviate = ["http_wait"]
 [dependencies]
 parse-display = { version = "0.10", optional = true, default-features = false, features = [
 ] }
-rcgen = { version = "0.13.1", features = [
+rcgen = { version = "0.14.5", features = [
     "pem",
     "ring",
 ], default-features = false, optional = true }
 serde = { version = "1.0.217", features = ["derive"], optional = true }
 serde_json = { version = "1.0.138", optional = true }
-testcontainers = { version = "0.25.0" }
+testcontainers = { version = "0.26.0" }
 
 
 [dev-dependencies]
@@ -118,7 +119,7 @@ serde_json = { version = "1.0.138" }
 serial_test = "3.1.1"
 surrealdb = { version = "2.2.1" }
 tar = "0.4.40"
-testcontainers = { version = "0.25.0", features = ["blocking"] }
+testcontainers = { version = "0.26.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.3", default-features = false, features = [
@@ -128,15 +129,15 @@ tiberius = { version = "0.12.3", default-features = false, features = [
 tokio = { version = "1", features = ["macros"] }
 tokio-util = { version = "0.7.10", features = ["compat"] }
 tokio-zookeeper = "0.4.0"
-kube = { version = "1.1.0", features = ["runtime"] }
-k8s-openapi = { version = "0.25", features = ["v1_30"] }
+kube = { version = "2.0.1", features = ["runtime"] }
+k8s-openapi = { version = "0.26", features = ["v1_30"] }
 clickhouse = { version = "0.13" }
 vaultrs = "0.7.2"
 openssl-sys = { version = "0.9.103", features = ["vendored"] }
 native-tls = { version = "0.2.12", features = ["vendored"] }
 pulsar = "6.3"
 rqlite-rs = "0.6"
-azure_core = "0.27.0"
+azure_core = "0.30.1"
 azure_storage_blobs = "0.21.0"
 azure_storage = "0.21.0"
 base64 = "0.22.1"
