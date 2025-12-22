@@ -46,7 +46,9 @@ impl Image for ClickHouse {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::http(
-            HttpWaitStrategy::new("/").with_expected_status_code(200_u16),
+            HttpWaitStrategy::new("/")
+                .with_port(CLICKHOUSE_PORT)
+                .with_expected_status_code(200_u16),
         )]
     }
 
