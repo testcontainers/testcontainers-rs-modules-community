@@ -95,7 +95,7 @@ jobs:
           - 4/4
     steps:
       - name: Free Disk Space - Ubuntu Runners
-        uses: endersonmenezes/free-disk-space@v2.1.1
+        uses: endersonmenezes/free-disk-space@v3.1.0
         with:
           remove_android: true
           remove_dotnet: true
