@@ -14,7 +14,10 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = []
+default = ["ring"]
+ring = ["testcontainers/ring"]
+aws-lc-rs = ["testcontainers/aws-lc-rs"]
+ssl = ["testcontainers/ssl"]
 azurite = []
 blocking = ["testcontainers/blocking"]
 docker-compose = ["testcontainers/docker-compose"]
@@ -79,7 +82,7 @@ rcgen = { version = "0.14.5", features = [
 ], default-features = false, optional = true }
 serde = { version = "1.0.217", features = ["derive"], optional = true }
 serde_json = { version = "1.0.138", optional = true }
-testcontainers = { version = "0.26.0" }
+testcontainers = { version = "0.26.0", default-features = false }
 
 
 [dev-dependencies]
