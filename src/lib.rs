@@ -165,6 +165,10 @@ pub mod redis;
 #[cfg_attr(docsrs, doc(cfg(feature = "rqlite")))]
 /// **RQLite** (lightweight, user-friendly, distributed relational database) testcontainer
 pub mod rqlite;
+#[cfg(feature = "rustfs")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rustfs")))]
+/// **RustFS** (S3-compatible distributed storage) testcontainer
+pub mod rustfs;
 #[cfg(feature = "scylladb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "scylladb")))]
 /// **scylladb** (distributed NoSQL wide-column data store) testcontainer
