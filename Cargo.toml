@@ -83,7 +83,7 @@ rcgen = { version = "0.14.5", features = [
 ], default-features = false, optional = true }
 serde = { version = "1.0.217", features = ["derive"], optional = true }
 serde_json = { version = "1.0.138", optional = true }
-testcontainers = { version = "0.26.0", default-features = false }
+testcontainers = { version = "0.27.0", default-features = false }
 
 
 [dev-dependencies]
@@ -123,7 +123,7 @@ serde_json = { version = "1.0.138" }
 serial_test = "3.1.1"
 surrealdb = { version = "2.2.1" }
 tar = "0.4.40"
-testcontainers = { version = "0.26.0", features = ["blocking"] }
+testcontainers = { version = "0.27.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl
 tiberius = { version = "0.12.3", default-features = false, features = [
