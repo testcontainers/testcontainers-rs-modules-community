@@ -4,7 +4,7 @@ use testcontainers::{
 };
 
 const NAME: &str = "mongo";
-const TAG: &str = "5.0.6";
+const TAG: &str = "8.2.5";
 
 /// Type of MongoDB instance to create.
 #[derive(Default, Debug, Clone)]
@@ -108,10 +108,10 @@ impl Image for Mongo {
                 "'rs.initiate()'".to_string(),
             ])
             .with_cmd_ready_condition(CmdWaitFor::message_on_stdout(
-                "Using a default configuration for the set",
+                "Created configuration for initiation",
             ))
             .with_container_ready_conditions(vec![WaitFor::message_on_stdout(
-                "Rebuilding PrimaryOnlyService due to stepUp",
+                "Transition to primary complete",
             )])]),
         }
     }
