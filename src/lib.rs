@@ -20,6 +20,10 @@ pub mod arrow_flightsql;
 #[cfg_attr(docsrs, doc(cfg(feature = "azurite")))]
 /// **Azurite** (azure storage emulator) testcontainer
 pub mod azurite;
+#[cfg(feature = "cassandra")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cassandra")))]
+/// **Cassandra** (distributed NoSQL wide-column data store) testcontainer
+pub mod cassandra;
 #[cfg(feature = "clickhouse")]
 #[cfg_attr(docsrs, doc(cfg(feature = "clickhouse")))]
 /// **Clickhouse** (analytics database) testcontainer
