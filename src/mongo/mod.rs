@@ -108,7 +108,7 @@ impl Image for Mongo {
                 "'rs.initiate()'".to_string(),
             ])
             .with_cmd_ready_condition(CmdWaitFor::message_on_stdout(
-                "Created configuration for initiation",
+                "Using a default configuration for the set",
             ))
             .with_container_ready_conditions(vec![WaitFor::message_on_stdout(
                 "Transition to primary complete",
