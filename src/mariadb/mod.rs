@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "mariadb";
-const TAG: &str = "11.3";
+const TAG: &str = "12.2.2";
 
 /// Module to work with [`MariaDB`] inside of tests.
 ///
