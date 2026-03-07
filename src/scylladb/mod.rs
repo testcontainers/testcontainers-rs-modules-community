@@ -1,7 +1,7 @@
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "scylladb/scylla";
-const TAG: &str = "2025.1.0";
+const TAG: &str = "2025.3.8";
 
 /// Module to work with [`ScyllaDB`] inside of tests.
 ///
