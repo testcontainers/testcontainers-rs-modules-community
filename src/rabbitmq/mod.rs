@@ -1,7 +1,7 @@
 use testcontainers::{core::WaitFor, Image};
 
 const NAME: &str = "rabbitmq";
-const TAG: &str = "3.8.22-management";
+const TAG: &str = "4.2-management";
 
 /// Module to work with [`RabbitMQ`] inside of tests.
 ///
@@ -48,7 +48,7 @@ impl Image for RabbitMq {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout(
-            "Server startup complete; 4 plugins started.",
+            "Server startup complete",
         )]
     }
 }
