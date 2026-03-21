@@ -114,7 +114,7 @@ jobs:
           tool: cargo-hack
       - name: Install Protoc # for pulsar tests
         uses: arduino/setup-protoc@v3
-      - name: Install the latest Oracle instant client # for oracle tess
+      - name: Install the latest Oracle instant client # for Oracle tests
         run: |
           sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1
           curl -Lo basic.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip
