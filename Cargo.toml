@@ -36,6 +36,7 @@ dynamodb = []
 databend = ["http_wait"]
 elastic_search = []
 elasticmq = []
+fakecloud = []
 gitea = ["http_wait", "dep:rcgen"]
 google_cloud_sdk_emulators = []
 hashicorp_vault = ["http_wait"]
@@ -198,3 +199,7 @@ required-features = ["azurite"]
 [[example]]
 name = "selenium"
 required-features = ["selenium"]
+
+[[example]]
+name = "fakecloud"
+required-features = ["fakecloud"]
