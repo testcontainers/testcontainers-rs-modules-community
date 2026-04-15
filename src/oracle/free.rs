@@ -19,9 +19,6 @@ pub const FREE_PORT: ContainerPort = ContainerPort::Tcp(1521);
 ///
 /// The default schema is `test`, with a password `test`.
 ///
-/// NOTE: Currently, there is no Oracle Database Free port for ARM chips,
-/// hence Oracle Database Free images cannot run on the new Apple M chips via Docker Desktop.
-///
 /// # Example
 /// ```
 /// use std::time::Duration;
