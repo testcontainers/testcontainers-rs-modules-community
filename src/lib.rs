@@ -131,7 +131,7 @@ pub mod nats;
 pub mod neo4j;
 #[cfg(feature = "openldap")]
 #[cfg_attr(docsrs, doc(cfg(feature = "openldap")))]
-/// **Openldap** (ldap authentification) testcontainer
+/// **Openldap** (ldap authentication) testcontainer
 pub mod openldap;
 #[cfg(feature = "oracle")]
 #[cfg_attr(docsrs, doc(cfg(feature = "oracle")))]
@@ -183,7 +183,7 @@ pub mod selenium;
 pub mod solr;
 #[cfg(feature = "surrealdb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "surrealdb")))]
-/// **surrealdb** (mutli model database) testcontainer
+/// **surrealdb** (multi model database) testcontainer
 pub mod surrealdb;
 #[cfg(feature = "trufflesuite_ganachecli")]
 #[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
