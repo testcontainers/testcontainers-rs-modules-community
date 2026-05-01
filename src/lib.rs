@@ -77,6 +77,10 @@ pub mod google_cloud_sdk_emulators;
 #[cfg_attr(docsrs, doc(cfg(feature = "hashicorp_vault")))]
 /// ‎**HashiCorp Vault** (secrets management) testcontainer
 pub mod hashicorp_vault;
+#[cfg(feature = "hickory_dns")]
+#[cfg_attr(docsrs, doc(cfg(feature = "hickory_dns")))]
+/// **Hickory DNS** (DNS server) testcontainer
+pub mod hickory_dns;
 #[cfg(feature = "k3s")]
 #[cfg_attr(docsrs, doc(cfg(feature = "k3s")))]
 /// **K3s** (lightweight kubernetes) testcontainer
