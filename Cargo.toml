@@ -39,6 +39,7 @@ elasticmq = []
 gitea = ["http_wait", "dep:rcgen"]
 google_cloud_sdk_emulators = []
 hashicorp_vault = ["http_wait"]
+hickory_dns = []
 k3s = []
 kafka = []
 localstack = []
@@ -97,6 +98,7 @@ aws-sdk-s3 = "1.2.0"
 aws-sdk-sqs = "1.2.0"
 aws-types = "1.0.1"
 databend-driver = "0.28.2"
+hickory-resolver = { version = "0.26", features = ["tokio"] }
 futures = "0.3"
 lapin = "3.0.0"
 ldap3 = "0.11.5"
