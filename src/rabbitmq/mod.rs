@@ -47,9 +47,7 @@ impl Image for RabbitMq {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stdout(
-            "Server startup complete",
-        )]
+        vec![WaitFor::message_on_stdout("Server startup complete")]
     }
 }
 
