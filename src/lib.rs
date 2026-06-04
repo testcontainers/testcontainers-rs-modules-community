@@ -65,6 +65,10 @@ pub mod elastic_search;
 #[cfg_attr(docsrs, doc(cfg(feature = "elasticmq")))]
 /// **ElasticMQ** (message queue) testcontainer
 pub mod elasticmq;
+#[cfg(feature = "fakecloud")]
+#[cfg_attr(docsrs, doc(cfg(feature = "fakecloud")))]
+/// **fakecloud** (local AWS cloud emulator) testcontainer
+pub mod fakecloud;
 #[cfg(feature = "gitea")]
 #[cfg_attr(docsrs, doc(cfg(feature = "gitea")))]
 /// **Gitea** (self-hosted Git service) testcontainer
