@@ -10,30 +10,27 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
 
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # Build using the specified version of Rust
   msrv:
     name: Build with MSRV
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
-      - uses: Swatinem/rust-cache@v2
       - name: Get current MSRV from Cargo.toml
         id: current_msrv
         run: |
           msrv=$(cat Cargo.toml | grep rust-version | sed 's/.* = "//; s/"//')
           echo "msrv=$msrv" >> $GITHUB_OUTPUT
-      - name: Setup Rust version
-        uses: dtolnay/rust-toolchain@master
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
         with:
-          toolchain: ${{steps.current_msrv.outputs.msrv}}
-      - uses: Swatinem/rust-cache@v2.7.3
+          toolchain: ${{ steps.current_msrv.outputs.msrv }}
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-hack
@@ -46,7 +43,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
-      - uses: actions-rust-lang/setup-rust-toolchain@v1.14.0
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
         with:
           toolchain: stable
           components: clippy
@@ -59,7 +56,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
-      - uses: actions-rust-lang/setup-rust-toolchain@v1.14.0
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
         with:
           toolchain: nightly
           components: rustfmt
@@ -102,13 +99,17 @@ jobs:
           remove_haskell: true
           remove_tool_cache: true
           remove_swap: true
+      - name: Derive Safe Cache Key
+        id: safe-cache-key
+        run: |
+          SAFE_KEY=$(echo "${{ matrix.partition }}" | tr '/' '-')
+          echo "safe_key=$SAFE_KEY" >> $GITHUB_OUTPUT
       - name: Checkout sources
         uses: actions/checkout@v5
-      - uses: Swatinem/rust-cache@v2
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
         with:
           toolchain: ${{ matrix.toolchain }}
+          cache-key: "partition-${{ steps.safe-cache-key.outputs.safe_key }}"
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-hack
