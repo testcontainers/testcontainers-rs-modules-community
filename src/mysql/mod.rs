@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use testcontainers::{core::WaitFor, CopyDataSource, CopyToContainer, Image};
 
 const NAME: &str = "mysql";
-const TAG: &str = "8.1";
+const TAG: &str = "9.6.0";
 
 /// Module to work with [`MySQL`] inside of tests.
 ///
