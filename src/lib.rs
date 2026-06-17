@@ -20,6 +20,10 @@ pub mod arrow_flightsql;
 #[cfg_attr(docsrs, doc(cfg(feature = "azurite")))]
 /// **Azurite** (azure storage emulator) testcontainer
 pub mod azurite;
+#[cfg(feature = "cassandra")]
+#[cfg_attr(docsrs, doc(cfg(feature = "cassandra")))]
+/// **Cassandra** (distributed NoSQL wide-column data store) testcontainer
+pub mod cassandra;
 #[cfg(feature = "clickhouse")]
 #[cfg_attr(docsrs, doc(cfg(feature = "clickhouse")))]
 /// **Clickhouse** (analytics database) testcontainer
@@ -81,6 +85,10 @@ pub mod google_cloud_sdk_emulators;
 #[cfg_attr(docsrs, doc(cfg(feature = "hashicorp_vault")))]
 /// ‎**HashiCorp Vault** (secrets management) testcontainer
 pub mod hashicorp_vault;
+#[cfg(feature = "hickory_dns")]
+#[cfg_attr(docsrs, doc(cfg(feature = "hickory_dns")))]
+/// **Hickory DNS** (DNS server) testcontainer
+pub mod hickory_dns;
 #[cfg(feature = "k3s")]
 #[cfg_attr(docsrs, doc(cfg(feature = "k3s")))]
 /// **K3s** (lightweight kubernetes) testcontainer
@@ -135,7 +143,7 @@ pub mod nats;
 pub mod neo4j;
 #[cfg(feature = "openldap")]
 #[cfg_attr(docsrs, doc(cfg(feature = "openldap")))]
-/// **Openldap** (ldap authentification) testcontainer
+/// **Openldap** (ldap authentication) testcontainer
 pub mod openldap;
 #[cfg(feature = "oracle")]
 #[cfg_attr(docsrs, doc(cfg(feature = "oracle")))]
@@ -187,7 +195,7 @@ pub mod selenium;
 pub mod solr;
 #[cfg(feature = "surrealdb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "surrealdb")))]
-/// **surrealdb** (mutli model database) testcontainer
+/// **surrealdb** (multi model database) testcontainer
 pub mod surrealdb;
 #[cfg(feature = "trufflesuite_ganachecli")]
 #[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
