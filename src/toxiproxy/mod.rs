@@ -27,6 +27,17 @@ pub const CONTROL_PORT: ContainerPort = ContainerPort::Tcp(8474);
 /// [`Toxiproxy::with_proxy_port`], then create a matching proxy at runtime whose `listen` address is
 /// `0.0.0.0:<port>` and read the mapped host port with `get_host_port_ipv4(<port>)`.
 ///
+/// # Startup & readiness
+///
+/// The container is ready as soon as its control API answers `GET /version` (the wait strategy
+/// returned by `ready_conditions`); no extra delay is needed after `start()`. The image defines no
+/// Docker `HEALTHCHECK`, so this HTTP probe is the readiness mechanism — the same approach used by
+/// the official Testcontainers modules for Go and Java.
+///
+/// When a proxy's `upstream` is another container, put both on the same network and start the
+/// upstream first: Toxiproxy connects lazily, so an unreachable upstream only surfaces when traffic
+/// flows through the proxy.
+///
 /// # Example
 /// ```
 /// use testcontainers_modules::{testcontainers::runners::SyncRunner, toxiproxy::Toxiproxy};
@@ -43,6 +54,12 @@ pub const CONTROL_PORT: ContainerPort = ContainerPort::Tcp(8474);
 /// the control API with any HTTP client (e.g. [`reqwest`](https://docs.rs/reqwest)) using your own
 /// strongly-typed request bodies. See `examples/toxiproxy.rs` for a complete, strongly-typed example
 /// that creates a proxy, adds a latency toxic and routes traffic through the proxy.
+///
+/// # See also
+///
+/// The same image wrapped by the other Testcontainers projects (useful references):
+/// - [Testcontainers for Go](https://golang.testcontainers.org/modules/toxiproxy/)
+/// - [Testcontainers for Java](https://java.testcontainers.org/modules/toxiproxy/)
 ///
 /// [`Toxiproxy`]: https://github.com/Shopify/toxiproxy
 /// [`Toxiproxy docker image`]: https://github.com/Shopify/toxiproxy/pkgs/container/toxiproxy

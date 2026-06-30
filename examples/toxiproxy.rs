@@ -3,6 +3,10 @@
 //! request slow down.
 //!
 //! Run with: `cargo run --example toxiproxy --features toxiproxy`
+//!
+//! See also the same image in the other Testcontainers projects:
+//! - Testcontainers for Go: <https://golang.testcontainers.org/modules/toxiproxy/>
+//! - Testcontainers for Java: <https://java.testcontainers.org/modules/toxiproxy/>
 use std::time::Instant;
 
 use serde::Serialize;
