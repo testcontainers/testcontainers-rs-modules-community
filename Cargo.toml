@@ -67,6 +67,7 @@ selenium = []
 rustfs = []
 solr = []
 surrealdb = []
+toxiproxy = ["http_wait"]
 trufflesuite_ganachecli = []
 victoria_metrics = []
 valkey = []
@@ -206,3 +207,7 @@ required-features = ["selenium"]
 [[example]]
 name = "fakecloud"
 required-features = ["fakecloud"]
+
+[[example]]
+name = "toxiproxy"
+required-features = ["toxiproxy"]
