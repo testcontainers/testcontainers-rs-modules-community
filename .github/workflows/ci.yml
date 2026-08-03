@@ -31,7 +31,7 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
         with:
           toolchain: ${{ steps.current_msrv.outputs.msrv }}
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@v2.85.5
         with:
           tool: cargo-hack
       - name: Build
@@ -110,7 +110,7 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
           cache-key: "partition-${{ steps.safe-cache-key.outputs.safe_key }}"
-      - uses: taiki-e/install-action@v2
+      - uses: taiki-e/install-action@v2.85.5
         with:
           tool: cargo-hack
       - name: Install Protoc # for pulsar tests
