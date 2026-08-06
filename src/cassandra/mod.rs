@@ -9,8 +9,9 @@ const TAG: &str = "5.0.6";
 ///
 /// # Example
 /// ```
-/// use scylla::client::{session::Session, session_builder::SessionBuilder};
 /// use std::time::Duration;
+///
+/// use scylla::client::{session::Session, session_builder::SessionBuilder};
 /// use testcontainers::{runners::AsyncRunner, ImageExt};
 ///
 /// #[tokio::test]
@@ -56,8 +57,9 @@ impl Image for Cassandra {
 
 #[cfg(test)]
 mod tests {
-    use scylla::client::{session::Session, session_builder::SessionBuilder};
     use std::time::Duration;
+
+    use scylla::client::{session::Session, session_builder::SessionBuilder};
     use testcontainers::{runners::AsyncRunner, ImageExt};
 
     use super::*;
