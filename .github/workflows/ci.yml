@@ -28,7 +28,7 @@ jobs:
         run: |
           msrv=$(cat Cargo.toml | grep rust-version | sed 's/.* = "//; s/"//')
           echo "msrv=$msrv" >> $GITHUB_OUTPUT
-      - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.17.0
         with:
           toolchain: ${{ steps.current_msrv.outputs.msrv }}
       - uses: taiki-e/install-action@v2
@@ -43,7 +43,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
-      - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.17.0
         with:
           toolchain: stable
           components: clippy
@@ -56,7 +56,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
-      - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.17.0
         with:
           toolchain: nightly
           components: rustfmt
@@ -106,7 +106,7 @@ jobs:
           echo "safe_key=$SAFE_KEY" >> $GITHUB_OUTPUT
       - name: Checkout sources
         uses: actions/checkout@v5
-      - uses: actions-rust-lang/setup-rust-toolchain@v1.16.1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1.17.0
         with:
           toolchain: ${{ matrix.toolchain }}
           cache-key: "partition-${{ steps.safe-cache-key.outputs.safe_key }}"
