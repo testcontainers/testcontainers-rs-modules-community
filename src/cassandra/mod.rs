@@ -16,7 +16,7 @@ const TAG: &str = "5.0.6";
 ///
 /// #[tokio::test]
 /// async fn default_cassandra() -> Result<(), Box<dyn std::error::Error + 'static>> {
-///     let image = ScyllaDB::default();
+///     let image = Cassandra::default().with_startup_timeout(Duration::from_secs(240));
 ///     let instance = image.start().await?;
 ///     let host = instance.get_host().await?;
 ///     let port = instance.get_host_port_ipv4(9042).await?;
