@@ -109,7 +109,7 @@ mod tests {
             .by_name::<String>("release_version")?
             .unwrap();
 
-        assert_eq!(version, "5.0.6");
+        assert_eq!(version, TAG);
         Ok(())
     }
 }
