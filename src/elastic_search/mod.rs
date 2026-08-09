@@ -6,7 +6,7 @@ use testcontainers::{
 };
 
 const NAME: &str = "docker.elastic.co/elasticsearch/elasticsearch";
-const TAG: &str = "7.16.1";
+const TAG: &str = "7.17.27";
 /// Port that the [`Elasticsearch`] container has internally
 /// Used **for API calls over http**, including search, aggregation, monitoring, ...
 /// Client libraries have switched to using this to communicate to elastic.
