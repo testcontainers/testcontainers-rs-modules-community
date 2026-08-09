@@ -72,7 +72,9 @@ impl Image for Databend {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::http(
-            HttpWaitStrategy::new("/").with_expected_status_code(200_u16),
+            HttpWaitStrategy::new("/")
+                .with_port(DATABEND_PORT)
+                .with_expected_status_code(200_u16),
         )]
     }
 
@@ -95,6 +97,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_databend() {
+        pretty_env_logger::init();
         let databend = DatabendImage::default().start().await.unwrap();
         let http_port = databend.get_host_port_ipv4(8000).await.unwrap();
         let host = databend.get_host().await.unwrap();
