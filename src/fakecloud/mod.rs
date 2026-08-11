@@ -61,7 +61,7 @@ mod tests {
 
         let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
         let creds = sqs::config::Credentials::new("test", "test", None, None, "test");
-        let config = aws_config::defaults(BehaviorVersion::v2025_08_07())
+        let config = aws_config::defaults(BehaviorVersion::v2026_01_12())
             .region(region_provider)
             .credentials_provider(creds)
             .endpoint_url(format!("http://{host_ip}:{host_port}"))
