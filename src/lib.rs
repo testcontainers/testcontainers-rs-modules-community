@@ -197,6 +197,10 @@ pub mod solr;
 #[cfg_attr(docsrs, doc(cfg(feature = "surrealdb")))]
 /// **surrealdb** (multi model database) testcontainer
 pub mod surrealdb;
+#[cfg(feature = "toxiproxy")]
+#[cfg_attr(docsrs, doc(cfg(feature = "toxiproxy")))]
+/// **Toxiproxy** (TCP proxy to simulate network and system conditions) testcontainer
+pub mod toxiproxy;
 #[cfg(feature = "trufflesuite_ganachecli")]
 #[cfg_attr(docsrs, doc(cfg(feature = "trufflesuite_ganachecli")))]
 /// **Trufflesuite Ganache CLI** (ethereum simulator) testcontainer
