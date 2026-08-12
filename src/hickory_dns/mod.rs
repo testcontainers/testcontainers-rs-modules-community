@@ -156,26 +156,24 @@ simple IN A 10.0.0.1
 
     #[tokio::test]
     async fn a_record_query() -> Result<(), Box<dyn std::error::Error + 'static>> {
+        pretty_env_logger::init();
         let container = HickoryDns::new(CONFIG.as_bytes().to_vec())
             .with_zone("example.com.zone", ZONE.as_bytes().to_vec())
             .start()
             .await?;
 
-        let port = container
-            .get_host_port_ipv4(HickoryDns::INTERNAL_PORT)
+        let tcp_port = container
+            .get_host_port_ipv4(ContainerPort::Tcp(HickoryDns::INTERNAL_PORT))
             .await?;
 
         let name_server_config = {
             let mut tcp_connection = ConnectionConfig::new(ProtocolConfig::Tcp);
-            tcp_connection.port = port;
-
-            let mut udp_connection = ConnectionConfig::new(ProtocolConfig::Udp);
-            udp_connection.port = port;
+            tcp_connection.port = tcp_port;
 
             NameServerConfig::new(
-                IpAddr::V4(Ipv4Addr::LOCALHOST),
+                IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
                 true,
-                vec![udp_connection, tcp_connection],
+                vec![tcp_connection],
             )
         };
 
@@ -188,10 +186,8 @@ simple IN A 10.0.0.1
         .build()?;
 
         let response = resolver.ipv4_lookup("simple.example.com.").await?;
-
         let actual = response.answers().first().unwrap().data.ip_addr().unwrap();
-
-        let expected = "10.0.0.1".parse::<IpAddr>().unwrap();
+        let expected = "10.0.0.1".parse::<IpAddr>()?;
 
         assert_eq!(expected, actual);
 
