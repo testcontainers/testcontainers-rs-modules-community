@@ -141,6 +141,10 @@ pub mod nats;
 #[cfg_attr(docsrs, doc(cfg(feature = "neo4j")))]
 /// **Neo4j** (graph database) testcontainer
 pub mod neo4j;
+#[cfg(feature = "openbao")]
+#[cfg_attr(docsrs, doc(cfg(feature = "openbao")))]
+/// ‎**OpenBao** (secrets management) testcontainer
+pub mod openbao;
 #[cfg(feature = "openldap")]
 #[cfg_attr(docsrs, doc(cfg(feature = "openldap")))]
 /// **Openldap** (ldap authentication) testcontainer
