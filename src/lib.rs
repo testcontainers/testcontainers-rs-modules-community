@@ -181,6 +181,10 @@ pub mod rqlite;
 #[cfg_attr(docsrs, doc(cfg(feature = "rustfs")))]
 /// **RustFS** (S3-compatible distributed storage) testcontainer
 pub mod rustfs;
+#[cfg(feature = "s3mock")]
+#[cfg_attr(docsrs, doc(cfg(feature = "s3mock")))]
+/// **S3Mock** (S3-compatible object storage mock) testcontainer
+pub mod s3mock;
 #[cfg(feature = "scylladb")]
 #[cfg_attr(docsrs, doc(cfg(feature = "scylladb")))]
 /// **scylladb** (distributed NoSQL wide-column data store) testcontainer
