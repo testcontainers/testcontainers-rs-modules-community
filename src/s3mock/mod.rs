@@ -9,10 +9,12 @@ const TAG: &str = "5.1.0";
 /// Port that [`S3Mock`] uses internally for its HTTP S3 API.
 pub const S3MOCK_PORT: ContainerPort = ContainerPort::Tcp(9090);
 
-/// Module to work with [`S3Mock`] inside tests.
+/// Module to work with [`S3Mock`] inside of tests.
 ///
-/// Starts an instance of S3Mock based on the official [S3Mock Docker image].
+/// Starts an instance of S3Mock based on the official [`S3Mock docker image`].
+///
 /// S3Mock is an S3-compatible object storage mock intended for integration tests.
+/// The container exposes port `9090` for the S3 API by default.
 ///
 /// # Example
 /// ```
@@ -23,15 +25,16 @@ pub const S3MOCK_PORT: ContainerPort = ContainerPort::Tcp(9090);
 ///
 /// # #[tokio::main]
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let s3mock = S3Mock::default().start().await?;
-/// let port = s3mock.get_host_port_ipv4(S3MOCK_PORT).await?;
+/// let s3mock_instance = S3Mock::default().start().await?;
+/// let host = s3mock_instance.get_host().await?;
+/// let port = s3mock_instance.get_host_port_ipv4(S3MOCK_PORT).await?;
 ///
-/// // Use the S3-compatible API at http://127.0.0.1:{port}
+/// // Use the S3-compatible API at http://{host}:{port}
 /// # Ok(())
 /// # }
 /// ```
 ///
-/// [S3Mock Docker image]: https://hub.docker.com/r/adobe/s3mock
+/// [`S3Mock docker image`]: https://hub.docker.com/r/adobe/s3mock
 #[derive(Debug, Default, Clone)]
 pub struct S3Mock {
     _priv: (),
