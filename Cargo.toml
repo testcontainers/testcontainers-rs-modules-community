@@ -76,6 +76,7 @@ kwok = []
 pulsar = []
 rqlite = ["http_wait"]
 weaviate = ["http_wait"]
+port389ds = []
 
 [dependencies]
 parse-display = { version = "0.10", optional = true, default-features = false, features = [
@@ -87,7 +88,9 @@ rcgen = { version = "0.14.5", features = [
 serde = { version = "1.0.217", features = ["derive"], optional = true }
 serde_json = { version = "1.0.138", optional = true }
 testcontainers = { version = "0.28.0", default-features = false }
-
+sha2 = "0.10.9"
+rand = { version = "0.10.2" , features = ["thread_rng"]}
+base64 = "0.22.1"
 
 [dev-dependencies]
 alloy-network = "1.0.27"

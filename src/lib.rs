@@ -220,5 +220,10 @@ pub mod victoria_metrics;
 /// **Apache ZooKeeper** (locking and configuration management) testcontainer
 pub mod zookeeper;
 
+#[cfg(feature = "port389ds")]
+#[cfg_attr(docsrs, doc(cfg(feature = "port389ds")))]
+/// **389 Directory Server** testcontainer
+pub mod port389ds;
+
 /// Re-exported version of `testcontainers` to avoid version conflicts
 pub use testcontainers;
