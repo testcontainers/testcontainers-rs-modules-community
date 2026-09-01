@@ -7,11 +7,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let image = MssqlServer::default();
     let container = image.start().await?;
 
-    // Build Tiberius config
-    let mut config = tiberius::Config::new();
+    // Build mssql config
+    let mut config = mssql::Config::new();
     config.host(container.get_host().await?);
     config.port(container.get_host_port_ipv4(1433).await?);
-    config.authentication(tiberius::AuthMethod::sql_server(
+    config.authentication(mssql::AuthMethod::sql_server(
         "sa",
         MssqlServer::DEFAULT_SA_PASSWORD,
     ));
@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     // Connect to the database
     let tcp = TcpStream::connect(config.get_addr()).await?;
     tcp.set_nodelay(true)?;
-    let mut client = tiberius::Client::connect(config, tcp.compat_write()).await?;
+    let mut client = mssql::Client::connect(config, tcp.compat_write()).await?;
 
     // Run a test query
     let stream = client.query("SELECT 1 + 1", &[]).await?;

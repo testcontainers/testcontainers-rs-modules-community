@@ -121,7 +121,7 @@ mod tests {
     use std::error;
 
     use testcontainers::runners::AsyncRunner;
-    use tiberius::{AuthMethod, Client, Config};
+    use mssql::{AuthMethod, Client, Config};
     use tokio::net::TcpStream;
     use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
 
