@@ -7,6 +7,9 @@ use testcontainers::{core::WaitFor, Image};
 ///
 /// This module is based on the
 /// [official Microsoft SQL Server for Linux Docker image](https://hub.docker.com/_/microsoft-mssql-server).
+/// The default image runs SQL Server 2025 on Ubuntu 22.04. To use another version,
+/// override the tag with [`ImageExt::with_tag`](testcontainers::ImageExt::with_tag).
+///
 /// Only amd64 images are available for SQL Server. If you use Apple silicon machines,
 /// you need to configure Rosetta emulation.
 ///
@@ -57,7 +60,7 @@ pub struct MssqlServer {
 
 impl MssqlServer {
     const NAME: &'static str = "mcr.microsoft.com/mssql/server";
-    const TAG: &'static str = "2022-CU14-ubuntu-22.04";
+    const TAG: &'static str = "2025-CU8-GDR1-ubuntu-22.04";
     /// Default Password for `MSSQL_SA_PASSWORD`.
     /// If you want to set your own password, please use [`with_sa_password`]
     pub const DEFAULT_SA_PASSWORD: &'static str = "yourStrong(!)Password";
