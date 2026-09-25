@@ -1,11 +1,14 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use testcontainers::{core::WaitFor, Image};
+use testcontainers::{
+    core::{wait::HttpWaitStrategy, ContainerPort, WaitFor},
+    Image,
+};
 
 const NAME: &str = "rustfs/rustfs";
 const TAG: &str = "latest";
 
-const API_PORT: u16 = 9000;
+const API_PORT: ContainerPort = ContainerPort::Tcp(9000);
 
 /// Module to work with [`RustFS`] inside of tests.
 ///
@@ -35,7 +38,10 @@ pub struct RustFS {
 impl Default for RustFS {
     fn default() -> Self {
         let mut env_vars = HashMap::new();
-        env_vars.insert("RUSTFS_ADDRESS".to_owned(), format!(":{}", API_PORT));
+        env_vars.insert(
+            "RUSTFS_ADDRESS".to_owned(),
+            format!(":{}", API_PORT.as_u16()),
+        );
         env_vars.insert("RUSTFS_CONSOLE_ENABLE".to_owned(), "true".to_owned());
 
         Self { env_vars }
@@ -52,7 +58,11 @@ impl Image for RustFS {
     }
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
-        vec![WaitFor::message_on_stdout("RustFS Http API:")]
+        vec![WaitFor::http(
+            HttpWaitStrategy::new("/health/ready")
+                .with_port(API_PORT)
+                .with_response_matcher(|response| response.status().as_u16() == 200),
+        )]
     }
 
     fn env_vars(
@@ -63,6 +73,10 @@ impl Image for RustFS {
 
     fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
         ["/data"]
+    }
+
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[API_PORT]
     }
 }
 
