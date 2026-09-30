@@ -177,7 +177,7 @@ impl Image for Zitadel {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![
-            WaitFor::message_on_stderr("server is listening on"),
+            WaitFor::message_on_stderr("server is listening"),
             WaitFor::http(
                 HttpWaitStrategy::new("/debug/healthz")
                     .with_port(ZITADEL_PORT)
