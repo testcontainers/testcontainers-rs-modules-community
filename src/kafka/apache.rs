@@ -50,6 +50,7 @@ pub const DEFAULT_BROKER_ID: usize = 1;
 pub struct Kafka {
     env_vars: HashMap<String, String>,
     image_name: String,
+    broker_hostname: String,
 }
 
 impl Default for Kafka {
@@ -100,11 +101,36 @@ impl Default for Kafka {
         Self {
             env_vars,
             image_name: KAFKA_NATIVE_IMAGE_NAME.to_string(),
+            broker_hostname: "localhost".to_string(),
         }
     }
 }
 
 impl Kafka {
+    /// Sets the hostname advertised to peer containers on the `BROKER` listener.
+    ///
+    /// The hostname defaults to `localhost`. Peer clients connect on port `9093`.
+    /// The hostname must resolve on the broker's Docker network. Use
+    /// [`ImageExt::with_network`](testcontainers::ImageExt::with_network) and
+    /// [`ImageExt::with_container_name`](testcontainers::ImageExt::with_container_name)
+    /// to place the broker and its peers on the same network and name the broker.
+    /// Host clients still connect through the mapped host port.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::{kafka::apache, testcontainers::ImageExt};
+    ///
+    /// let kafka = apache::Kafka::default()
+    ///     .with_broker_hostname("kafka")
+    ///     .with_network("kafka-network")
+    ///     .with_container_name("kafka");
+    /// ```
+    pub fn with_broker_hostname(mut self, hostname: impl Into<String>) -> Self {
+        self.broker_hostname = hostname.into();
+
+        self
+    }
+
     /// Switches default image to `apache/kafka` instead of `apache/kafka-native`
     pub fn with_jvm_image(mut self) -> Self {
         self.image_name = KAFKA_IMAGE_NAME.to_string();
@@ -168,14 +194,22 @@ impl Image for Kafka {
         // with correct port configuration.
         //
         // note: scrip will actually be executed by wait process started in `cmd`
+        let advertised_listeners = format!(
+            "PLAINTEXT://127.0.0.1:{},BROKER://{}:9093",
+            cs.host_port_ipv4(KAFKA_PORT)?,
+            self.broker_hostname
+        )
+        .replace('\'', "'\\''");
+        let script = format!(
+            "#!/usr/bin/env bash\nexport KAFKA_ADVERTISED_LISTENERS='{advertised_listeners}'\n/etc/kafka/docker/run\n"
+        );
         let cmd = vec![
             "sh".to_string(),
             "-c".to_string(),
-            format!(
-                "echo '#!/usr/bin/env bash\nexport KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:{},BROKER://localhost:9093\n/etc/kafka/docker/run \n' > {}",
-                cs.host_port_ipv4(KAFKA_PORT)?,
-                START_SCRIPT
-            ),
+            r#"printf '%s' "$1" > "$2""#.to_string(),
+            "testcontainers-start".to_string(),
+            script,
+            START_SCRIPT.to_string(),
         ];
         let ready_conditions = vec![WaitFor::message_on_stdout("Kafka Server started")];
         // as start script will be executed by `cmd` process we need to look
@@ -196,9 +230,49 @@ mod tests {
         producer::{FutureProducer, FutureRecord},
         ClientConfig, Message,
     };
-    use testcontainers::runners::AsyncRunner;
+    use testcontainers::{runners::AsyncRunner, ImageExt};
 
-    use crate::kafka::apache;
+    use crate::kafka::{apache, tests::produce_and_consume_messages_with_peer};
+
+    #[tokio::test]
+    async fn produce_and_consume_messages_with_peer_graalvm(
+    ) -> Result<(), Box<dyn std::error::Error + 'static>> {
+        produce_and_consume_messages_with_peer(
+            "native-3-8-0",
+            apache::KAFKA_PORT,
+            9093,
+            |hostname| {
+                apache::Kafka::default()
+                    .with_broker_hostname(hostname)
+                    .with_tag("3.8.0")
+            },
+        )
+        .await
+    }
+
+    #[tokio::test]
+    async fn produce_and_consume_messages_with_peer_jvm(
+    ) -> Result<(), Box<dyn std::error::Error + 'static>> {
+        produce_and_consume_messages_with_peer("jvm-3-8-0", apache::KAFKA_PORT, 9093, |hostname| {
+            apache::Kafka::default()
+                .with_jvm_image()
+                .with_broker_hostname(hostname)
+                .with_tag("3.8.0")
+        })
+        .await
+    }
+
+    #[tokio::test]
+    async fn produce_and_consume_messages_with_peer_jvm_4_1_1(
+    ) -> Result<(), Box<dyn std::error::Error + 'static>> {
+        produce_and_consume_messages_with_peer("jvm-4-1-1", apache::KAFKA_PORT, 9093, |hostname| {
+            apache::Kafka::default()
+                .with_jvm_image()
+                .with_broker_hostname(hostname)
+                .with_tag("4.1.1")
+        })
+        .await
+    }
 
     #[tokio::test]
     async fn produce_and_consume_messages_graalvm(

@@ -4,3 +4,6 @@ pub mod apache;
 pub mod confluent;
 
 pub use confluent::*;
+
+#[cfg(test)]
+mod tests;

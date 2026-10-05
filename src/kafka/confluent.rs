@@ -57,6 +57,7 @@ pub const DEFAULT_BROKER_ID: usize = 1;
 #[derive(Debug, Clone)]
 pub struct Kafka {
     env_vars: HashMap<String, String>,
+    broker_hostname: String,
 }
 
 impl Default for Kafka {
@@ -96,7 +97,45 @@ impl Default for Kafka {
         );
         env_vars.insert("CLUSTER_ID".to_owned(), DEFAULT_CLUSTER_ID.to_owned());
 
-        Self { env_vars }
+        Self {
+            env_vars,
+            broker_hostname: "localhost".to_string(),
+        }
+    }
+}
+
+impl Kafka {
+    /// Sets the hostname advertised to peer containers on the `BROKER` listener.
+    ///
+    /// The hostname defaults to `localhost`. Peer clients connect on port `9092`.
+    /// The hostname must resolve on the broker's Docker network. Use
+    /// [`ImageExt::with_network`](testcontainers::ImageExt::with_network) and
+    /// [`ImageExt::with_container_name`](testcontainers::ImageExt::with_container_name)
+    /// to place the broker and its peers on the same network and name the broker.
+    /// Host clients still connect through the mapped host port.
+    /// The last call replaces the previous hostname.
+    ///
+    /// # Example
+    /// ```
+    /// use testcontainers_modules::{kafka::Kafka, testcontainers::ImageExt};
+    ///
+    /// let kafka = Kafka::default()
+    ///     .with_broker_hostname("kafka")
+    ///     .with_network("kafka-network")
+    ///     .with_container_name("kafka");
+    /// ```
+    pub fn with_broker_hostname(mut self, hostname: impl Into<String>) -> Self {
+        self.broker_hostname = hostname.into();
+        self.env_vars.insert(
+            "KAFKA_ADVERTISED_LISTENERS".to_owned(),
+            format!(
+                "PLAINTEXT://localhost:{},BROKER://{}:9092",
+                KAFKA_PORT.as_u16(),
+                self.broker_hostname
+            ),
+        );
+
+        self
     }
 }
 
@@ -157,8 +196,9 @@ zookeeper-server-start zookeeper.properties &
             "1".to_string(),
             "--add-config".to_string(),
             format!(
-                "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
-                cs.host_port_ipv4(KAFKA_PORT)?
+                "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://{}:9092]",
+                cs.host_port_ipv4(KAFKA_PORT)?,
+                self.broker_hostname
             ),
         ];
         let ready_conditions = vec![WaitFor::message_on_stdout(
@@ -171,7 +211,7 @@ zookeeper-server-start zookeeper.properties &
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
+    use std::{borrow::Cow, time::Duration};
 
     use futures::StreamExt;
     use rdkafka::{
@@ -179,9 +219,50 @@ mod tests {
         producer::{FutureProducer, FutureRecord},
         ClientConfig, Message,
     };
-    use testcontainers::runners::AsyncRunner;
+    use testcontainers::{runners::AsyncRunner, Image, ImageExt};
 
     use crate::kafka;
+
+    #[test]
+    fn with_broker_hostname_updates_advertised_listeners() {
+        let image = kafka::Kafka::default()
+            .with_broker_hostname("first")
+            .with_broker_hostname("kafka");
+        let advertised_listeners = image
+            .env_vars()
+            .into_iter()
+            .find_map(|(name, value)| {
+                let name: Cow<'_, str> = name.into();
+                if name == "KAFKA_ADVERTISED_LISTENERS" {
+                    let value: Cow<'_, str> = value.into();
+                    Some(value.into_owned())
+                } else {
+                    None
+                }
+            })
+            .expect("KAFKA_ADVERTISED_LISTENERS must be set");
+
+        assert_eq!(
+            advertised_listeners,
+            "PLAINTEXT://localhost:9093,BROKER://kafka:9092"
+        );
+    }
+
+    #[tokio::test]
+    async fn produce_and_consume_messages_with_peer(
+    ) -> Result<(), Box<dyn std::error::Error + 'static>> {
+        kafka::tests::produce_and_consume_messages_with_peer(
+            "confluent-6-1-1",
+            kafka::KAFKA_PORT,
+            9092,
+            |hostname| {
+                kafka::Kafka::default()
+                    .with_broker_hostname(hostname)
+                    .with_tag("6.1.1")
+            },
+        )
+        .await
+    }
 
     #[tokio::test]
     async fn produce_and_consume_messages() -> Result<(), Box<dyn std::error::Error + 'static>> {
