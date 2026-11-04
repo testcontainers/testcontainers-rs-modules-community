@@ -42,7 +42,7 @@ gitea = ["http_wait", "dep:rcgen"]
 google_cloud_sdk_emulators = []
 hashicorp_vault = ["http_wait"]
 hickory_dns = []
-k3s = []
+k3s = ["serde", "dep:noyalib", "dep:futures", "dep:tar"]
 kafka = []
 localstack = []
 mariadb = []
@@ -78,6 +78,9 @@ rqlite = ["http_wait"]
 weaviate = ["http_wait"]
 
 [dependencies]
+noyalib = { version = "0.0.58", optional = true }
+futures  = { version = "0.3", optional = true }
+tar = { version = "0.4.46", optional = true }
 parse-display = { version = "0.10", optional = true, default-features = false, features = [
 ] }
 rcgen = { version = "0.14.5", features = [
@@ -126,7 +129,7 @@ serde = { version = "1.0.217", features = ["derive"] }
 serde_json = { version = "1.0.138" }
 serial_test = "3.1.1"
 surrealdb = { version = "2.2.1" }
-tar = "0.4.40"
+tar = "0.4.46"
 testcontainers = { version = "0.28.0", features = ["blocking"] }
 # To use Tiberius on macOS, rustls is needed instead of native-tls
 # https://github.com/prisma/tiberius/tree/v0.12.2#encryption-tlsssl

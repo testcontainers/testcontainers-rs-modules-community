@@ -1,0 +1,3 @@
+[submodule "src/k3s/k3d"]
+	path = src/k3s/k3d
+	url = https://github.com/k3d-io/k3d.git
