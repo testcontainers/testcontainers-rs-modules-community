@@ -157,7 +157,8 @@ zookeeper-server-start zookeeper.properties &
             "1".to_string(),
             "--add-config".to_string(),
             format!(
-                "advertised.listeners=[PLAINTEXT://127.0.0.1:{},BROKER://localhost:9092]",
+                "advertised.listeners=[PLAINTEXT://{}:{},BROKER://localhost:9092]",
+                cs.host(),
                 cs.host_port_ipv4(KAFKA_PORT)?
             ),
         ];
@@ -189,7 +190,8 @@ mod tests {
         let kafka_node = kafka::Kafka::default().start().await?;
 
         let bootstrap_servers = format!(
-            "127.0.0.1:{}",
+            "{}:{}",
+            kafka_node.get_host().await?,
             kafka_node.get_host_port_ipv4(kafka::KAFKA_PORT).await?
         );
 
