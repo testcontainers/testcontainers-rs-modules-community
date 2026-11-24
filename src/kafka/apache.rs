@@ -172,7 +172,8 @@ impl Image for Kafka {
             "sh".to_string(),
             "-c".to_string(),
             format!(
-                "echo '#!/usr/bin/env bash\nexport KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:{},BROKER://localhost:9093\n/etc/kafka/docker/run \n' > {}",
+                "echo '#!/usr/bin/env bash\nexport KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{}:{},BROKER://localhost:9093\n/etc/kafka/docker/run \n' > {}",
+                cs.host(),
                 cs.host_port_ipv4(KAFKA_PORT)?,
                 START_SCRIPT
             ),
@@ -207,7 +208,8 @@ mod tests {
         let kafka_node = apache::Kafka::default().start().await?;
 
         let bootstrap_servers = format!(
-            "127.0.0.1:{}",
+            "{}:{}",
+            kafka_node.get_host().await?,
             kafka_node.get_host_port_ipv4(apache::KAFKA_PORT).await?
         );
 
@@ -277,7 +279,8 @@ mod tests {
         let kafka_node = apache::Kafka::default().with_jvm_image().start().await?;
 
         let bootstrap_servers = format!(
-            "127.0.0.1:{}",
+            "{}:{}",
+            kafka_node.get_host().await?,
             kafka_node.get_host_port_ipv4(apache::KAFKA_PORT).await?
         );
 
